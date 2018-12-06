@@ -106,6 +106,7 @@
 - (BOOL)initVars {
     _eaglLayer = (CAEAGLLayer *)self.layer;
     _eaglLayer.opaque = YES;
+    _eaglLayer.contentsScale = [UIScreen mainScreen].scale;
     _eaglLayer.drawableProperties = @{ kEAGLDrawablePropertyRetainedBacking : @(NO),
                                        kEAGLDrawablePropertyColorFormat : kEAGLColorFormatRGBA8
                                        };
