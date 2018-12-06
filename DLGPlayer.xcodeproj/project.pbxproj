@@ -610,6 +610,7 @@
 					"${SRCROOT}/ffmpeg/lib",
 					"$(PROJECT_DIR)/ffmpeg/FFmpeg-iOS/lib",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
