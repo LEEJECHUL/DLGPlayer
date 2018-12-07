@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "DLGPlayerDef.h"
+#import "DLGPlayerDecoder.h"
+#import "DLGPlayerFrame.h"
+#import "DLGPlayerAudioFrame.h"
+#import "DLGPlayerVideoFrame.h"
+#import "DLGPlayerVideoRGBFrame.h"
+#import "DLGPlayerVideoYUVFrame.h"
+#import "DLGPlayerView.h"
+#import "DLGPlayerViewController.h"
+#import "DLGPlayerUtils.h"
 
 typedef void (^onPauseComplete)(void);
 
