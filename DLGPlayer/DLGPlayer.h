@@ -17,8 +17,7 @@
 #import "DLGPlayerView.h"
 #import "DLGPlayerViewController.h"
 #import "DLGPlayerUtils.h"
-
-@class DLGSimplePlayerViewController;
+#import "DLGSimplePlayerViewController.h"
 
 typedef void (^onPauseComplete)(void);
 
