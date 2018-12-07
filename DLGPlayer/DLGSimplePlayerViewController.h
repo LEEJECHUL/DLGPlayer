@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "DLGPlayer.h"
 
+@class DLGPlayer;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class DLGSimplePlayerViewController;
