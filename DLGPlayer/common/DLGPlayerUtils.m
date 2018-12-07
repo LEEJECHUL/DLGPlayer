@@ -33,7 +33,7 @@
 }
 
 + (NSString *)localizedString:(NSString *)name {
-    return NSLocalizedStringFromTable(name, DLGPlayerLocalizedStringTable, nil);
+    return [[NSBundle bundleForClass:[self class]] localizedStringForKey:name value:nil table:DLGPlayerLocalizedStringTable];
 }
 
 + (NSString *)durationStringFromSeconds:(int)seconds {

@@ -173,7 +173,7 @@
     }
     
     // Load shaders
-    NSBundle *bundle = [NSBundle mainBundle];
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
     NSString *vertexShaderFilename = @"DLGPlayerVertexShader";
     if (_shouldScale) vertexShaderFilename = @"DLGPlayerRotationScaleVertexShader";
     else if (_shouldRotate) vertexShaderFilename = @"DLGPlayerRotationVertexShader";
