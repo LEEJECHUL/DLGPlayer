@@ -1116,7 +1116,7 @@
 					"$(PROJECT_DIR)/DLGPlayer/Externals/ffmpeg/lib",
 					"$(PROJECT_DIR)/DLGPlayer/Externals/openssl/lib",
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.devileo.DLGPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "arm64 armv7 armv7s";
