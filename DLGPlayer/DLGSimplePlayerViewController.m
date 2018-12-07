@@ -21,7 +21,7 @@ typedef enum : NSUInteger {
     BOOL restorePlay;
 }
     
-@property (nonatomic, strong) DLGPlayer *player;
+@property (nonatomic, readwrite) DLGPlayer *player;
 @property (nonatomic, readwrite) DLGPlayerStatus status;
 @property (nonatomic) DLGPlayerOperation nextOperation;
 @end
@@ -64,6 +64,8 @@ typedef enum : NSUInteger {
 }
     
 - (void)setStatus:(DLGPlayerStatus)status {
+    _status = status;
+    
     if ([_delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
         [_delegate viewController:self didChangeStatus:status];
     }
@@ -87,7 +89,7 @@ typedef enum : NSUInteger {
         return;
     }
     self.status = DLGPlayerStatusOpening;
-    [_player open:self.url];
+    [_player open:_url];
 }
     
 - (void)close {
@@ -112,7 +114,7 @@ typedef enum : NSUInteger {
         return;
     }
     self.status = DLGPlayerStatusPlaying;
-    [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
+    [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
     [_player play];
 }
     
@@ -180,7 +182,7 @@ typedef enum : NSUInteger {
 - (void)notifyAppDidEnterBackground:(NSNotification *)notif {
     if (_player.playing) {
         [self pause];
-        if (self.restorePlayAfterAppEnterForeground) restorePlay = YES;
+        if (_restorePlayAfterAppEnterForeground) restorePlay = YES;
     }
 }
     
@@ -193,7 +195,7 @@ typedef enum : NSUInteger {
     
 - (void)notifyPlayerEOF:(NSNotification *)notif {
     self.status = DLGPlayerStatusEOF;
-    if (self.repeat) [self replay];
+    if (_repeat) [self replay];
     else [self close];
 }
     
@@ -207,7 +209,7 @@ typedef enum : NSUInteger {
     self.status = DLGPlayerStatusOpened;
     
     if (![self doNextOperation]) {
-        if (self.autoplay) [self play];
+        if (_autoplay) [self play];
     }
 }
     
