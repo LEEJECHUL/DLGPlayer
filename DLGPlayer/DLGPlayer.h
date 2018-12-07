@@ -19,6 +19,8 @@
 #import "DLGPlayerUtils.h"
 #import "DLGSimplePlayerViewController.h"
 
+@class DLGPlayerAudioManager;
+
 typedef void (^onPauseComplete)(void);
 
 @interface DLGPlayer : NSObject
@@ -33,6 +35,7 @@ typedef void (^onPauseComplete)(void);
 @property (nonatomic) BOOL playing;
 @property (nonatomic) BOOL buffering;
 @property (nonatomic, strong) NSDictionary *metadata;
+@property (nonatomic, readonly) DLGPlayerAudioManager *audio;
 
 - (void)open:(NSString *)url;
 - (void)close;
