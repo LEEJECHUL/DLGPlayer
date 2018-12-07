@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DLGPlayerAudioFrame.h"
+#import "DLGPlayerAudioManager.h"
 #import "DLGPlayerDef.h"
 #import "DLGPlayerDecoder.h"
 #import "DLGPlayerFrame.h"
-#import "DLGPlayerAudioFrame.h"
 #import "DLGPlayerVideoFrame.h"
 #import "DLGPlayerVideoRGBFrame.h"
 #import "DLGPlayerVideoYUVFrame.h"
@@ -18,8 +19,6 @@
 #import "DLGPlayerViewController.h"
 #import "DLGPlayerUtils.h"
 #import "DLGSimplePlayerViewController.h"
-
-@class DLGPlayerAudioManager;
 
 typedef void (^onPauseComplete)(void);
 
