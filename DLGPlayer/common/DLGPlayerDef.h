@@ -51,4 +51,16 @@
 #define DLGPlayerNotificationErrorKey               @"DLGPlayerNotificationErrorKey"
 #define DLGPlayerNotificationRawErrorKey            @"DLGPlayerNotificationRawErrorKey"
 
+typedef enum : NSUInteger {
+    DLGPlayerStatusNone,
+    DLGPlayerStatusOpening,
+    DLGPlayerStatusOpened,
+    DLGPlayerStatusPlaying,
+    DLGPlayerStatusBuffering,
+    DLGPlayerStatusPaused,
+    DLGPlayerStatusEOF,
+    DLGPlayerStatusClosing,
+    DLGPlayerStatusClosed,
+} DLGPlayerStatus;
+
 #endif /* DLGPlayerDef_h */

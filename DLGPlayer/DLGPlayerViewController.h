@@ -9,18 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "DLGPlayer.h"
 
-typedef enum : NSUInteger {
-    DLGPlayerStatusNone,
-    DLGPlayerStatusOpening,
-    DLGPlayerStatusOpened,
-    DLGPlayerStatusPlaying,
-    DLGPlayerStatusBuffering,
-    DLGPlayerStatusPaused,
-    DLGPlayerStatusEOF,
-    DLGPlayerStatusClosing,
-    DLGPlayerStatusClosed,
-} DLGPlayerStatus;
-
 @interface DLGPlayerViewController : UIViewController
 
 @property (nonatomic, copy) NSString *url;
