@@ -144,5 +144,26 @@ See ***DLGPlayerViewController*** class for more usage details.
 
 Thank you all!
 
-## 7. License
+## 7. Installation
+
+### Carthage
+
+[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
+
+You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
+
+```bash
+$ brew update
+$ brew install carthage
+```
+
+To integrate DLGPlayer into your Xcode project using Carthage, specify it in your `Cartfile`:
+
+```ogdl
+github "DeviLeo/DLGPlayer" "master"
+```
+
+Run `XCODE_XCCONFIG_FILE="Carthage.xcconfig" carthage update` to build the framework and drag the built `DLGPlayer.framework` into your Xcode project.
+
+## 8. License
 See [LICENSE](https://github.com/DeviLeo/DLGPlayer/blob/master/LICENSE "LGPL-3.0").
