@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		235409B421BA05A100533B9B /* DLGPlayerDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291821B810B40012243A /* DLGPlayerDecoder.h */; };
+		235409B521BA05A400533B9B /* DLGPlayerAudioManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291921B810B40012243A /* DLGPlayerAudioManager.h */; };
+		235409B621BA05A900533B9B /* DLGPlayerDef.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293621B810B50012243A /* DLGPlayerDef.h */; };
+		235409B721BA05A900533B9B /* DLGPlayerUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293721B810B50012243A /* DLGPlayerUtils.h */; };
+		235409B821BA05B500533B9B /* DLGPlayerVideoYUVFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */; };
+		235409B921BA05B500533B9B /* DLGPlayerVideoFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */; };
+		235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292C21B810B50012243A /* DLGPlayerFrame.h */; };
+		235409BB21BA05B500533B9B /* DLGPlayerVideoRGBFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */; };
+		235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */; };
+		235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293421B810B50012243A /* DLGPlayerView.h */; };
 		23DC26D821B80F5A0012243A /* DLGPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23DC26CE21B80F5A0012243A /* DLGPlayer.framework */; };
 		23DC293921B810B50012243A /* DLGPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291421B810B40012243A /* DLGPlayerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23DC293A21B810B50012243A /* DLGPlayerDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC291621B810B40012243A /* DLGPlayerDecoder.m */; };
@@ -226,8 +236,18 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */,
 				23DC293E21B810B50012243A /* DLGPlayer.h in Headers */,
+				235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */,
+				235409B921BA05B500533B9B /* DLGPlayerVideoFrame.h in Headers */,
+				235409B821BA05B500533B9B /* DLGPlayerVideoYUVFrame.h in Headers */,
 				23DC293921B810B50012243A /* DLGPlayerViewController.h in Headers */,
+				235409B521BA05A400533B9B /* DLGPlayerAudioManager.h in Headers */,
+				235409B421BA05A100533B9B /* DLGPlayerDecoder.h in Headers */,
+				235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */,
+				235409B621BA05A900533B9B /* DLGPlayerDef.h in Headers */,
+				235409B721BA05A900533B9B /* DLGPlayerUtils.h in Headers */,
+				235409BB21BA05B500533B9B /* DLGPlayerVideoRGBFrame.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
