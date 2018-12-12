@@ -165,5 +165,7 @@ github "pisces/DLGPlayer" "master"
 
 Run `XCODE_XCCONFIG_FILE="Carthage.xcconfig" carthage update` to build the framework and drag the built `DLGPlayer.framework` into your Xcode project.
 
+It will build ffmpeg, ogg and speex when carthage build automacally.
+
 ## 8. License
 See [LICENSE](https://github.com/DeviLeo/DLGPlayer/blob/master/LICENSE "LGPL-3.0").
