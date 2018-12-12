@@ -60,6 +60,7 @@ fastlane/screenshots
 
 iOSInjectionProject/
 
-ffmpeg/
+libs/
+sh/build/
 
 Example-Carthage/Carthage/

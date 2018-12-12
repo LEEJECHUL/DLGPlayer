@@ -23,7 +23,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        playerViewController.url = "/path/to/video"
+        playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        playerViewController.player.minBufferDuration = 1
         playerViewController.open()
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -60,6 +61,8 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
             startTimer()
         case .closed:
             stopTimer()
+        case .playing:
+            print("player.audio.volume", playerViewController.player.audio.volume)
         default: ()
         }
     }

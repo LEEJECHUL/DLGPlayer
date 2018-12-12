@@ -160,7 +160,7 @@ $ brew install carthage
 To integrate DLGPlayer into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "DeviLeo/DLGPlayer" "master"
+github "pisces/DLGPlayer" "master"
 ```
 
 Run `XCODE_XCCONFIG_FILE="Carthage.xcconfig" carthage update` to build the framework and drag the built `DLGPlayer.framework` into your Xcode project.

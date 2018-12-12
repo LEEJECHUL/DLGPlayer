@@ -375,7 +375,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/pre-build.sh\n";
+			shellScript = "${SRCROOT}/sh/build.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -560,7 +560,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"${SRCROOT}/ffmpeg/FFmpeg-iOS/include",
+					"${SRCROOT}/libs/include",
 				);
 				INFOPLIST_FILE = DLGPlayer/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -571,12 +571,13 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"${SRCROOT}/ffmpeg/lib",
-					"$(PROJECT_DIR)/ffmpeg/FFmpeg-iOS/lib",
+					"$(PROJECT_DIR)/libs/lib",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
+					"-l\"ogg\"",
+					"-l\"speex\"",
 					"-l\"avcodec\"",
 					"-l\"avdevice\"",
 					"-l\"avfilter\"",
@@ -626,7 +627,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"${SRCROOT}/ffmpeg/FFmpeg-iOS/include",
+					"${SRCROOT}/libs/include",
 				);
 				INFOPLIST_FILE = DLGPlayer/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -637,13 +638,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"${SRCROOT}/ffmpeg/lib",
-					"$(PROJECT_DIR)/ffmpeg/FFmpeg-iOS/lib",
+					"$(PROJECT_DIR)/libs/lib",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
+					"-l\"ogg\"",
+					"-l\"speex\"",
 					"-l\"avcodec\"",
 					"-l\"avdevice\"",
 					"-l\"avfilter\"",
