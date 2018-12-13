@@ -7,13 +7,16 @@ if [[ $FFMPEG_VERSION != "" ]]; then
   FF_VERSION=$FFMPEG_VERSION
 fi
 SOURCE=`pwd`/"build/src/ffmpeg"
-FAT=`pwd`/"../libs"
-THIN=`pwd`/"build/thin/ffmpeg"
+FAT=`pwd`/"build/universal"
+THIN=`pwd`/"build/thin"
+FFMPEG=$THIN/ffmpeg
 
-CONFIGURE_FLAGS="--enable-cross-compile --disable-debug --disable-programs \
-                 --disable-doc --enable-pic"
+echo "PKG_CONFIG_PATH -> $PKG_CONFIG_PATH"
 
-ARCHS="armv7 arm64 i386 x86_64"
+CONFIGURE_FLAGS="--enable-cross-compile --enable-static --disable-shared --disable-debug --disable-programs \
+                 --disable-doc --enable-pic --enable-neon --enable-optimizations --enable-small"
+
+ARCHS="armv7 armv7s arm64 i386 x86_64"
 
 COMPILE="y"
 LIPO="y"
@@ -103,6 +106,13 @@ then
 
 		CXXFLAGS="$CFLAGS"
 		LDFLAGS="$CFLAGS"
+    SPEEX=$THIN/speex/$ARCH
+
+    if [ -f "${SPEEX}/lib/libspeex.a" ]; then
+      CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-libspeex"
+			CFLAGS="$CFLAGS -I$SPEEX/include"
+			LDFLAGS="$LDFLAGS -L$SPEEX/lib -lspeex"
+		fi
 
     echo "configure $ARCH -> $SOURCE/ffmpeg-$FF_VERSION"
 
@@ -114,7 +124,7 @@ then
 		    $CONFIGURE_FLAGS \
 		    --extra-cflags="$CFLAGS" \
 		    --extra-ldflags="$LDFLAGS" \
-		    --prefix="$THIN/$ARCH" \
+		    --prefix="$FFMPEG/$ARCH" \
 		|| exit 1
 
 		make -j3 install $EXPORT || exit 1
@@ -128,16 +138,16 @@ then
 	mkdir -p $FAT/lib
 	set - $ARCHS
 	CWD=`pwd`
-	cd $THIN/$1/lib
+	cd $FFMPEG/$1/lib
 	for LIB in *.a
 	do
 		cd $CWD
-		echo lipo -create `find $THIN -name $LIB` -output $FAT/lib/$LIB 1>&2
-		lipo -create `find $THIN -name $LIB` -output $FAT/lib/$LIB || exit 1
+		echo lipo -create `find $FFMPEG -name $LIB` -output $FAT/lib/$LIB 1>&2
+		lipo -create `find $FFMPEG -name $LIB` -output $FAT/lib/$LIB || exit 1
 	done
 
 	cd $CWD
-	cp -rf $THIN/$1/include $FAT
+	cp -rf $FFMPEG/$1/include $FAT
 fi
 
 echo Done

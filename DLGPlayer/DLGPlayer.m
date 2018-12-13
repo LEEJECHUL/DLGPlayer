@@ -63,24 +63,25 @@
 }
 
 - (void)initVars {
-    self.minBufferDuration = DLGPlayerMinBufferDuration;
-    self.maxBufferDuration = DLGPlayerMaxBufferDuration;
-    self.bufferedDuration = 0;
-    self.mediaPosition = 0;
-    self.mediaSyncTime = 0;
-    self.vframes = [NSMutableArray arrayWithCapacity:128];
-    self.aframes = [NSMutableArray arrayWithCapacity:128];
-    self.playingAudioFrame = nil;
-    self.playingAudioFrameDataPosition = 0;
-    self.opening = NO;
-    self.buffering = NO;
-    self.playing = NO;
-    self.opened = NO;
-    self.requestSeek = NO;
-    self.requestSeekPosition = 0;
-    self.frameReaderThread = nil;
-    self.aFramesLock = dispatch_semaphore_create(1);
-    self.vFramesLock = dispatch_semaphore_create(1);
+    _minBufferDuration = DLGPlayerMinBufferDuration;
+    _maxBufferDuration = DLGPlayerMaxBufferDuration;
+    _bufferedDuration = 0;
+    _mediaPosition = 0;
+    _mediaSyncTime = 0;
+    _brightness = 1;
+    _vframes = [NSMutableArray arrayWithCapacity:128];
+    _aframes = [NSMutableArray arrayWithCapacity:128];
+    _playingAudioFrame = nil;
+    _playingAudioFrameDataPosition = 0;
+    _opening = NO;
+    _buffering = NO;
+    _playing = NO;
+    _opened = NO;
+    _requestSeek = NO;
+    _requestSeekPosition = 0;
+    _frameReaderThread = nil;
+    _aFramesLock = dispatch_semaphore_create(1);
+    _vFramesLock = dispatch_semaphore_create(1);
 }
 
 - (void)initView {
@@ -387,6 +388,7 @@
     // Render if has picture
     if (self.decoder.hasPicture && self.vframes.count > 0) {
         DLGPlayerVideoFrame *frame = self.vframes[0];
+        frame.brightness = _brightness;
         self.view.contentSize = CGSizeMake(frame.width, frame.height);
         [self.vframes removeObjectAtIndex:0];
         [self.view render:frame];
@@ -407,6 +409,7 @@
         long timeout = dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_NOW);
         if (timeout == 0) {
             frame = self.vframes[0];
+            frame.brightness = _brightness;
             self.mediaPosition = frame.position;
             self.bufferedDuration -= frame.duration;
             [self.vframes removeObjectAtIndex:0];

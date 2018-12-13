@@ -60,7 +60,6 @@ fastlane/screenshots
 
 iOSInjectionProject/
 
-libs/
-sh/build/
+libs/build/
 
 Example-Carthage/Carthage/

@@ -20,6 +20,7 @@ typedef enum : NSUInteger {
 @property (nonatomic) DLGPlayerVideoFrameType videoType;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
+@property (nonatomic) float brightness;
 
 - (BOOL)prepareRender:(GLuint)program;
 

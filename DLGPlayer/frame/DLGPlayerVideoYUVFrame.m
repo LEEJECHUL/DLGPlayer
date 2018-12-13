@@ -101,6 +101,8 @@
         glUniform1i(_sampler[i], i);
     }
     
+    glUniform1f(glGetUniformLocation(program, "f_brightness"), self.brightness);
+    
     return YES;
 }
 

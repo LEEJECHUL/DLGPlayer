@@ -9,6 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
     private var timer: Timer?
     private var playerViewController: DLGSimplePlayerViewController! {
         didSet {
@@ -19,8 +20,6 @@ class ViewController: UIViewController {
             playerViewController.restorePlayAfterAppEnterForeground = true
         }
     }
-    
-    private static var num: Int = 11
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +48,10 @@ class ViewController: UIViewController {
     
     @objc private func timerCompletion() {
 //        print("player.position", playerViewController.player.position)
+    }
+    
+    @IBAction private func valueChanged(_ sender: UISlider) {
+        playerViewController.player.brightness = sender.value
     }
 }
 

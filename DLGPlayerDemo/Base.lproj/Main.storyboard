@@ -27,12 +27,21 @@
                                     <segue destination="PA6-Ws-KJb" kind="embed" id="0US-Qd-tC5"/>
                                 </connections>
                             </containerView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="0Hq-Tr-LTU">
+                                <rect key="frame" x="18" y="20" width="151.5" height="31"/>
+                                <connections>
+                                    <action selector="valueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="mLw-1P-oHi"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="0Hq-Tr-LTU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="8LV-9o-CmP"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9op-9L-DDg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="0Hq-Tr-LTU" secondAttribute="trailing" constant="20" id="EeP-gk-A4f"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ye0-4D-x3D"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
+                            <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="pQY-Zq-0HK"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

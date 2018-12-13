@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGETS=$1
-LIBS=`pwd`"/libs"
+LIBS=`pwd`"/build/universal"
 
 function buildLib() {
   echo "include: ${LIBS}/include/$1, lib: ${LIBS}/lib/lib$1.a"
@@ -47,7 +47,9 @@ function buildTargets() {
   done
 }
 
-cd `pwd`/"sh"
+cd `pwd`/"libs"
+
+sh config/module.sh
 
 if [ ! $TARGETS ]
 then

@@ -22,18 +22,19 @@ FF_ALL_ARCHS_IOS6_SDK="armv7 armv7s i386"
 FF_ALL_ARCHS_IOS7_SDK="armv7 armv7s arm64 i386 x86_64"
 FF_ALL_ARCHS_IOS8_SDK="armv7 arm64 i386 x86_64"
 
-FF_ALL_ARCHS=$FF_ALL_ARCHS_IOS8_SDK
+FF_ALL_ARCHS=$FF_ALL_ARCHS_IOS7_SDK
 
 #----------
 UNI_BUILD_ROOT=`pwd`
-LIBS="$UNI_BUILD_ROOT/../libs"
+LIBS="$UNI_BUILD_ROOT/build/universal"
 UNI_TMP="$UNI_BUILD_ROOT/tmp"
 UNI_TMP_LLVM_VER_FILE="$UNI_TMP/llvm.ver.txt"
 FF_TARGET=$1
 set -e
 
 #----------
-FF_LIBS="libogg"
+FF_LIBS="libspeex"
+OGG_LIBS="libogg"
 
 #----------
 echo_archs() {
@@ -48,7 +49,7 @@ do_lipo () {
     LIPO_FLAGS=
     for ARCH in $FF_ALL_ARCHS
     do
-        LIPO_FLAGS="$LIPO_FLAGS $UNI_BUILD_ROOT/build/thin/ogg/$ARCH/lib/$LIB_FILE"
+        LIPO_FLAGS="$LIPO_FLAGS $UNI_BUILD_ROOT/build/thin/speex/$ARCH/lib/$LIB_FILE"
     done
 
     xcrun lipo -create $LIPO_FLAGS -output $LIBS/lib/$LIB_FILE
@@ -63,16 +64,16 @@ do_lipo_all () {
         do_lipo "$FF_LIB.a";
     done
 
-    cp -R $UNI_BUILD_ROOT/build/thin/ogg/armv7/include $LIBS/
+    cp -R $UNI_BUILD_ROOT/build/thin/speex/armv7/include $LIBS
 }
 
 #----------
 if [ "$FF_TARGET" = "armv7" -o "$FF_TARGET" = "armv7s" -o "$FF_TARGET" = "arm64" ]; then
     echo_archs
-    sh tools/do-compile-ogg.sh $FF_TARGET
+    sh tools/do-compile-speex.sh $FF_TARGET
 elif [ "$FF_TARGET" = "i386" -o "$FF_TARGET" = "x86_64" ]; then
     echo_archs
-    sh tools/do-compile-ogg.sh $FF_TARGET
+    sh tools/do-compile-speex.sh $FF_TARGET
 elif [ "$FF_TARGET" = "lipo" ]; then
     echo_archs
     do_lipo_all
@@ -80,7 +81,7 @@ elif [ "$FF_TARGET" = "all" ]; then
     echo_archs
     for ARCH in $FF_ALL_ARCHS
     do
-        sh tools/do-compile-ogg.sh $ARCH
+        sh tools/do-compile-speex.sh $ARCH
     done
 
     do_lipo_all
@@ -90,15 +91,15 @@ elif [ "$FF_TARGET" = "clean" ]; then
     echo_archs
     for ARCH in $FF_ALL_ARCHS
     do
-        cd ogg-$ARCH && git clean -xdf && cd -
+        cd speex-$ARCH && git clean -xdf && cd -
     done
 else
     echo "Usage:"
-    echo "  compile-ogg.sh armv7|arm64|i386|x86_64"
-    echo "  compile-ogg.sh armv7s (obselete)"
-    echo "  compile-ogg.sh lipo"
-    echo "  compile-ogg.sh all"
-    echo "  compile-ogg.sh clean"
-    echo "  compile-ogg.sh check"
+    echo "  compile-speex.sh armv7|arm64|i386|x86_64"
+    echo "  compile-speex.sh armv7s (obselete)"
+    echo "  compile-speex.sh lipo"
+    echo "  compile-speex.sh all"
+    echo "  compile-speex.sh clean"
+    echo "  compile-speex.sh check"
     exit 1
 fi

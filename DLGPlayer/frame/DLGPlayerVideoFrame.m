@@ -13,6 +13,7 @@
 - (id)init {
     self = [super init];
     if (self) {
+        _brightness = 1;
         self.type = kDLGPlayerFrameTypeVideo;
     }
     return self;

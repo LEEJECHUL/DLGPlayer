@@ -73,6 +73,7 @@
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _texture);
     glUniform1i(_sampler, 0);
+    glUniform1f(glGetUniformLocation(program, "f_brightness"), self.brightness);
     
     return YES;
 }

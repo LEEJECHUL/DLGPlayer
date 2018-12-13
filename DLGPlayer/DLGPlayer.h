@@ -33,6 +33,7 @@ typedef void (^onPauseComplete)(void);
 @property (nonatomic) BOOL opened;
 @property (nonatomic) BOOL playing;
 @property (nonatomic) BOOL buffering;
+@property (nonatomic) float brightness;
 @property (nonatomic, strong) NSDictionary *metadata;
 @property (nonatomic, readonly) DLGPlayerAudioManager *audio;
 
