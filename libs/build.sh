@@ -41,15 +41,17 @@ function buildTargets() {
   do
     if [ $TARGET = "ffmpeg" ]; then
       buildFFmpeg
+    elif [ $TARGET = "ogg" ]; then
+      brew uninstall --ignore-dependencies libogg
+      buildLib $TARGET
     else
+      brew uninstall speex
       buildLib $TARGET
     fi
   done
 }
 
 cd `pwd`/"libs"
-
-sh config/module.sh
 
 if [ ! $TARGETS ]
 then

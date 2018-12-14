@@ -11,8 +11,6 @@ FAT=`pwd`/"build/universal"
 THIN=`pwd`/"build/thin"
 FFMPEG=$THIN/ffmpeg
 
-echo "PKG_CONFIG_PATH -> $PKG_CONFIG_PATH"
-
 CONFIGURE_FLAGS="--enable-cross-compile --enable-static --disable-shared --disable-debug --disable-programs \
                  --disable-doc --enable-pic --enable-neon --enable-optimizations --enable-small"
 
@@ -22,6 +20,10 @@ COMPILE="y"
 LIPO="y"
 
 DEPLOYMENT_TARGET="8.0"
+
+if [ -f "${FAT}/lib/libspeex.a" ]; then
+  brew install speex
+fi
 
 if [ "$*" ]
 then
