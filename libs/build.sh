@@ -4,7 +4,6 @@ TARGETS=$1
 LIBS=`pwd`"/build/universal"
 
 function buildLib() {
-  echo "include: ${LIBS}/include/$1, lib: ${LIBS}/lib/lib$1.a"
   if [ -d "${LIBS}/include/$1" ] && [ -f "${LIBS}/lib/lib$1.a" ]
   then
     echo "Already compiled $1."
@@ -42,16 +41,12 @@ function buildTargets() {
     if [ $TARGET = "ffmpeg" ]; then
       buildFFmpeg
     elif [ $TARGET = "ogg" ]; then
-      brew uninstall --ignore-dependencies libogg
       buildLib $TARGET
     else
-      brew uninstall speex
       buildLib $TARGET
     fi
   done
 }
-
-cd `pwd`/"libs"
 
 if [ ! $TARGETS ]
 then

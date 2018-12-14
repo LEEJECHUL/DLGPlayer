@@ -13,17 +13,10 @@ FFMPEG=$THIN/ffmpeg
 
 CONFIGURE_FLAGS="--enable-cross-compile --enable-static --disable-shared --disable-debug --disable-programs \
                  --disable-doc --enable-pic --enable-neon --enable-optimizations --enable-small"
-
 ARCHS="armv7 armv7s arm64 i386 x86_64"
-
 COMPILE="y"
 LIPO="y"
-
 DEPLOYMENT_TARGET="8.0"
-
-if [ -f "${FAT}/lib/libspeex.a" ]; then
-  brew install speex
-fi
 
 if [ "$*" ]
 then
@@ -49,12 +42,18 @@ then
 		if [ ! `which brew` ]
 		then
 			echo 'Homebrew not found. Trying to install...'
-                        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" \
+      ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" \
 				|| exit 1
 		fi
 		echo 'Trying to install Yasm...'
 		brew install yasm || exit 1
 	fi
+
+  HAS_SPEEX=shell pkg-config --exists speex
+  if [ ! HAS_SPEEX ]; then
+    brew install speex || exit 1
+  fi
+
 	if [ ! `which gas-preprocessor.pl` ]
 	then
 		echo 'gas-preprocessor.pl not found. Trying to install...'
