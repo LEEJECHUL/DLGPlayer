@@ -38,7 +38,6 @@
 
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
-
 @end
 
 @implementation DLGPlayer

@@ -15,11 +15,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="DLGPlayerDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="187.5" height="105.5"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E2A-Jz-ZOg">
-                                <rect key="frame" x="0.0" y="0.0" width="187.5" height="105.5"/>
+                                <rect key="frame" x="0.0" y="228" width="375" height="211"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="E2A-Jz-ZOg" secondAttribute="height" multiplier="16:9" id="AzD-Nh-QSQ"/>
                                 </constraints>
@@ -27,21 +27,40 @@
                                     <segue destination="PA6-Ws-KJb" kind="embed" id="0US-Qd-tC5"/>
                                 </connections>
                             </containerView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Brightness" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DGi-pI-aHT">
+                                <rect key="frame" x="20" y="40" width="82" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.23529411759999999" green="0.49803921569999998" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="0Hq-Tr-LTU">
-                                <rect key="frame" x="18" y="20" width="151.5" height="31"/>
+                                <rect key="frame" x="18" y="69" width="339" height="31"/>
                                 <connections>
                                     <action selector="valueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="mLw-1P-oHi"/>
                                 </connections>
                             </slider>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llk-G2-h40">
+                                <rect key="frame" x="20" y="139" width="70" height="30"/>
+                                <state key="normal" title="Sound Off"/>
+                                <state key="selected" title="Sound On"/>
+                                <connections>
+                                    <action selector="clicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iGr-s5-xGx"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="8LV-9o-CmP"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9op-9L-DDg"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="0Hq-Tr-LTU" secondAttribute="trailing" constant="20" id="EeP-gk-A4f"/>
+                            <constraint firstItem="Llk-G2-h40" firstAttribute="leading" secondItem="0Hq-Tr-LTU" secondAttribute="leading" id="HVc-5s-Sag"/>
+                            <constraint firstItem="Llk-G2-h40" firstAttribute="top" secondItem="0Hq-Tr-LTU" secondAttribute="bottom" constant="40" id="Nbo-Iu-Zas"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ye0-4D-x3D"/>
+                            <constraint firstItem="DGi-pI-aHT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ZJD-7q-YwT"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
-                            <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="pQY-Zq-0HK"/>
+                            <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="bottom" constant="8" id="tTz-hv-bw3"/>
+                            <constraint firstItem="DGi-pI-aHT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="xaL-WD-2Jf"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Llk-G2-h40" secondAttribute="trailing" symbolic="YES" id="yr3-nI-FPb"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -49,74 +68,12 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="wum-J5-CPD">
-            <objects>
-                <viewController id="lld-A2-x80" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="xDi-PO-wKK">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hig-3d-4Im">
-                                <rect key="frame" x="0.0" y="228" width="187.5" height="105.5"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="Hig-3d-4Im" secondAttribute="height" multiplier="16:9" id="Laa-wh-ldR"/>
-                                </constraints>
-                                <connections>
-                                    <segue destination="BYZ-38-t0r" kind="embed" id="JbO-kE-bJP"/>
-                                </connections>
-                            </containerView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zRZ-Ai-yig">
-                                <rect key="frame" x="187.5" y="228" width="187.5" height="105.5"/>
-                                <connections>
-                                    <segue destination="BYZ-38-t0r" kind="embed" id="jhC-8E-Fj4"/>
-                                </connections>
-                            </containerView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="goT-Rq-OGe">
-                                <rect key="frame" x="0.0" y="333.5" width="187.5" height="105.5"/>
-                                <connections>
-                                    <segue destination="BYZ-38-t0r" kind="embed" id="XLn-l1-x8p"/>
-                                </connections>
-                            </containerView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BXt-PH-0Es">
-                                <rect key="frame" x="187.5" y="333.5" width="187.5" height="105.5"/>
-                                <connections>
-                                    <segue destination="BYZ-38-t0r" kind="embed" id="dIm-s3-eif"/>
-                                </connections>
-                            </containerView>
-                        </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="Hig-3d-4Im" firstAttribute="top" secondItem="3kt-a0-yad" secondAttribute="top" constant="208" id="3TJ-7h-Vn6"/>
-                            <constraint firstItem="BXt-PH-0Es" firstAttribute="width" secondItem="Hig-3d-4Im" secondAttribute="width" id="95G-94-Ccq"/>
-                            <constraint firstItem="goT-Rq-OGe" firstAttribute="leading" secondItem="Hig-3d-4Im" secondAttribute="leading" id="9av-7T-P7H"/>
-                            <constraint firstItem="zRZ-Ai-yig" firstAttribute="leading" secondItem="Hig-3d-4Im" secondAttribute="trailing" id="EzZ-Ep-Ti9"/>
-                            <constraint firstItem="Hig-3d-4Im" firstAttribute="leading" secondItem="3kt-a0-yad" secondAttribute="leading" id="Gfo-Dm-kS0"/>
-                            <constraint firstItem="goT-Rq-OGe" firstAttribute="top" secondItem="Hig-3d-4Im" secondAttribute="bottom" id="Qjm-QE-kH2"/>
-                            <constraint firstItem="goT-Rq-OGe" firstAttribute="width" secondItem="Hig-3d-4Im" secondAttribute="width" id="WSb-Pl-lOD"/>
-                            <constraint firstItem="zRZ-Ai-yig" firstAttribute="top" secondItem="Hig-3d-4Im" secondAttribute="top" id="Yhr-0d-2Wo"/>
-                            <constraint firstItem="zRZ-Ai-yig" firstAttribute="width" secondItem="Hig-3d-4Im" secondAttribute="width" id="bBk-KN-f6F"/>
-                            <constraint firstItem="Hig-3d-4Im" firstAttribute="width" secondItem="Hig-3d-4Im" secondAttribute="height" multiplier="16:9" id="c5n-Tm-qgg"/>
-                            <constraint firstItem="BXt-PH-0Es" firstAttribute="height" secondItem="Hig-3d-4Im" secondAttribute="height" id="fsg-hh-xTs"/>
-                            <constraint firstItem="goT-Rq-OGe" firstAttribute="height" secondItem="Hig-3d-4Im" secondAttribute="height" id="jef-aX-vPv"/>
-                            <constraint firstItem="BXt-PH-0Es" firstAttribute="leading" secondItem="goT-Rq-OGe" secondAttribute="trailing" id="nVM-GL-CUP"/>
-                            <constraint firstItem="Hig-3d-4Im" firstAttribute="width" secondItem="xDi-PO-wKK" secondAttribute="width" multiplier="0.5" id="sOu-fv-2Iw"/>
-                            <constraint firstItem="BXt-PH-0Es" firstAttribute="top" secondItem="goT-Rq-OGe" secondAttribute="top" id="ts0-As-uD6"/>
-                            <constraint firstItem="zRZ-Ai-yig" firstAttribute="height" secondItem="Hig-3d-4Im" secondAttribute="height" id="vhG-hL-nWm"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="3kt-a0-yad"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="KVE-Mx-Ob3" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="670" y="-599"/>
-        </scene>
         <!--Simple Player View Controller-->
         <scene sceneID="YvX-mu-51R">
             <objects>
                 <viewController id="PA6-Ws-KJb" customClass="DLGSimplePlayerViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lcJ-cC-Kh9">
-                        <rect key="frame" x="0.0" y="0.0" width="187.5" height="105.5"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="211"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="H5l-zL-GJD"/>
@@ -127,7 +84,4 @@
             <point key="canvasLocation" x="670" y="705"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="dIm-s3-eif"/>
-    </inferredMetricsTieBreakers>
 </document>

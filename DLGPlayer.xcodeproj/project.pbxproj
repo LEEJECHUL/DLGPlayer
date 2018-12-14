@@ -170,16 +170,16 @@
 		23DC26D021B80F5A0012243A /* DLGPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				23DC291521B810B40012243A /* codec */,
-				23DC293521B810B50012243A /* common */,
 				23DC291A21B810B50012243A /* DLGPlayer.h */,
 				23DC291C21B810B50012243A /* DLGPlayer.m */,
 				23DC291421B810B40012243A /* DLGPlayerViewController.h */,
 				23DC291B21B810B50012243A /* DLGPlayerViewController.m */,
 				235409C421BA177A00533B9B /* DLGSimplePlayerViewController.h */,
 				235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */,
-				23DC292721B810B50012243A /* frame */,
 				23DC26D221B80F5A0012243A /* Info.plist */,
+				23DC291521B810B40012243A /* codec */,
+				23DC293521B810B50012243A /* common */,
+				23DC292721B810B50012243A /* frame */,
 				23DC291D21B810B50012243A /* resource */,
 				23DC293221B810B50012243A /* view */,
 			);
@@ -189,10 +189,10 @@
 		23DC291521B810B40012243A /* codec */ = {
 			isa = PBXGroup;
 			children = (
-				23DC291621B810B40012243A /* DLGPlayerDecoder.m */,
+				23DC291921B810B40012243A /* DLGPlayerAudioManager.h */,
 				23DC291721B810B40012243A /* DLGPlayerAudioManager.m */,
 				23DC291821B810B40012243A /* DLGPlayerDecoder.h */,
-				23DC291921B810B40012243A /* DLGPlayerAudioManager.h */,
+				23DC291621B810B40012243A /* DLGPlayerDecoder.m */,
 			);
 			path = codec;
 			sourceTree = "<group>";
@@ -342,6 +342,7 @@
 					};
 					23DC26CD21B80F5A0012243A = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -481,8 +482,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = F5NU2PA3PK;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = DLGPlayerDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -504,8 +506,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = F5NU2PA3PK;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = DLGPlayerDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -642,6 +645,7 @@
 		23DC26E321B80F5A0012243A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -701,6 +705,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = carthage.DLGPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -708,6 +714,7 @@
 		23DC26E421B80F5A0012243A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -767,6 +774,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = carthage.DLGPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

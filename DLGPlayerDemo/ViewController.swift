@@ -26,7 +26,6 @@ class ViewController: UIViewController {
         
         playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
         playerViewController.player.minBufferDuration = 1
-        playerViewController.player.audio.volume = 1
         playerViewController.open()
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -47,9 +46,13 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-//        print("player.position", playerViewController.player.position)
+        print("player.position", playerViewController.player.position)
     }
     
+    @IBAction private func clicked(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        playerViewController.player.audio.mute = sender.isSelected
+    }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController.player.brightness = sender.value
     }

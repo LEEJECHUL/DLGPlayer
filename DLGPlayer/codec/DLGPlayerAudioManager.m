@@ -51,6 +51,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)initVars {
+    _mute = NO;
     _registeredKVO = NO;
     _opened = NO;
     _closing = NO;
@@ -69,6 +70,18 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     if (_audioData != NULL) {
         free(_audioData);
         _audioData = NULL;
+    }
+}
+
+#pragma mark - Added by KKH to mute sound.
+
+- (void)setMute:(BOOL)mute {
+    _mute = mute;
+    
+    if (_mute) {
+        [self pause];
+    } else {
+        [self play];
     }
 }
 
@@ -308,6 +321,10 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
+    if (_mute) {
+        return _playing;
+    }
+    
     if (_opened) {
         OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
