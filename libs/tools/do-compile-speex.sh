@@ -179,12 +179,13 @@ export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 function configure() {
   cd $FF_BUILD_SOURCE
-  if [ -f "./configure" ]; then
+   if [ -f "./Makefile" ]; then
+       echo 'reuse configure'
+   elif [ -f "./configure" ]; then
       echo 'already run autogen.sh'
       echo "config: $SPEEX_CFG_FLAGS"
       ./Configure \
           $SPEEX_CFG_FLAGS
-      configure
   else
       echo 'should run autogen.sh first'
       ./autogen.sh
