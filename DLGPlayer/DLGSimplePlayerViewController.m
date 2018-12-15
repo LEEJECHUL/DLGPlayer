@@ -143,8 +143,6 @@ typedef enum : NSUInteger {
 }
 
 - (void)reset {
-    [self close];
-    
     _status = DLGPlayerStatusNone;
     self.nextOperation = DLGPlayerOperationNone;
 }
