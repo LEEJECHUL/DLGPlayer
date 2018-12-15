@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)close;
 - (void)play;
 - (void)pause;
+- (void)reset;
 @end
 
 NS_ASSUME_NONNULL_END

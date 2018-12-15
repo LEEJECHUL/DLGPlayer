@@ -141,6 +141,13 @@ typedef enum : NSUInteger {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player pause];
 }
+
+- (void)reset {
+    [self close];
+    
+    _status = DLGPlayerStatusNone;
+    self.nextOperation = DLGPlayerOperationNone;
+}
     
 - (BOOL)doNextOperation {
     if (self.nextOperation == DLGPlayerOperationNone) return NO;
