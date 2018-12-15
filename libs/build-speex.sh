@@ -91,7 +91,7 @@ elif [ "$FF_TARGET" = "clean" ]; then
     echo_archs
     for ARCH in $FF_ALL_ARCHS
     do
-        cd speex-$ARCH && git clean -xdf && cd -
+        cd speex/$ARCH && git clean -xdf && cd -
     done
 else
     echo "Usage:"

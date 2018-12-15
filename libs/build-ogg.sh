@@ -90,7 +90,7 @@ elif [ "$FF_TARGET" = "clean" ]; then
     echo_archs
     for ARCH in $FF_ALL_ARCHS
     do
-        cd ogg-$ARCH && git clean -xdf && cd -
+        cd ogg/$ARCH && git clean -xdf && cd -
     done
 else
     echo "Usage:"
