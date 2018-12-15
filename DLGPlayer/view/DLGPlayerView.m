@@ -359,6 +359,9 @@
     if (_keepLastFrame) self.lastFrame = frame;
 }
 
+/*
+ * https://developer.apple.com/library/archive/qa/qa1704/_index.html
+ */
 - (UIImage *)snapshot {
     NSInteger width = _backingWidth, height = _backingHeight;
     NSInteger dataLength = width * height * 4;
