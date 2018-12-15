@@ -384,6 +384,7 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationBufferStateChanged object:self userInfo:userInfo];
     } else if (!noframes && self.notifiedBufferStart && self.bufferedDuration >= self.minBufferDuration) {
         self.notifiedBufferStart = NO;
+        self.playing = YES;
         NSDictionary *userInfo = @{ DLGPlayerNotificationBufferStateKey : @(self.notifiedBufferStart) };
         [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationBufferStateChanged object:self userInfo:userInfo];
     }
