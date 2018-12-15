@@ -230,8 +230,8 @@
 		23DC293221B810B50012243A /* view */ = {
 			isa = PBXGroup;
 			children = (
-				23DC293321B810B50012243A /* DLGPlayerView.m */,
 				23DC293421B810B50012243A /* DLGPlayerView.h */,
+				23DC293321B810B50012243A /* DLGPlayerView.m */,
 			);
 			path = view;
 			sourceTree = "<group>";

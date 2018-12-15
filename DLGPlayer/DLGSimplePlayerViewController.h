@@ -22,8 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DLGSimplePlayerViewController : UIViewController
 @property (nonatomic, copy) NSString *url;
-@property (nonatomic) BOOL autoplay;
-@property (nonatomic) BOOL repeat;
+@property (nonatomic) BOOL isAutoplay;
+@property (nonatomic) BOOL isMute;
+@property (nonatomic) BOOL isRepeat;
 @property (nonatomic) BOOL preventFromScreenLock;
 @property (nonatomic) BOOL restorePlayAfterAppEnterForeground;
 @property (nonatomic, readonly) DLGPlayerStatus status;

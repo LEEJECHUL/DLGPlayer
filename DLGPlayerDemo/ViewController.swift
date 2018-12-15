@@ -14,8 +14,7 @@ class ViewController: UIViewController {
     private var playerViewController: DLGSimplePlayerViewController! {
         didSet {
             playerViewController.delegate = self
-            playerViewController.autoplay = true
-            playerViewController.repeat = true
+            playerViewController.isAutoplay = true
             playerViewController.preventFromScreenLock = true
             playerViewController.restorePlayAfterAppEnterForeground = true
         }
@@ -49,9 +48,16 @@ class ViewController: UIViewController {
         print("player.position", playerViewController.player.position)
     }
     
-    @IBAction private func clicked(_ sender: UIButton) {
+    @IBAction private func captureButtonClicked() {
+        playerViewController.player.snapshot()
+            .map { UIImageView(image: $0) }
+            .map { [weak self] in
+                self?.view.addSubview($0)
+        }
+    }
+    @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        playerViewController.player.audio.mute = sender.isSelected
+        playerViewController.isMute = sender.isSelected
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController.player.brightness = sender.value

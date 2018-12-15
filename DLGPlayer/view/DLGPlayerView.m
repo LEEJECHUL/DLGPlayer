@@ -359,6 +359,43 @@
     if (_keepLastFrame) self.lastFrame = frame;
 }
 
+- (UIImage *)snapshot {
+    NSInteger width = _backingWidth, height = _backingHeight;
+    NSInteger dataLength = width * height * 4;
+    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+    
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(0, 0, _backingWidth, _backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    
+    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+                                    ref, NULL, true, kCGRenderingIntentDefault);
+    
+    NSInteger widthInPoints, heightInPoints;
+    CGFloat scale = _eaglLayer.contentsScale;
+    widthInPoints = width / scale;
+    heightInPoints = height / scale;
+    
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+    
+    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+    
+    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    free(data);
+    CFRelease(ref);
+    CFRelease(colorspace);
+    CGImageRelease(iref);
+    
+    return image;
+}
+
 #pragma mark - Utils
 + (GLuint)loadShader:(GLenum)type withString:(NSString *)shaderString {
     // 1. Create shader

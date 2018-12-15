@@ -44,12 +44,21 @@
                                 <state key="normal" title="Sound Off"/>
                                 <state key="selected" title="Sound On"/>
                                 <connections>
-                                    <action selector="clicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iGr-s5-xGx"/>
+                                    <action selector="muteButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XNc-Eo-YGB"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uiH-fC-hAT">
+                                <rect key="frame" x="106" y="139" width="101" height="30"/>
+                                <state key="normal" title="Capture Image"/>
+                                <state key="selected" title="Sound On"/>
+                                <connections>
+                                    <action selector="captureButtonClicked" destination="BYZ-38-t0r" eventType="touchUpInside" id="Uvg-Vt-MVd"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="uiH-fC-hAT" firstAttribute="centerY" secondItem="Llk-G2-h40" secondAttribute="centerY" id="7bN-qa-KTu"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="8LV-9o-CmP"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9op-9L-DDg"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="0Hq-Tr-LTU" secondAttribute="trailing" constant="20" id="EeP-gk-A4f"/>
@@ -60,6 +69,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="bottom" constant="8" id="tTz-hv-bw3"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="xaL-WD-2Jf"/>
+                            <constraint firstItem="uiH-fC-hAT" firstAttribute="leading" secondItem="Llk-G2-h40" secondAttribute="trailing" constant="16" id="ySt-Cs-nvv"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Llk-G2-h40" secondAttribute="trailing" symbolic="YES" id="yr3-nI-FPb"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>

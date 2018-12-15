@@ -19,5 +19,6 @@
 
 - (void)render:(DLGPlayerVideoFrame *)frame;
 - (void)clear;
+- (UIImage *)snapshot;
 
 @end

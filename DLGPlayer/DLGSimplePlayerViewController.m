@@ -70,6 +70,14 @@ typedef enum : NSUInteger {
         [_delegate viewController:self didChangeStatus:status];
     }
 }
+
+- (BOOL)isMute {
+    return _player.audio.mute;
+}
+
+- (void)setIsMute:(BOOL)isMute {
+    _player.audio.mute = isMute;
+}
     
 #pragma mark - Init
 - (void)initAll {
@@ -195,7 +203,7 @@ typedef enum : NSUInteger {
     
 - (void)notifyPlayerEOF:(NSNotification *)notif {
     self.status = DLGPlayerStatusEOF;
-    if (_repeat) [self replay];
+    if (_isRepeat) [self replay];
     else [self close];
 }
     
@@ -209,7 +217,7 @@ typedef enum : NSUInteger {
     self.status = DLGPlayerStatusOpened;
     
     if (![self doNextOperation]) {
-        if (_autoplay) [self play];
+        if (_isAutoplay) [self play];
     }
 }
     
