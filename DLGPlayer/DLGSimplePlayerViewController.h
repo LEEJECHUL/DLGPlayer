@@ -10,7 +10,6 @@
 #import "DLGPlayer.h"
 
 @class DLGPlayer;
-
 @class DLGSimplePlayerViewController;
 
 @protocol DLGSimplePlayerViewControllerDelegate <NSObject>
@@ -19,12 +18,14 @@
 @end
 
 @interface DLGSimplePlayerViewController : UIViewController
-@property (nonatomic, copy) NSString *url;
+@property (nonatomic, readonly) BOOL hasUrl;
 @property (nonatomic) BOOL isAutoplay;
 @property (nonatomic) BOOL isMute;
+@property (nonatomic, readonly) BOOL isPlaying;
 @property (nonatomic) BOOL isRepeat;
 @property (nonatomic) BOOL preventFromScreenLock;
 @property (nonatomic) BOOL restorePlayAfterAppEnterForeground;
+@property (nullable, nonatomic, copy) NSString *url;
 @property (nonatomic, readonly) DLGPlayerStatus status;
 @property (nonatomic, readonly) DLGPlayer *player;
 @property (nonatomic, weak) id<DLGSimplePlayerViewControllerDelegate> delegate;

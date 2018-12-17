@@ -62,6 +62,14 @@ typedef enum : NSUInteger {
 - (void)unregisterNotification {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+- (BOOL)hasUrl {
+    return _url == nil;
+}
+
+- (BOOL)isPlaying {
+    return _player.playing;
+}
     
 - (void)setStatus:(DLGPlayerStatus)status {
     _status = status;
