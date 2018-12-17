@@ -205,12 +205,13 @@ typedef enum : NSUInteger {
     
 #pragma mark - UI
 - (void)addPlayerView {
-    _player.playerView.translatesAutoresizingMaskIntoConstraints = NO;
+    UIView *v = _player.playerView;
+    v.translatesAutoresizingMaskIntoConstraints = NO;
     
-    [self.view addSubview:_player.playerView];
+    [self.view addSubview:v];
     
     // Add constraints
-    NSDictionary *views = NSDictionaryOfVariableBindings(_player.playerView);
+    NSDictionary *views = NSDictionaryOfVariableBindings(v);
     NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
                                                                                 options:0
                                                                                 metrics:nil
