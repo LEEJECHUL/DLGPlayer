@@ -64,7 +64,7 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)hasUrl {
-    return _url == nil;
+    return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
 }
 
 - (BOOL)isPlaying {
