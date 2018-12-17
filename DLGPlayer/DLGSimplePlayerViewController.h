@@ -11,8 +11,6 @@
 
 @class DLGPlayer;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @class DLGSimplePlayerViewController;
 
 @protocol DLGSimplePlayerViewControllerDelegate <NSObject>
@@ -36,5 +34,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)pause;
 - (void)reset;
 @end
-
-NS_ASSUME_NONNULL_END
