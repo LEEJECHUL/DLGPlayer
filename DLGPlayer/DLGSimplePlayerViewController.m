@@ -27,7 +27,7 @@ typedef enum : NSUInteger {
 @end
 
 @implementation DLGSimplePlayerViewController
-    
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -71,11 +71,8 @@ typedef enum : NSUInteger {
     }
 }
 
-- (BOOL)isMute {
-    return _player.audio.mute;
-}
-
 - (void)setIsMute:(BOOL)isMute {
+    _isMute = isMute;
     _player.audio.mute = isMute;
 }
     
@@ -173,6 +170,8 @@ typedef enum : NSUInteger {
 #pragma mark - UI
 - (void)initPlayer {
     _player = [[DLGPlayer alloc] init];
+    _player.audio.mute = _isMute;
+    
     UIView *v = _player.playerView;
     v.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:v];

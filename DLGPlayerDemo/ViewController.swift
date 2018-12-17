@@ -15,6 +15,7 @@ class ViewController: UIViewController {
         didSet {
             playerViewController.delegate = self
             playerViewController.isAutoplay = true
+            playerViewController.isMute = true
             playerViewController.preventFromScreenLock = true
             playerViewController.restorePlayAfterAppEnterForeground = true
         }
