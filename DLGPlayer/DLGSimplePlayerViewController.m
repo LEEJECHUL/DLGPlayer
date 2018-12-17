@@ -28,10 +28,36 @@ typedef enum : NSUInteger {
 
 @implementation DLGSimplePlayerViewController
 
+#pragma mark - Constructors
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self initAll];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self initAll];
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        [self initAll];
+    }
+    return self;
+}
+
+#pragma mark - View controller life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self initAll];
+    [self addPlayerView];
 }
     
 - (void)viewWillAppear:(BOOL)animated {
@@ -45,24 +71,8 @@ typedef enum : NSUInteger {
     
     [self unregisterNotification];
 }
-    
-- (void)registerNotification {
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(notifyAppDidEnterBackground:)
-               name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [nc addObserver:self selector:@selector(notifyAppWillEnterForeground:)
-               name:UIApplicationWillEnterForegroundNotification object:nil];
-    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:_player];
-}
-    
-- (void)unregisterNotification {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
 
+#pragma mark - getter/setter
 - (BOOL)hasUrl {
     return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
 }
@@ -79,25 +89,33 @@ typedef enum : NSUInteger {
     }
 }
 
+- (BOOL)isMute {
+    return _player.audio.mute;
+}
+
 - (void)setIsMute:(BOOL)isMute {
-    _isMute = isMute;
     _player.audio.mute = isMute;
 }
 
+- (double)minBufferDuration {
+    return _player.minBufferDuration;
+}
+
 - (void)setMinBufferDuration:(double)minBufferDuration {
-    _minBufferDuration = minBufferDuration;
     _player.minBufferDuration = minBufferDuration;
 }
 
+- (double)maxBufferDuration {
+    return _player.maxBufferDuration;
+}
+
 - (void)setMaxBufferDuration:(double)maxBufferDuration {
-    _maxBufferDuration = maxBufferDuration;
     _player.maxBufferDuration = maxBufferDuration;
 }
     
 #pragma mark - Init
 - (void)initAll {
-    [self initPlayer];
-    
+    _player = [[DLGPlayer alloc] init];
     _status = DLGPlayerStatusNone;
     self.nextOperation = DLGPlayerOperationNone;
 }
@@ -186,18 +204,13 @@ typedef enum : NSUInteger {
     
     
 #pragma mark - UI
-- (void)initPlayer {
-    _player = [[DLGPlayer alloc] init];
-    _player.minBufferDuration = _minBufferDuration;
-    _player.maxBufferDuration = _maxBufferDuration;
-    _player.audio.mute = _isMute;
+- (void)addPlayerView {
+    _player.playerView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    UIView *v = _player.playerView;
-    v.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:v];
+    [self.view addSubview:_player.playerView];
     
     // Add constraints
-    NSDictionary *views = NSDictionaryOfVariableBindings(v);
+    NSDictionary *views = NSDictionaryOfVariableBindings(_player.playerView);
     NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
                                                                                 options:0
                                                                                 metrics:nil
@@ -211,6 +224,23 @@ typedef enum : NSUInteger {
 }
     
 #pragma mark - Notifications
+- (void)registerNotification {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(notifyAppDidEnterBackground:)
+               name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [nc addObserver:self selector:@selector(notifyAppWillEnterForeground:)
+               name:UIApplicationWillEnterForegroundNotification object:nil];
+    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:_player];
+}
+
+- (void)unregisterNotification {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)notifyAppDidEnterBackground:(NSNotification *)notif {
     if (_player.playing) {
         [self pause];

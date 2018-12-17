@@ -46,11 +46,11 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-        print("player.position", playerViewController.player?.position ?? 0)
+        print("player.position", playerViewController.player.position)
     }
     
     @IBAction private func captureButtonClicked() {
-        playerViewController.player?.snapshot()
+        playerViewController.player.snapshot()
             .map { UIImageView(image: $0) }
             .map { [weak self] in
                 self?.view.addSubview($0)
@@ -61,7 +61,7 @@ class ViewController: UIViewController {
         playerViewController.isMute = sender.isSelected
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
-        playerViewController.player?.brightness = sender.value
+        playerViewController.player.brightness = sender.value
     }
 }
 

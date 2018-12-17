@@ -29,7 +29,7 @@
 @property (nonatomic) double maxBufferDuration;
 @property (nullable, nonatomic, copy) NSString *url;
 @property (nonatomic, readonly) DLGPlayerStatus status;
-@property (nullable, nonatomic, readonly) DLGPlayer *player;
+@property (nonnull, nonatomic, readonly) DLGPlayer *player;
 @property (nullable, nonatomic, weak) id<DLGSimplePlayerViewControllerDelegate> delegate;
 - (void)open;
 - (void)close;
