@@ -25,10 +25,12 @@
 @property (nonatomic) BOOL isRepeat;
 @property (nonatomic) BOOL preventFromScreenLock;
 @property (nonatomic) BOOL restorePlayAfterAppEnterForeground;
+@property (nonatomic) double minBufferDuration;
+@property (nonatomic) double maxBufferDuration;
 @property (nullable, nonatomic, copy) NSString *url;
 @property (nonatomic, readonly) DLGPlayerStatus status;
-@property (nonatomic, readonly) DLGPlayer *player;
-@property (nonatomic, weak) id<DLGSimplePlayerViewControllerDelegate> delegate;
+@property (nullable, nonatomic, readonly) DLGPlayer *player;
+@property (nullable, nonatomic, weak) id<DLGSimplePlayerViewControllerDelegate> delegate;
 - (void)open;
 - (void)close;
 - (void)play;

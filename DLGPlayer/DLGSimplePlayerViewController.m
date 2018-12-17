@@ -83,6 +83,16 @@ typedef enum : NSUInteger {
     _isMute = isMute;
     _player.audio.mute = isMute;
 }
+
+- (void)setMinBufferDuration:(double)minBufferDuration {
+    _minBufferDuration = minBufferDuration;
+    _player.minBufferDuration = minBufferDuration;
+}
+
+- (void)setMaxBufferDuration:(double)maxBufferDuration {
+    _maxBufferDuration = maxBufferDuration;
+    _player.maxBufferDuration = maxBufferDuration;
+}
     
 #pragma mark - Init
 - (void)initAll {
@@ -178,6 +188,8 @@ typedef enum : NSUInteger {
 #pragma mark - UI
 - (void)initPlayer {
     _player = [[DLGPlayer alloc] init];
+    _player.minBufferDuration = _minBufferDuration;
+    _player.maxBufferDuration = _maxBufferDuration;
     _player.audio.mute = _isMute;
     
     UIView *v = _player.playerView;

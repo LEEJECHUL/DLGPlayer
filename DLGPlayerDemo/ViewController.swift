@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
-        playerViewController.player.minBufferDuration = 1
+        playerViewController.minBufferDuration = 1
         playerViewController.open()
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -46,11 +46,11 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-        print("player.position", playerViewController.player.position)
+        print("player.position", playerViewController.player?.position ?? 0)
     }
     
     @IBAction private func captureButtonClicked() {
-        playerViewController.player.snapshot()
+        playerViewController.player?.snapshot()
             .map { UIImageView(image: $0) }
             .map { [weak self] in
                 self?.view.addSubview($0)
@@ -61,7 +61,7 @@ class ViewController: UIViewController {
         playerViewController.isMute = sender.isSelected
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
-        playerViewController.player.brightness = sender.value
+        playerViewController.player?.brightness = sender.value
     }
 }
 
@@ -77,8 +77,6 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
             startTimer()
         case .closed:
             stopTimer()
-//        case .playing:
-//            print("player.audio.volume", playerViewController.player.audio.volume)
         default: ()
         }
     }
