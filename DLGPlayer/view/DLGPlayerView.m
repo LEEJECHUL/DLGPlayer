@@ -78,6 +78,11 @@ static EAGLContext *_context;
     NSLog(@"DLGPlayerView dealloc");
 }
 
++ (void)clearContext {
+    [EAGLContext setCurrentContext:nil];
+    _context = nil;
+}
+
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }

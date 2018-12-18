@@ -17,6 +17,7 @@
 @property (nonatomic) BOOL isYUV;
 @property (nonatomic) BOOL keepLastFrame;
 
++ (void)clearContext;
 - (void)render:(DLGPlayerVideoFrame *)frame;
 - (void)clear;
 - (UIImage *)snapshot;
