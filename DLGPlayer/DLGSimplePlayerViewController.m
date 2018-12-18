@@ -58,18 +58,19 @@ typedef enum : NSUInteger {
     [super viewDidLoad];
     
     [self addPlayerView];
+    [self registerNotification];
 }
     
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self registerNotification];
+//    [self registerNotification];
 }
     
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    [self unregisterNotification];
+//    [self unregisterNotification];
 }
 
 #pragma mark - getter/setter

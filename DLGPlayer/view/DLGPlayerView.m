@@ -17,7 +17,6 @@
 
 @interface DLGPlayerView () {
     CAEAGLLayer *_eaglLayer;
-    EAGLContext *_context;
     GLuint _frameBuffer;
     GLuint _renderBuffer;
     GLuint _programHandle;
@@ -48,6 +47,8 @@
 @property (nonatomic, strong) DLGPlayerVideoFrame *lastFrame;
 
 @end
+
+static EAGLContext *_context;
 
 @implementation DLGPlayerView
 
@@ -110,9 +111,16 @@
     _eaglLayer.drawableProperties = @{ kEAGLDrawablePropertyRetainedBacking : @(NO),
                                        kEAGLDrawablePropertyColorFormat : kEAGLColorFormatRGBA8
                                        };
-    _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    if (_context == nil) return NO;
-    if (![EAGLContext setCurrentContext:_context]) return NO;
+    
+    if (!_context) {
+        if ((_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]) == nil) {
+            return NO;
+        }
+        
+        if (![EAGLContext setCurrentContext:_context]) {
+            return NO;
+        }
+    }
     
     [self initVertex];
     [self initTexCord];

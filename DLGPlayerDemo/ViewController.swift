@@ -18,15 +18,28 @@ class ViewController: UIViewController {
             playerViewController.isMute = true
             playerViewController.preventFromScreenLock = true
             playerViewController.restorePlayAfterAppEnterForeground = true
+            playerViewController.minBufferDuration = 1
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
-        playerViewController.minBufferDuration = 1
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if !playerViewController.hasUrl {
+            playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        }
+        
         playerViewController.open()
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        stopTimer()
+        playerViewController.close()
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -46,7 +59,7 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-        print("player.position", playerViewController.player.position)
+//        print("player.position", playerViewController.player.position)
     }
     
     @IBAction private func captureButtonClicked() {
@@ -70,7 +83,7 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
         print("didReceiveError", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
-        print("didChange", status.rawValue)
+        print("didChange", viewController.hash, status.rawValue)
         
         switch status {
         case .opened:
