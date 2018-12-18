@@ -170,9 +170,9 @@ typedef enum : NSUInteger {
         _status != DLGPlayerStatusEOF) {
         return;
     }
-    self.status = DLGPlayerStatusPaused;
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player pause];
+    self.status = DLGPlayerStatusPaused;
 }
 
 - (void)reset {
