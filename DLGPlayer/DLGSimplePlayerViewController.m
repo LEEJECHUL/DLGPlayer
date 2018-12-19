@@ -235,6 +235,7 @@ typedef enum : NSUInteger {
     [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:_player];
     [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:_player];
     [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerRenderBegan:) name:DLGPlayerNotificationRenderBegan object:_player];
     [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:_player];
 }
 
@@ -284,6 +285,10 @@ typedef enum : NSUInteger {
     } else {
         self.status = DLGPlayerStatusPlaying;
     }
+}
+
+- (void)notifyPlayerRenderBegan:(NSNotification *)notif {
+    self.status = DLGPlayerStatusRenderBegan;
 }
     
 - (void)notifyPlayerError:(NSNotification *)notif {

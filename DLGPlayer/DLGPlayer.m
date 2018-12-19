@@ -35,6 +35,7 @@
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) double requestSeekPosition;
 @property (nonatomic) BOOL opening;
+@property (nonatomic) BOOL renderBegan;
 
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
@@ -77,10 +78,12 @@
     _playing = NO;
     _opened = NO;
     _requestSeek = NO;
+    _renderBegan = NO;
     _requestSeekPosition = 0;
     _frameReaderThread = nil;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
+    _renderQueue = dispatch_queue_create("DLGPlayer.renderQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)initView {
@@ -105,6 +108,7 @@
     self.buffering = NO;
     self.playing = NO;
     self.opened = NO;
+    self.renderBegan = NO;
     self.bufferedDuration = 0;
     self.mediaPosition = 0;
     self.mediaSyncTime = 0;
@@ -394,7 +398,7 @@
         frame.brightness = _brightness;
         self.view.contentSize = CGSizeMake(frame.width, frame.height);
         [self.vframes removeObjectAtIndex:0];
-        [self.view render:frame];
+        [self renderView:frame];
     }
     
     // Check whether render is neccessary
@@ -419,7 +423,8 @@
             dispatch_semaphore_signal(self.vFramesLock);
         }
     }
-    [self.view render:frame];
+    
+    [self renderView:frame];
     
     // Sync audio with video
     double syncTime = [self syncTime];
@@ -428,6 +433,22 @@
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf render];
+    });
+}
+
+- (void)renderView:(DLGPlayerVideoFrame *)frame {
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_sync(_renderQueue, ^{
+        [weakSelf.view render:frame];
+        
+        if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {
+            weakSelf.renderBegan = YES;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationRenderBegan object:weakSelf];
+            });
+        }
     });
 }
 

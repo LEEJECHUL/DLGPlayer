@@ -43,6 +43,7 @@
 #define DLGPlayerNotificationClosed                 @"DLGPlayerNotificationClosed"
 #define DLGPlayerNotificationEOF                    @"DLGPlayerNotificationEOF"
 #define DLGPlayerNotificationBufferStateChanged     @"DLGPlayerNotificationBufferStateChanged"
+#define DLGPlayerNotificationRenderBegan            @"DLGPlayerNotificationRenderBegan"
 #define DLGPlayerNotificationError                  @"DLGPlayerNotificationError"
 
 #pragma mark - Notification Key
@@ -57,6 +58,7 @@ typedef NS_ENUM(NSUInteger, DLGPlayerStatus) {
     DLGPlayerStatusOpened,
     DLGPlayerStatusPlaying,
     DLGPlayerStatusBuffering,
+    DLGPlayerStatusRenderBegan,
     DLGPlayerStatusPaused,
     DLGPlayerStatusEOF,
     DLGPlayerStatusClosing,

@@ -10,6 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    @IBOutlet private weak var coverView: UIView?
+    
     private var timer: Timer?
     private var playerViewController: DLGSimplePlayerViewController! {
         didSet {
@@ -29,10 +31,8 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if !playerViewController.hasUrl {
-            playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
-        }
-        
+        playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        playerViewController.reset()
         playerViewController.open()
     }
     override func viewWillDisappear(_ animated: Bool) {
@@ -40,6 +40,7 @@ class ViewController: UIViewController {
         
         stopTimer()
         playerViewController.close()
+        coverView?.isHidden = false
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -59,7 +60,7 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-//        print("player.position", playerViewController.player.position)
+        print("player.position", playerViewController.player.position)
     }
     
     @IBAction private func captureButtonClicked() {
@@ -83,14 +84,43 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
         print("didReceiveError", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
-        print("didChange", viewController.hash, status.rawValue)
+        print("didChange", viewController.hash, status.stringValue)
         
         switch status {
         case .opened:
             startTimer()
         case .closed:
             stopTimer()
+        case .renderBegan:
+            self.coverView?.isHidden = true
         default: ()
+        }
+    }
+}
+
+extension DLGPlayerStatus {
+    var stringValue: String {
+        switch self {
+        case .buffering:
+            return "buffering"
+        case .closed:
+            return "closed"
+        case .closing:
+            return "closing"
+        case .EOF:
+            return "EOF"
+        case .none:
+            return "none"
+        case .opened:
+            return "opened"
+        case .opening:
+            return "opening"
+        case .paused:
+            return "paused"
+        case .playing:
+            return "playing"
+        case .renderBegan:
+            return "renderBegan"
         }
     }
 }

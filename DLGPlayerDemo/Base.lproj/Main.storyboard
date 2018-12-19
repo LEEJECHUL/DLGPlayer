@@ -43,6 +43,10 @@
                                     <segue destination="PA6-Ws-KJb" kind="embed" id="0US-Qd-tC5"/>
                                 </connections>
                             </containerView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vzq-x9-dpP">
+                                <rect key="frame" x="0.0" y="228" width="375" height="211"/>
+                                <color key="backgroundColor" red="0.23529411759999999" green="0.49803921569999998" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Brightness" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DGi-pI-aHT">
                                 <rect key="frame" x="20" y="84" width="82" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -86,20 +90,27 @@
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9op-9L-DDg"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="0Hq-Tr-LTU" secondAttribute="trailing" constant="20" id="EeP-gk-A4f"/>
                             <constraint firstItem="Llk-G2-h40" firstAttribute="leading" secondItem="0Hq-Tr-LTU" secondAttribute="leading" id="HVc-5s-Sag"/>
+                            <constraint firstItem="Vzq-x9-dpP" firstAttribute="top" secondItem="E2A-Jz-ZOg" secondAttribute="top" id="NDg-9f-aXA"/>
                             <constraint firstItem="Llk-G2-h40" firstAttribute="top" secondItem="0Hq-Tr-LTU" secondAttribute="bottom" constant="40" id="Nbo-Iu-Zas"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ye0-4D-x3D"/>
+                            <constraint firstItem="Vzq-x9-dpP" firstAttribute="leading" secondItem="E2A-Jz-ZOg" secondAttribute="leading" id="Yj2-et-Rqq"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ZJD-7q-YwT"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Kvf-8W-DwS" secondAttribute="bottom" constant="20" id="kll-mF-JKa"/>
                             <constraint firstItem="Kvf-8W-DwS" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="rJs-ng-CSg"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="bottom" constant="8" id="tTz-hv-bw3"/>
+                            <constraint firstItem="Vzq-x9-dpP" firstAttribute="bottom" secondItem="E2A-Jz-ZOg" secondAttribute="bottom" id="xDE-Pu-h9I"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="xaL-WD-2Jf"/>
                             <constraint firstItem="uiH-fC-hAT" firstAttribute="leading" secondItem="Llk-G2-h40" secondAttribute="trailing" constant="16" id="ySt-Cs-nvv"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Llk-G2-h40" secondAttribute="trailing" symbolic="YES" id="yr3-nI-FPb"/>
+                            <constraint firstItem="Vzq-x9-dpP" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="zp7-P6-nTc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="7fL-wr-fF1"/>
+                    <connections>
+                        <outlet property="coverView" destination="Vzq-x9-dpP" id="hxn-S2-Ibe"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
