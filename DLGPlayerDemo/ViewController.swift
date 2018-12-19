@@ -100,7 +100,7 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
         print("didChange", viewController.hash, status.stringValue)
-        playOrPauseButton.isSelected = viewController.isPlaying
+        playOrPauseButton.isSelected = viewController.controlStatus.playing
         
         switch status {
         case .opened:

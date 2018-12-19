@@ -83,6 +83,7 @@ typedef enum : NSUInteger {
     
 - (void)setStatus:(DLGPlayerStatus)status {
     _status = status;
+    [_controlStatus setStatus:_status];
     
     if ([_delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
         [_delegate viewController:self didChangeStatus:status];
@@ -117,6 +118,7 @@ typedef enum : NSUInteger {
 - (void)initAll {
     _player = [[DLGPlayer alloc] init];
     _status = DLGPlayerStatusNone;
+    _controlStatus = [[DLGPlayerControlStatus alloc] initWithStatus:_status];
     self.nextOperation = DLGPlayerOperationNone;
 }
     
@@ -177,6 +179,7 @@ typedef enum : NSUInteger {
 
 - (void)reset {
     _status = DLGPlayerStatusNone;
+    [_controlStatus setStatus:_status];
     self.nextOperation = DLGPlayerOperationNone;
 }
     

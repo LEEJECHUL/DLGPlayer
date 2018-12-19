@@ -19,6 +19,8 @@
 		235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293421B810B50012243A /* DLGPlayerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409C621BA177A00533B9B /* DLGSimplePlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 235409C421BA177A00533B9B /* DLGSimplePlayerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409C721BA177A00533B9B /* DLGSimplePlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */; };
+		237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */; };
 		239BC97121C234CF00DEEC73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97021C234CF00DEEC73 /* AppDelegate.swift */; };
 		239BC97321C234CF00DEEC73 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97221C234CF00DEEC73 /* ViewController.swift */; };
 		239BC97621C234CF00DEEC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97421C234CF00DEEC73 /* Main.storyboard */; };
@@ -63,6 +65,8 @@
 /* Begin PBXFileReference section */
 		235409C421BA177A00533B9B /* DLGSimplePlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGSimplePlayerViewController.h; sourceTree = "<group>"; };
 		235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGSimplePlayerViewController.m; sourceTree = "<group>"; };
+		237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGPlayerControlStatus.h; sourceTree = "<group>"; };
+		237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerControlStatus.m; sourceTree = "<group>"; };
 		239BC96E21C234CF00DEEC73 /* DLGPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DLGPlayerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		239BC97021C234CF00DEEC73 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		239BC97221C234CF00DEEC73 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -170,6 +174,8 @@
 		23DC26D021B80F5A0012243A /* DLGPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */,
+				237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */,
 				23DC291A21B810B50012243A /* DLGPlayer.h */,
 				23DC291C21B810B50012243A /* DLGPlayer.m */,
 				23DC291421B810B40012243A /* DLGPlayerViewController.h */,
@@ -272,6 +278,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23DC293E21B810B50012243A /* DLGPlayer.h in Headers */,
+				237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */,
 				235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */,
 				235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */,
 				235409B921BA05B500533B9B /* DLGPlayerVideoFrame.h in Headers */,
@@ -433,6 +440,7 @@
 				235409C721BA177A00533B9B /* DLGSimplePlayerViewController.m in Sources */,
 				23DC294D21B810B50012243A /* DLGPlayerVideoFrame.m in Sources */,
 				23DC295521B810B50012243A /* DLGPlayerUtils.m in Sources */,
+				237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */,
 				23DC295021B810B50012243A /* DLGPlayerFrame.m in Sources */,
 				23DC294A21B810B50012243A /* DLGPlayerAudioFrame.m in Sources */,
 				23DC294E21B810B50012243A /* DLGPlayerVideoYUVFrame.m in Sources */,
