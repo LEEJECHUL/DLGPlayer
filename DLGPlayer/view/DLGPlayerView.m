@@ -341,6 +341,10 @@ static EAGLContext *_context;
 }
 
 - (void)render:(DLGPlayerVideoFrame *)frame {
+    if (frame.width < 1 || frame.height < 1) {
+        return;
+    }
+    
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     
