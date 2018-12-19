@@ -75,6 +75,14 @@
                                     <action selector="captureButtonClicked" destination="BYZ-38-t0r" eventType="touchUpInside" id="Uvg-Vt-MVd"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U7U-Qy-3pL">
+                                <rect key="frame" x="325" y="183" width="30" height="30"/>
+                                <state key="normal" title="Play"/>
+                                <state key="selected" title="Pause"/>
+                                <connections>
+                                    <action selector="playOrPauseButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SB8-Mf-dVJ"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kvf-8W-DwS">
                                 <rect key="frame" x="171.5" y="617" width="32" height="30"/>
                                 <state key="normal" title="Next"/>
@@ -95,6 +103,8 @@
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ye0-4D-x3D"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="leading" secondItem="E2A-Jz-ZOg" secondAttribute="leading" id="Yj2-et-Rqq"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ZJD-7q-YwT"/>
+                            <constraint firstItem="U7U-Qy-3pL" firstAttribute="centerY" secondItem="uiH-fC-hAT" secondAttribute="centerY" id="axd-zQ-KdV"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="U7U-Qy-3pL" secondAttribute="trailing" constant="20" id="gDr-si-HS6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Kvf-8W-DwS" secondAttribute="bottom" constant="20" id="kll-mF-JKa"/>
                             <constraint firstItem="Kvf-8W-DwS" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="rJs-ng-CSg"/>
@@ -110,6 +120,7 @@
                     <navigationItem key="navigationItem" id="7fL-wr-fF1"/>
                     <connections>
                         <outlet property="coverView" destination="Vzq-x9-dpP" id="hxn-S2-Ibe"/>
+                        <outlet property="playOrPauseButton" destination="U7U-Qy-3pL" id="zC1-77-qGl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -175,12 +186,21 @@
                                     <action selector="captureButtonClicked" destination="ngc-aU-iHN" eventType="touchUpInside" id="fvi-la-zK6"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qse-yW-31x">
+                                <rect key="frame" x="325" y="183" width="30" height="30"/>
+                                <state key="normal" title="Play"/>
+                                <state key="selected" title="Pause"/>
+                                <connections>
+                                    <action selector="playOrPauseButtonClicked:" destination="ngc-aU-iHN" eventType="touchUpInside" id="jIe-HD-dhI"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="cGQ-aZ-CVk" secondAttribute="trailing" id="00c-sw-tTa"/>
                             <constraint firstItem="amF-zF-GUq" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" constant="20" id="0Mg-Bv-iGK"/>
                             <constraint firstItem="07x-ar-Xgi" firstAttribute="leading" secondItem="7uQ-ll-hzl" secondAttribute="trailing" constant="16" id="2uk-5O-eR3"/>
+                            <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="qse-yW-31x" secondAttribute="trailing" constant="20" id="D5Y-Hu-Il2"/>
                             <constraint firstItem="amF-zF-GUq" firstAttribute="top" secondItem="bc5-MZ-fgG" secondAttribute="top" constant="20" id="Fd5-QG-ZPl"/>
                             <constraint firstItem="cGQ-aZ-CVk" firstAttribute="centerY" secondItem="H9N-BX-EXd" secondAttribute="centerY" id="QVO-Ud-a4Y"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="x1V-Cm-Tel" secondAttribute="trailing" constant="20" id="Z7e-7i-yjb"/>
@@ -189,11 +209,15 @@
                             <constraint firstItem="x1V-Cm-Tel" firstAttribute="top" secondItem="amF-zF-GUq" secondAttribute="bottom" constant="8" id="eMS-nF-ewX"/>
                             <constraint firstItem="cGQ-aZ-CVk" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" id="eP4-1v-CgN"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7uQ-ll-hzl" secondAttribute="trailing" symbolic="YES" id="hTk-hT-WkQ"/>
+                            <constraint firstItem="qse-yW-31x" firstAttribute="centerY" secondItem="07x-ar-Xgi" secondAttribute="centerY" id="oIn-tQ-Yfb"/>
                             <constraint firstItem="x1V-Cm-Tel" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" constant="20" id="wDi-4j-bks"/>
                             <constraint firstItem="07x-ar-Xgi" firstAttribute="centerY" secondItem="7uQ-ll-hzl" secondAttribute="centerY" id="ygK-j4-8sa"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="bc5-MZ-fgG"/>
                     </view>
+                    <connections>
+                        <outlet property="playOrPauseButton" destination="qse-yW-31x" id="ZNN-fB-seU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HT3-s1-UBv" sceneMemberID="firstResponder"/>
             </objects>

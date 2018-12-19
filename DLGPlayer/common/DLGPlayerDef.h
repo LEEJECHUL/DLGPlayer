@@ -58,7 +58,6 @@ typedef NS_ENUM(NSUInteger, DLGPlayerStatus) {
     DLGPlayerStatusOpened,
     DLGPlayerStatusPlaying,
     DLGPlayerStatusBuffering,
-    DLGPlayerStatusRenderBegan,
     DLGPlayerStatusPaused,
     DLGPlayerStatusEOF,
     DLGPlayerStatusClosing,

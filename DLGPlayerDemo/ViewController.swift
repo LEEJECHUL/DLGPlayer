@@ -11,13 +11,14 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet private weak var coverView: UIView?
+    @IBOutlet private weak var playOrPauseButton: UIButton!
     
     private var timer: Timer?
     private var playerViewController: DLGSimplePlayerViewController! {
         didSet {
             playerViewController.delegate = self
             playerViewController.isAutoplay = true
-            playerViewController.isMute = true
+//            playerViewController.isMute = true
             playerViewController.preventFromScreenLock = true
             playerViewController.restorePlayAfterAppEnterForeground = true
             playerViewController.minBufferDuration = 1
@@ -31,9 +32,7 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
-        playerViewController.reset()
-        playerViewController.open()
+        play()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -50,6 +49,11 @@ class ViewController: UIViewController {
         }
     }
     
+    private func play() {
+        playerViewController.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        playerViewController.reset()
+        playerViewController.open()
+    }
     private func startTimer() {
         stopTimer()
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerCompletion), userInfo: nil, repeats: true)
@@ -72,7 +76,15 @@ class ViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        playerViewController.isMute = sender.isSelected
+    }
+    @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        
+        if sender.isSelected {
+            play()
+        } else {
+            playerViewController.pause()
+        }
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController.player.brightness = sender.value
@@ -80,19 +92,22 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: DLGSimplePlayerViewControllerDelegate {
+    func didBeginRender(in viewController: DLGSimplePlayerViewController) {
+        coverView?.isHidden = true
+    }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
         print("didReceiveError", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
         print("didChange", viewController.hash, status.stringValue)
+        playOrPauseButton.isSelected = viewController.isPlaying
         
         switch status {
         case .opened:
             startTimer()
-        case .closed:
+        case .paused,
+             .closed:
             stopTimer()
-        case .renderBegan:
-            self.coverView?.isHidden = true
         default: ()
         }
     }
@@ -119,8 +134,6 @@ extension DLGPlayerStatus {
             return "paused"
         case .playing:
             return "playing"
-        case .renderBegan:
-            return "renderBegan"
         }
     }
 }

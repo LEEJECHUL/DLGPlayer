@@ -288,7 +288,9 @@ typedef enum : NSUInteger {
 }
 
 - (void)notifyPlayerRenderBegan:(NSNotification *)notif {
-    self.status = DLGPlayerStatusRenderBegan;
+    if ([_delegate respondsToSelector:@selector(didBeginRenderInViewController:)]) {
+        [_delegate didBeginRenderInViewController:self];
+    }
 }
     
 - (void)notifyPlayerError:(NSNotification *)notif {

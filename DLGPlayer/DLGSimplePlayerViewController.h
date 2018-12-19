@@ -13,8 +13,9 @@
 @class DLGSimplePlayerViewController;
 
 @protocol DLGSimplePlayerViewControllerDelegate <NSObject>
-- (void)viewController:(DLGSimplePlayerViewController *)viewController didChangeStatus:(DLGPlayerStatus)status;
-- (void)viewController:(DLGSimplePlayerViewController *)viewController didReceiveError:(NSError *)error;
+- (void)didBeginRenderInViewController:(DLGSimplePlayerViewController * _Nonnull)viewController;
+- (void)viewController:(DLGSimplePlayerViewController * _Nonnull)viewController didChangeStatus:(DLGPlayerStatus)status;
+- (void)viewController:(DLGSimplePlayerViewController * _Nonnull)viewController didReceiveError:(NSError *)error;
 @end
 
 @interface DLGSimplePlayerViewController : UIViewController
