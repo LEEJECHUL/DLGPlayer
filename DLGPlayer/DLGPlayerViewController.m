@@ -41,7 +41,6 @@ typedef enum : NSUInteger {
 @property (nonatomic) NSTimer *timerForHUD;
 
 @property (nonatomic, readwrite) DLGPlayerStatus status;
-@property (nonatomic) DLGPlayerOperation nextOperation;
 
 @end
 
@@ -99,7 +98,6 @@ typedef enum : NSUInteger {
     [self initBuffering];
     [self initGestures];
     self.status = DLGPlayerStatusNone;
-    self.nextOperation = DLGPlayerOperationNone;
 }
 
 - (void)onPlayButtonTapped:(id)sender {
@@ -148,14 +146,6 @@ typedef enum : NSUInteger {
 }
 
 - (void)open {
-    if (self.status == DLGPlayerStatusClosing) {
-        self.nextOperation = DLGPlayerOperationOpen;
-        return;
-    }
-    if (self.status != DLGPlayerStatusNone &&
-        self.status != DLGPlayerStatusClosed) {
-        return;
-    }
     self.status = DLGPlayerStatusOpening;
     self.aivBuffering.hidden = NO;
     [self.aivBuffering startAnimating];
@@ -163,10 +153,6 @@ typedef enum : NSUInteger {
 }
 
 - (void)close {
-    if (self.status == DLGPlayerStatusOpening) {
-        self.nextOperation = DLGPlayerOperationClose;
-        return;
-    }
     self.status = DLGPlayerStatusClosing;
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [self.player close];
@@ -174,16 +160,6 @@ typedef enum : NSUInteger {
 }
 
 - (void)play {
-    if (self.status == DLGPlayerStatusNone ||
-        self.status == DLGPlayerStatusClosed) {
-        [self open];
-        self.nextOperation = DLGPlayerOperationPlay;
-    }
-    if (self.status != DLGPlayerStatusOpened &&
-        self.status != DLGPlayerStatusPaused &&
-        self.status != DLGPlayerStatusEOF) {
-        return;
-    }
     self.status = DLGPlayerStatusPlaying;
     [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
     [self.player play];
@@ -205,28 +181,6 @@ typedef enum : NSUInteger {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [self.player pause];
     [self.btnPlay setTitle:@"|>" forState:UIControlStateNormal];
-}
-
-- (BOOL)doNextOperation {
-    if (self.nextOperation == DLGPlayerOperationNone) return NO;
-    switch (self.nextOperation) {
-        case DLGPlayerOperationOpen:
-            [self open];
-            break;
-        case DLGPlayerOperationPlay:
-            [self play];
-            break;
-        case DLGPlayerOperationPause:
-            [self pause];
-            break;
-        case DLGPlayerOperationClose:
-            [self close];
-            break;
-        default:
-            break;
-    }
-    self.nextOperation = DLGPlayerOperationNone;
-    return YES;
 }
 
 #pragma mark - Notifications
@@ -254,7 +208,6 @@ typedef enum : NSUInteger {
     self.status = DLGPlayerStatusClosed;
     [self.aivBuffering stopAnimating];
     [self destroyTimer];
-    [self doNextOperation];
 }
 
 - (void)notifyPlayerOpened:(NSNotification *)notif {
@@ -292,9 +245,7 @@ typedef enum : NSUInteger {
         [strongSelf showHUD];
     });
 
-    if (![self doNextOperation]) {
-        if (self.autoplay) [self play];
-    }
+    if (self.autoplay) [self play];
 }
 
 - (void)notifyPlayerBufferStateChanged:(NSNotification *)notif {
@@ -323,7 +274,6 @@ typedef enum : NSUInteger {
 
             [strongSelf.aivBuffering stopAnimating];
             strongSelf.status = DLGPlayerStatusNone;
-            strongSelf.nextOperation = DLGPlayerOperationNone;
         });
 
         NSLog(@"Player decoder error: %@", error);
