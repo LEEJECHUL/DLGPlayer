@@ -16,7 +16,7 @@
 #define MAX_FRAME_SIZE  4096
 #define MAX_CHANNEL     2
 #define PREFERRED_SAMPLE_RATE   44100
-#define PREFERRED_BUFFER_DURATION 0.023
+#define PREFERRED_BUFFER_DURATION 1
 
 static OSStatus audioUnitRenderCallback(void *inRefCon,
                                         AudioUnitRenderActionFlags *ioActionFlags,
@@ -60,6 +60,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     _sampleRate = 0;
     _bitsPerChannel = 0;
     _channelsPerFrame = 0;
+    _bufferDuration = 1;
     _audioUnit = NULL;
     _audioData = (float *)calloc(MAX_FRAME_SIZE * MAX_CHANNEL, sizeof(float));
     _frameReaderBlock = nil;
@@ -101,9 +102,8 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
-    NSTimeInterval prefferedIOBufferDuration = PREFERRED_BUFFER_DURATION;
-    if (![session setPreferredIOBufferDuration:prefferedIOBufferDuration error:&rawError]) {
-        NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", prefferedIOBufferDuration, rawError);
+    if (![session setPreferredIOBufferDuration:_bufferDuration error:&rawError]) {
+        NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", _bufferDuration, rawError);
     }
     
     double prefferedSampleRate = PREFERRED_SAMPLE_RATE;
