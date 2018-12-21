@@ -16,7 +16,7 @@
 #define MAX_FRAME_SIZE  4096
 #define MAX_CHANNEL     2
 #define PREFERRED_SAMPLE_RATE   44100
-#define PREFERRED_BUFFER_DURATION 1
+#define PREFERRED_BUFFER_DURATION 0.023
 
 static OSStatus audioUnitRenderCallback(void *inRefCon,
                                         AudioUnitRenderActionFlags *ioActionFlags,
