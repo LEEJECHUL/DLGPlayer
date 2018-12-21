@@ -30,7 +30,6 @@
 @property (nonatomic) double mediaSyncTime;
 @property (nonatomic) double mediaSyncPosition;
 
-@property (nonatomic, strong) NSThread *frameReaderThread;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) double requestSeekPosition;
@@ -39,6 +38,7 @@
 
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
+@property (nonatomic, strong) dispatch_queue_t readFrameQueue;
 @end
 
 @implementation DLGPlayer
@@ -80,10 +80,10 @@
     _requestSeek = NO;
     _renderBegan = NO;
     _requestSeekPosition = 0;
-    _frameReaderThread = nil;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
     _renderQueue = dispatch_queue_create("DLGPlayer.renderQueue", DISPATCH_QUEUE_SERIAL);
+    _readFrameQueue = dispatch_queue_create("DLGPlayer.readFrameQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)initView {
@@ -118,7 +118,7 @@
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         if (!strongSelf) {
             return;
@@ -173,34 +173,30 @@
     }
 
     [self pause];
-    [self.decoder prepareClose];
-
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
-
+    
     __weak typeof(self)weakSelf = self;
-
-    dispatch_source_set_event_handler(timer, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf) {
+    
+    dispatch_sync(_readFrameQueue, ^{
+        if (!weakSelf) {
             return;
         }
-
-        if (strongSelf.opening || strongSelf.buffering) return;
-        [strongSelf.decoder close];
-
+        
+        [self.decoder prepareClose];
+        [weakSelf.decoder close];
+        
         NSArray<NSError *> *errors = nil;
-        if ([strongSelf.audio close:&errors]) {
-            [strongSelf clearVars];
-            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
+        if ([weakSelf.audio close:&errors]) {
+            [weakSelf clearVars];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:weakSelf];
+            });
         } else {
             for (NSError *error in errors) {
-                [strongSelf handleError:error];
+                [weakSelf handleError:error];
             }
         }
-        dispatch_cancel(timer);
     });
-    dispatch_resume(timer);
 }
 
 - (void)play {
@@ -216,7 +212,10 @@
         }
 
         [strongSelf render];
-        [strongSelf startFrameReaderThread];
+        
+        dispatch_async(strongSelf.readFrameQueue, ^{
+            [strongSelf runFrameReader];
+        });
     });
 
     NSError *error = nil;
@@ -238,13 +237,6 @@
     return [_view snapshot];
 }
 
-- (void)startFrameReaderThread {
-    if (self.frameReaderThread == nil) {
-        self.frameReaderThread = [[NSThread alloc] initWithTarget:self selector:@selector(runFrameReader) object:nil];
-        [self.frameReaderThread start];
-    }
-}
-
 - (void)runFrameReader {
     @autoreleasepool {
         while (self.playing) {
@@ -255,7 +247,6 @@
                 [NSThread sleepForTimeInterval:1.5];
             }
         }
-        self.frameReaderThread = nil;
     }
 }
 
@@ -561,7 +552,10 @@
 - (void)handleError:(NSError *)error {
     if (error == nil) return;
     NSDictionary *userInfo = @{ DLGPlayerNotificationErrorKey : error };
-    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:userInfo];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:userInfo];
+    });
 }
 
 @end
