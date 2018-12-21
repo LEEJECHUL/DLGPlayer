@@ -64,7 +64,7 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-        print("player.position", playerViewController.player.position)
+//        print("player.position", playerViewController.player.position)
     }
     
     @IBAction private func captureButtonClicked() {

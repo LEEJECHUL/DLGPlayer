@@ -106,10 +106,8 @@
     [self.aframes removeAllObjects];
     self.playingAudioFrame = nil;
     self.playingAudioFrameDataPosition = 0;
-    self.opening = NO;
     self.buffering = NO;
     self.playing = NO;
-    self.closing = NO;
     self.opened = NO;
     self.renderBegan = NO;
     self.bufferedDuration = 0;
@@ -117,6 +115,11 @@
     self.mediaSyncTime = 0;
     
     __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(_processingQueue, ^{
+        weakSelf.closing = NO;
+        weakSelf.opening = NO;
+    });
     
     dispatch_async(_renderingQueue, ^{
         [weakSelf.view clear];
@@ -127,53 +130,51 @@
     __weak typeof(self)weakSelf = self;
 
     dispatch_async(_processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf || strongSelf.opening || strongSelf.opened) {
+        if (weakSelf.opening) {
             return;
         }
 
-        strongSelf.opening = YES;
+        weakSelf.opening = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             NSError *error = nil;
-            if ([strongSelf.audio open:&error]) {
-                strongSelf.decoder.audioChannels = [strongSelf.audio channels];
-                strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+            if ([weakSelf.audio open:&error]) {
+                weakSelf.decoder.audioChannels = [weakSelf.audio channels];
+                weakSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
             } else {
-                [strongSelf handleError:error];
+                [weakSelf handleError:error];
             }
         });
         
         NSError *error = nil;
-        if (![strongSelf.decoder open:url error:&error]) {
-            strongSelf.opening = NO;
-            [strongSelf handleError:error];
+        if (![weakSelf.decoder open:url error:&error]) {
+            weakSelf.opening = NO;
+            [weakSelf handleError:error];
             return;
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            strongSelf.view.isYUV = [strongSelf.decoder isYUV];
-            strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
-            strongSelf.view.rotation = strongSelf.decoder.rotation;
-            strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
-            strongSelf.view.contentMode = UIViewContentModeScaleAspectFit;
+            weakSelf.view.isYUV = [weakSelf.decoder isYUV];
+            weakSelf.view.keepLastFrame = [weakSelf.decoder hasPicture] && ![weakSelf.decoder hasVideo];
+            weakSelf.view.rotation = weakSelf.decoder.rotation;
+            weakSelf.view.contentSize = CGSizeMake([weakSelf.decoder videoWidth], [weakSelf.decoder videoHeight]);
+            weakSelf.view.contentMode = UIViewContentModeScaleAspectFit;
             
-            strongSelf.duration = strongSelf.decoder.duration;
-            strongSelf.metadata = strongSelf.decoder.metadata;
-            strongSelf.opening = NO;
-            strongSelf.buffering = NO;
-            strongSelf.playing = NO;
-            strongSelf.bufferedDuration = 0;
-            strongSelf.mediaPosition = 0;
-            strongSelf.mediaSyncTime = 0;
+            weakSelf.duration = weakSelf.decoder.duration;
+            weakSelf.metadata = weakSelf.decoder.metadata;
+            weakSelf.opening = NO;
+            weakSelf.buffering = NO;
+            weakSelf.playing = NO;
+            weakSelf.bufferedDuration = 0;
+            weakSelf.mediaPosition = 0;
+            weakSelf.mediaSyncTime = 0;
 
-            __weak typeof(strongSelf)ws = strongSelf;
-            strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-                [ws readAudioFrame:data frames:frames channels:channels];
+            weakSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+                [weakSelf readAudioFrame:data frames:frames channels:channels];
             };
             
-            strongSelf.opened = YES;
-            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+            weakSelf.opened = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:weakSelf];
         });
     });
 }
@@ -184,23 +185,22 @@
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf || strongSelf.closing) {
+        if (weakSelf.closing) {
             return;
         }
         
-        strongSelf.closing = YES;
-        [strongSelf.decoder prepareClose];
-        [strongSelf.decoder close];
+        weakSelf.closing = YES;
+        [weakSelf.decoder prepareClose];
+        [weakSelf.decoder close];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             NSArray<NSError *> *errors = nil;
-            if ([strongSelf.audio close:&errors]) {
-                [strongSelf clearVars];
+            if ([weakSelf.audio close:&errors]) {
+                [weakSelf clearVars];
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:weakSelf];
             } else {
                 for (NSError *error in errors) {
-                    [strongSelf handleError:error];
+                    [weakSelf handleError:error];
                 }
             }
         });
