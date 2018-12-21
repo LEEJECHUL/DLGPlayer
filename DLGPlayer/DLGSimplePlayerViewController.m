@@ -23,7 +23,6 @@ typedef enum : NSUInteger {
     
 @property (nonatomic, readwrite) DLGPlayer *player;
 @property (nonatomic, readwrite) DLGPlayerStatus status;
-@property (nonatomic) DLGPlayerOperation nextOperation;
 @end
 
 @implementation DLGSimplePlayerViewController
@@ -119,43 +118,20 @@ typedef enum : NSUInteger {
     _player = [[DLGPlayer alloc] init];
     _status = DLGPlayerStatusNone;
     _controlStatus = [[DLGPlayerControlStatus alloc] initWithStatus:_status];
-    self.nextOperation = DLGPlayerOperationNone;
 }
     
 - (void)open {
-    if (_status == DLGPlayerStatusClosing) {
-        self.nextOperation = DLGPlayerOperationOpen;
-        return;
-    }
-    if (_status != DLGPlayerStatusNone &&
-        _status != DLGPlayerStatusClosed) {
-        return;
-    }
     self.status = DLGPlayerStatusOpening;
     [_player open:_url];
 }
     
 - (void)close {
-    if (_status == DLGPlayerStatusOpening) {
-        self.nextOperation = DLGPlayerOperationClose;
-        return;
-    }
     self.status = DLGPlayerStatusClosing;
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player close];
 }
     
 - (void)play {
-    if (_status == DLGPlayerStatusNone ||
-        _status == DLGPlayerStatusClosed) {
-        [self open];
-        self.nextOperation = DLGPlayerOperationPlay;
-    }
-    if (_status != DLGPlayerStatusOpened &&
-        _status != DLGPlayerStatusPaused &&
-        _status != DLGPlayerStatusEOF) {
-        return;
-    }
     [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
     [_player play];
     self.status = DLGPlayerStatusPlaying;
@@ -167,42 +143,9 @@ typedef enum : NSUInteger {
 }
     
 - (void)pause {
-    if (_status != DLGPlayerStatusOpened &&
-        _status != DLGPlayerStatusPlaying &&
-        _status != DLGPlayerStatusEOF) {
-        return;
-    }
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player pause];
     self.status = DLGPlayerStatusPaused;
-}
-
-- (void)reset {
-    _status = DLGPlayerStatusNone;
-    [_controlStatus setStatus:_status];
-    self.nextOperation = DLGPlayerOperationNone;
-}
-    
-- (BOOL)doNextOperation {
-    if (self.nextOperation == DLGPlayerOperationNone) return NO;
-    switch (self.nextOperation) {
-        case DLGPlayerOperationOpen:
-        [self open];
-        break;
-        case DLGPlayerOperationPlay:
-        [self play];
-        break;
-        case DLGPlayerOperationPause:
-        [self pause];
-        break;
-        case DLGPlayerOperationClose:
-        [self close];
-        break;
-        default:
-        break;
-    }
-    self.nextOperation = DLGPlayerOperationNone;
-    return YES;
 }
     
     
@@ -268,16 +211,12 @@ typedef enum : NSUInteger {
     
 - (void)notifyPlayerClosed:(NSNotification *)notif {
     self.status = DLGPlayerStatusClosed;
-    
-    [self doNextOperation];
 }
     
 - (void)notifyPlayerOpened:(NSNotification *)notif {
     self.status = DLGPlayerStatusOpened;
     
-    if (![self doNextOperation]) {
-        if (_isAutoplay) [self play];
-    }
+    if (_isAutoplay) [self play];
 }
     
 - (void)notifyPlayerBufferStateChanged:(NSNotification *)notif {
@@ -309,7 +248,6 @@ typedef enum : NSUInteger {
             }
             
             strongSelf.status = DLGPlayerStatusNone;
-            strongSelf.nextOperation = DLGPlayerOperationNone;
         });
         
         NSLog(@"Player decoder error: %@", error);
