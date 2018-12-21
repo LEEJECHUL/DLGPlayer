@@ -257,7 +257,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     
     BOOL closed = YES;
     
-    if (_opened) {
+    if (_opened && _audioUnit != NULL) {
         [self pause];
         
         [self unregisterNotifications];
