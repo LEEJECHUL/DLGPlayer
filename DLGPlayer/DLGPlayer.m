@@ -128,7 +128,7 @@
 
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf) {
+        if (!strongSelf || strongSelf.opening || strongSelf.opened) {
             return;
         }
 
@@ -179,18 +179,13 @@
 }
 
 - (void)close {
-    if (!self.opened && !self.opening) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:self];
-        return;
-    }
-
     [self pause];
     
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf) {
+        if (!strongSelf || strongSelf.closing) {
             return;
         }
         
