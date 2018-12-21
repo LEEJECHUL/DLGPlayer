@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet private weak var coverView: UIView?
+    @IBOutlet private weak var muteButton: UIButton!
     @IBOutlet private weak var playOrPauseButton: UIButton!
     
     private var timer: Timer?
@@ -76,6 +77,7 @@ class ViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
+        playerViewController.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
@@ -85,6 +87,10 @@ class ViewController: UIViewController {
         } else {
             playerViewController.pause()
         }
+    }
+    @IBAction private func refreshButtonClicked(_ sender: UIButton) {
+        playerViewController.close()
+        play()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController.player.brightness = sender.value
@@ -101,6 +107,7 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
         print("didChange", viewController.hash, status.stringValue)
         playOrPauseButton.isSelected = viewController.controlStatus.playing
+        muteButton.isSelected = !viewController.isMute
         
         switch status {
         case .opened:

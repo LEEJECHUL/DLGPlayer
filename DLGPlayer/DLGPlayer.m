@@ -33,12 +33,13 @@
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) double requestSeekPosition;
-@property (nonatomic) BOOL opening;
+@property (atomic) BOOL closing;
+@property (atomic) BOOL opening;
 @property (nonatomic) BOOL renderBegan;
 
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
-@property (nonatomic, strong) dispatch_queue_t readFrameQueue;
+@property (nonatomic, strong) dispatch_queue_t processingQueue;
 @end
 
 @implementation DLGPlayer
@@ -73,6 +74,7 @@
     _aframes = [NSMutableArray arrayWithCapacity:128];
     _playingAudioFrame = nil;
     _playingAudioFrameDataPosition = 0;
+    _closing = NO;
     _opening = NO;
     _buffering = NO;
     _playing = NO;
@@ -82,8 +84,8 @@
     _requestSeekPosition = 0;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
-    _renderQueue = dispatch_queue_create("DLGPlayer.renderQueue", DISPATCH_QUEUE_SERIAL);
-    _readFrameQueue = dispatch_queue_create("DLGPlayer.readFrameQueue", DISPATCH_QUEUE_SERIAL);
+    _renderingQueue = dispatch_queue_create("DLGPlayer.renderingQueue", DISPATCH_QUEUE_SERIAL);
+    _processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)initView {
@@ -107,38 +109,48 @@
     self.opening = NO;
     self.buffering = NO;
     self.playing = NO;
+    self.closing = NO;
     self.opened = NO;
     self.renderBegan = NO;
     self.bufferedDuration = 0;
     self.mediaPosition = 0;
     self.mediaSyncTime = 0;
-    [self.view clear];
+    
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(_renderingQueue, ^{
+        [weakSelf.view clear];
+    });
 }
 
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
 
-        NSError *error = nil;
         strongSelf.opening = YES;
         
-        if ([strongSelf.audio open:&error]) {
-            strongSelf.decoder.audioChannels = [strongSelf.audio channels];
-            strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
-        } else {
-            [strongSelf handleError:error];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error = nil;
+            if ([strongSelf.audio open:&error]) {
+                strongSelf.decoder.audioChannels = [strongSelf.audio channels];
+                strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+            } else {
+                [strongSelf handleError:error];
+            }
+        });
         
+        NSError *error = nil;
         if (![strongSelf.decoder open:url error:&error]) {
             strongSelf.opening = NO;
             [strongSelf handleError:error];
             return;
         }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             strongSelf.view.isYUV = [strongSelf.decoder isYUV];
             strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
@@ -176,26 +188,27 @@
     
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(_readFrameQueue, ^{
-        if (!weakSelf) {
+    dispatch_async(_processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf) {
             return;
         }
         
-        [self.decoder prepareClose];
-        [weakSelf.decoder close];
+        strongSelf.closing = YES;
+        [strongSelf.decoder prepareClose];
+        [strongSelf.decoder close];
         
-        NSArray<NSError *> *errors = nil;
-        if ([weakSelf.audio close:&errors]) {
-            [weakSelf clearVars];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSArray<NSError *> *errors = nil;
+            if ([strongSelf.audio close:&errors]) {
+                [strongSelf clearVars];
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:weakSelf];
-            });
-        } else {
-            for (NSError *error in errors) {
-                [weakSelf handleError:error];
+            } else {
+                for (NSError *error in errors) {
+                    [strongSelf handleError:error];
+                }
             }
-        }
+        });
     });
 }
 
@@ -203,21 +216,15 @@
     if (!self.opened || self.playing) return;
     
     self.playing = YES;
+    
+    [self render];
+    
     __weak typeof(self)weakSelf = self;
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-
-        [strongSelf render];
-        
-        dispatch_async(strongSelf.readFrameQueue, ^{
-            [strongSelf runFrameReader];
-        });
+    
+    dispatch_async(_processingQueue, ^{
+        [weakSelf runFrameReader];
     });
-
+    
     NSError *error = nil;
     if (![self.audio play:&error]) {
         [self handleError:error];
@@ -226,8 +233,8 @@
 
 - (void)pause {
     self.playing = NO;
+    
     NSError *error = nil;
-
     if (![self.audio pause:&error]) {
         [self handleError:error];
     }
@@ -239,7 +246,7 @@
 
 - (void)runFrameReader {
     @autoreleasepool {
-        while (self.playing) {
+        while (self.playing && !self.closing) {
             [self readFrame];
             if (self.requestSeek) {
                 [self seekPositionInFrameReader];
@@ -258,7 +265,7 @@
     double tempDuration = 0;
     dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
     
-    while (self.playing && !self.decoder.isEOF && !self.requestSeek
+    while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek
            && (self.bufferedDuration + tempDuration) < self.maxBufferDuration) {
         @autoreleasepool {
             NSArray *fs = [self.decoder readFrames];
@@ -430,7 +437,7 @@
 - (void)renderView:(DLGPlayerVideoFrame *)frame {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(_renderQueue, ^{
+    dispatch_sync(_renderingQueue, ^{
         [weakSelf.view render:frame];
         
         if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {
@@ -553,9 +560,7 @@
     if (error == nil) return;
     NSDictionary *userInfo = @{ DLGPlayerNotificationErrorKey : error };
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:userInfo];
-    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:userInfo];
 }
 
 @end

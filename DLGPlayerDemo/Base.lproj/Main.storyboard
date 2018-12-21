@@ -83,6 +83,14 @@
                                     <action selector="playOrPauseButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SB8-Mf-dVJ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qy7-pk-JEK">
+                                <rect key="frame" x="256" y="183" width="53" height="30"/>
+                                <state key="normal" title="Refresh"/>
+                                <state key="selected" title="Pause"/>
+                                <connections>
+                                    <action selector="refreshButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="htd-0z-qz7"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kvf-8W-DwS">
                                 <rect key="frame" x="171.5" y="617" width="32" height="30"/>
                                 <state key="normal" title="Next"/>
@@ -100,6 +108,7 @@
                             <constraint firstItem="Llk-G2-h40" firstAttribute="leading" secondItem="0Hq-Tr-LTU" secondAttribute="leading" id="HVc-5s-Sag"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="top" secondItem="E2A-Jz-ZOg" secondAttribute="top" id="NDg-9f-aXA"/>
                             <constraint firstItem="Llk-G2-h40" firstAttribute="top" secondItem="0Hq-Tr-LTU" secondAttribute="bottom" constant="40" id="Nbo-Iu-Zas"/>
+                            <constraint firstItem="U7U-Qy-3pL" firstAttribute="leading" secondItem="Qy7-pk-JEK" secondAttribute="trailing" constant="16" id="XzF-Jo-xFu"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ye0-4D-x3D"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="leading" secondItem="E2A-Jz-ZOg" secondAttribute="leading" id="Yj2-et-Rqq"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ZJD-7q-YwT"/>
@@ -108,6 +117,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Kvf-8W-DwS" secondAttribute="bottom" constant="20" id="kll-mF-JKa"/>
                             <constraint firstItem="Kvf-8W-DwS" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="rJs-ng-CSg"/>
+                            <constraint firstItem="Qy7-pk-JEK" firstAttribute="centerY" secondItem="U7U-Qy-3pL" secondAttribute="centerY" id="t19-rs-J6z"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="bottom" constant="8" id="tTz-hv-bw3"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="bottom" secondItem="E2A-Jz-ZOg" secondAttribute="bottom" id="xDE-Pu-h9I"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="xaL-WD-2Jf"/>
@@ -120,6 +130,7 @@
                     <navigationItem key="navigationItem" id="7fL-wr-fF1"/>
                     <connections>
                         <outlet property="coverView" destination="Vzq-x9-dpP" id="hxn-S2-Ibe"/>
+                        <outlet property="muteButton" destination="Llk-G2-h40" id="5FR-Tb-s6O"/>
                         <outlet property="playOrPauseButton" destination="U7U-Qy-3pL" id="zC1-77-qGl"/>
                     </connections>
                 </viewController>
@@ -194,6 +205,14 @@
                                     <action selector="playOrPauseButtonClicked:" destination="ngc-aU-iHN" eventType="touchUpInside" id="jIe-HD-dhI"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OHb-1e-yBA">
+                                <rect key="frame" x="256" y="183" width="53" height="30"/>
+                                <state key="normal" title="Refresh"/>
+                                <state key="selected" title="Pause"/>
+                                <connections>
+                                    <action selector="refreshButtonClicked:" destination="ngc-aU-iHN" eventType="touchUpInside" id="SqE-b7-LWl"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -202,10 +221,12 @@
                             <constraint firstItem="07x-ar-Xgi" firstAttribute="leading" secondItem="7uQ-ll-hzl" secondAttribute="trailing" constant="16" id="2uk-5O-eR3"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="qse-yW-31x" secondAttribute="trailing" constant="20" id="D5Y-Hu-Il2"/>
                             <constraint firstItem="amF-zF-GUq" firstAttribute="top" secondItem="bc5-MZ-fgG" secondAttribute="top" constant="20" id="Fd5-QG-ZPl"/>
+                            <constraint firstItem="OHb-1e-yBA" firstAttribute="centerY" secondItem="qse-yW-31x" secondAttribute="centerY" id="Ooi-lW-4AH"/>
                             <constraint firstItem="cGQ-aZ-CVk" firstAttribute="centerY" secondItem="H9N-BX-EXd" secondAttribute="centerY" id="QVO-Ud-a4Y"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="x1V-Cm-Tel" secondAttribute="trailing" constant="20" id="Z7e-7i-yjb"/>
                             <constraint firstItem="7uQ-ll-hzl" firstAttribute="top" secondItem="x1V-Cm-Tel" secondAttribute="bottom" constant="40" id="Zey-gq-eMw"/>
                             <constraint firstItem="7uQ-ll-hzl" firstAttribute="leading" secondItem="x1V-Cm-Tel" secondAttribute="leading" id="chv-ZR-c9w"/>
+                            <constraint firstItem="qse-yW-31x" firstAttribute="leading" secondItem="OHb-1e-yBA" secondAttribute="trailing" constant="16" id="dw0-Od-Tih"/>
                             <constraint firstItem="x1V-Cm-Tel" firstAttribute="top" secondItem="amF-zF-GUq" secondAttribute="bottom" constant="8" id="eMS-nF-ewX"/>
                             <constraint firstItem="cGQ-aZ-CVk" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" id="eP4-1v-CgN"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7uQ-ll-hzl" secondAttribute="trailing" symbolic="YES" id="hTk-hT-WkQ"/>
@@ -216,6 +237,7 @@
                         <viewLayoutGuide key="safeArea" id="bc5-MZ-fgG"/>
                     </view>
                     <connections>
+                        <outlet property="muteButton" destination="7uQ-ll-hzl" id="ZFf-6R-92t"/>
                         <outlet property="playOrPauseButton" destination="qse-yW-31x" id="ZNN-fB-seU"/>
                     </connections>
                 </viewController>

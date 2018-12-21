@@ -325,7 +325,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return _playing;
     }
     
-    if (_opened) {
+    if (_opened && _audioUnit != NULL) {
         OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
         if (!_playing) {
