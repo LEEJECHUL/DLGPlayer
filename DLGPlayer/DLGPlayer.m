@@ -25,10 +25,10 @@
 @property (nonatomic, strong) NSMutableArray *aframes;
 @property (nonatomic, strong) DLGPlayerAudioFrame *playingAudioFrame;
 @property (nonatomic) NSUInteger playingAudioFrameDataPosition;
-@property (nonatomic) double bufferedDuration;
-@property (nonatomic) double mediaPosition;
-@property (nonatomic) double mediaSyncTime;
-@property (nonatomic) double mediaSyncPosition;
+@property (atomic) double bufferedDuration;
+@property (atomic) double mediaPosition;
+@property (atomic) double mediaSyncTime;
+@property (atomic) double mediaSyncPosition;
 
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
@@ -110,13 +110,13 @@
     self.playing = NO;
     self.opened = NO;
     self.renderBegan = NO;
-    self.bufferedDuration = 0;
-    self.mediaPosition = 0;
-    self.mediaSyncTime = 0;
     
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
+        weakSelf.mediaPosition = 0;
+        weakSelf.bufferedDuration = 0;
+        weakSelf.mediaSyncTime = 0;
         weakSelf.closing = NO;
         weakSelf.opening = NO;
     });
