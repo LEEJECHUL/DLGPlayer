@@ -212,6 +212,7 @@
     
     self.playing = YES;
     
+    [_view setContext];
     [self render];
     
     __weak typeof(self)weakSelf = self;
@@ -237,10 +238,6 @@
 
 - (UIImage *)snapshot {
     return [_view snapshot];
-}
-
-- (void)setContext {
-    [_view setContext];
 }
 
 - (void)runFrameReader {
@@ -558,8 +555,11 @@
 - (void)handleError:(NSError *)error {
     if (error == nil) return;
     NSDictionary *userInfo = @{ DLGPlayerNotificationErrorKey : error };
+    __weak typeof(self)weakSelf = self;
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:userInfo];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:weakSelf userInfo:userInfo];
+    });
 }
 
 @end
