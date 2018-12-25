@@ -20,6 +20,7 @@
 + (void)clearContext;
 - (void)render:(DLGPlayerVideoFrame *)frame;
 - (void)clear;
+- (BOOL)setContext;
 - (UIImage *)snapshot;
 
 @end

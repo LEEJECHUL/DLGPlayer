@@ -109,6 +109,12 @@ static EAGLContext *_context;
     [self render:nil];
 }
 
+- (BOOL)setContext {
+    if (!_context)
+        return NO;
+    return [EAGLContext setCurrentContext:_context];
+}
+
 - (BOOL)initVars {
     _eaglLayer = (CAEAGLLayer *)self.layer;
     _eaglLayer.opaque = YES;
@@ -122,7 +128,7 @@ static EAGLContext *_context;
             return NO;
         }
         
-        if (![EAGLContext setCurrentContext:_context]) {
+        if (![self setContext]) {
             return NO;
         }
     }
