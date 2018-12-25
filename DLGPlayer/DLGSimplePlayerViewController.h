@@ -37,4 +37,5 @@
 - (void)close;
 - (void)play;
 - (void)pause;
+- (void)setContext;
 @end

@@ -44,5 +44,6 @@ typedef void (^onPauseComplete)(void);
 - (void)play;
 - (void)pause;
 - (UIImage *)snapshot;
+- (void)setContext;
 
 @end

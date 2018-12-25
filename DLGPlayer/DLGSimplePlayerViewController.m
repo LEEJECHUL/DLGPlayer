@@ -147,6 +147,10 @@ typedef enum : NSUInteger {
     [_player pause];
     self.status = DLGPlayerStatusPaused;
 }
+
+- (void)setContext {
+    [_player setContext];
+}
     
     
 #pragma mark - UI

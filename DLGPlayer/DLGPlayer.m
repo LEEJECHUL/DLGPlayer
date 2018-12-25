@@ -239,6 +239,10 @@
     return [_view snapshot];
 }
 
+- (void)setContext {
+    [_view setContext];
+}
+
 - (void)runFrameReader {
     @autoreleasepool {
         while (self.playing && !self.closing) {

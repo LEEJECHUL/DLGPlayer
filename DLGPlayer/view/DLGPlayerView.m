@@ -110,7 +110,7 @@ static EAGLContext *_context;
 }
 
 - (BOOL)setContext {
-    if (!_context)
+    if (!_context || [EAGLContext currentContext] == _context)
         return NO;
     return [EAGLContext setCurrentContext:_context];
 }
