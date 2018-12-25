@@ -154,6 +154,8 @@
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.view setCurrentEAGLContext];
+            
             weakSelf.view.isYUV = [weakSelf.decoder isYUV];
             weakSelf.view.keepLastFrame = [weakSelf.decoder hasPicture] && ![weakSelf.decoder hasVideo];
             weakSelf.view.rotation = weakSelf.decoder.rotation;
@@ -212,7 +214,6 @@
     
     self.playing = YES;
     
-    [_view setContext];
     [self render];
     
     __weak typeof(self)weakSelf = self;

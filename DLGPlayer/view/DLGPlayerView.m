@@ -42,13 +42,12 @@
     BOOL _isFlipVertical;
     float _ratio[2];
     float _scale[2];
+    EAGLContext *_context;
 }
 
 @property (nonatomic, strong) DLGPlayerVideoFrame *lastFrame;
 
 @end
-
-static EAGLContext *_context;
 
 @implementation DLGPlayerView
 
@@ -78,11 +77,6 @@ static EAGLContext *_context;
     NSLog(@"DLGPlayerView dealloc");
 }
 
-+ (void)clearContext {
-    [EAGLContext setCurrentContext:nil];
-    _context = nil;
-}
-
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
@@ -109,7 +103,7 @@ static EAGLContext *_context;
     [self render:nil];
 }
 
-- (BOOL)setContext {
+- (BOOL)setCurrentEAGLContext {
     if (!_context || [EAGLContext currentContext] == _context)
         return NO;
     return [EAGLContext setCurrentContext:_context];
@@ -123,14 +117,8 @@ static EAGLContext *_context;
                                        kEAGLDrawablePropertyColorFormat : kEAGLColorFormatRGBA8
                                        };
     
-    if (!_context) {
-        if ((_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]) == nil) {
-            return NO;
-        }
-        
-        if (![self setContext]) {
-            return NO;
-        }
+    if ((_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]) == nil) {
+        return NO;
     }
     
     [self initVertex];
