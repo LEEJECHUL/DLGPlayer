@@ -260,7 +260,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     
     BOOL closed = YES;
     
-    if (_opened) {
+    if (_opened && _audioUnit != NULL) {
         [self pause];
         
         [self unregisterNotifications];
@@ -328,7 +328,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return _playing;
     }
     
-    if (_opened) {
+    if (_opened && _audioUnit != NULL) {
         OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
         if (!_playing) {
@@ -348,7 +348,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)pause:(NSError **)error {
-    if (_playing) {
+    if (_playing && _audioUnit != NULL) {
         OSStatus status = AudioOutputUnitStop(_audioUnit);
         _playing = !(status == noErr);
         if (_playing) {

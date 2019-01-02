@@ -51,7 +51,7 @@ class ViewController: UIViewController {
     }
     
     private func play() {
-        playerViewController.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        playerViewController.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
         playerViewController.open()
     }
     private func startTimer() {
