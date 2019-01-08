@@ -15,14 +15,16 @@ class ViewController: UIViewController {
     @IBOutlet private weak var playOrPauseButton: UIButton!
     
     private var timer: Timer?
-    private var playerViewController: DLGSimplePlayerViewController! {
+    private var playerViewController: DLGSimplePlayerViewController? {
         didSet {
-            playerViewController.delegate = self
-            playerViewController.isAutoplay = true
-//            playerViewController.isMute = true
-            playerViewController.preventFromScreenLock = true
-            playerViewController.restorePlayAfterAppEnterForeground = true
-            playerViewController.minBufferDuration = 1
+            playerViewController.map {
+                $0.delegate = self
+                $0.isAutoplay = true
+                //            $0.isMute = true
+                $0.preventFromScreenLock = true
+                $0.restorePlayAfterAppEnterForeground = true
+                $0.minBufferDuration = 1
+            }
         }
     }
 
@@ -39,7 +41,7 @@ class ViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         stopTimer()
-        playerViewController.close()
+        playerViewController?.close()
         coverView?.isHidden = false
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -51,8 +53,8 @@ class ViewController: UIViewController {
     }
     
     private func play() {
-        playerViewController.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
-        playerViewController.open()
+        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACNZM?token=1234567890"
+        playerViewController?.open()
     }
     private func startTimer() {
         stopTimer()
@@ -68,7 +70,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction private func captureButtonClicked() {
-        playerViewController.player.snapshot()
+        playerViewController?.player.snapshot()
             .map { UIImageView(image: $0) }
             .map { [weak self] in
                 self?.view.addSubview($0)
@@ -76,7 +78,7 @@ class ViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        playerViewController.isMute = !sender.isSelected
+        playerViewController?.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
@@ -84,15 +86,15 @@ class ViewController: UIViewController {
         if sender.isSelected {
             play()
         } else {
-            playerViewController.pause()
+            playerViewController?.pause()
         }
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
-        playerViewController.close()
+        playerViewController?.close()
         play()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
-        playerViewController.player.brightness = sender.value
+        playerViewController?.player.brightness = sender.value
     }
 }
 
