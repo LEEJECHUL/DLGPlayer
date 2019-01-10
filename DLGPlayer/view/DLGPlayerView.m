@@ -382,6 +382,11 @@
     glReadPixels(0, 0, _backingWidth, _backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     
     CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+    
+    if (ref == NULL) {
+        return nil;
+    }
+    
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
                                     ref, NULL, true, kCGRenderingIntentDefault);
