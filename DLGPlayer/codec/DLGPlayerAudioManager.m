@@ -259,7 +259,8 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     if (errors != nil) errs = [NSMutableArray array];
     
     BOOL closed = YES;
-    
+
+    NSLog(@"%@::close -> _opened: %d, _audioUnit is NULL: %d", NSStringFromClass(DLGPlayerAudioManager.class), _opened, _audioUnit != NULL);
     if (_opened && _audioUnit != NULL) {
         [self pause];
         [self unregisterNotifications];
@@ -327,6 +328,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return _playing;
     }
     
+    NSLog(@"%@::play -> _opened: %d, _audioUnit is NULL: %d", NSStringFromClass(DLGPlayerAudioManager.class), _opened, _audioUnit != NULL);
     if (_opened && _audioUnit != NULL) {
         OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
@@ -347,6 +349,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)pause:(NSError **)error {
+    NSLog(@"%@::pause -> _playing: %d, _audioUnit is NULL: %d", NSStringFromClass(DLGPlayerAudioManager.class), _playing, _audioUnit != NULL);
     if (_playing && _audioUnit != NULL) {
         OSStatus status = AudioOutputUnitStop(_audioUnit);
         _playing = !(status == noErr);
