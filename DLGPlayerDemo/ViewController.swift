@@ -27,7 +27,7 @@ class ViewController: UIViewController {
             }
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,7 +35,35 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        playerViewController?.close()
         play()
+    }
+    private func refresh() {
+        playerViewController?.close()
+        play()
+        
+        let rand1 = CGFloat(arc4random_uniform(2))
+        let rand2 =  CGFloat(arc4random_uniform(3) + 1)
+        let delay: TimeInterval = TimeInterval(rand1 + (1 / rand2))
+        
+        print("delay", delay)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            self.refresh()
+        }
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+//        refresh()
+        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            if self.coverView == nil {
+//                self.navigationController?.popViewController(animated: true)
+//            } else {
+//                self.performSegue(withIdentifier: "NextView", sender: nil)
+//            }
+//        }
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -66,7 +94,7 @@ class ViewController: UIViewController {
     }
     
     @objc private func timerCompletion() {
-//        print("player.position", playerViewController.player.position)
+        //        print("player.position", playerViewController.player.position)
     }
     
     @IBAction private func captureButtonClicked() {
@@ -84,7 +112,11 @@ class ViewController: UIViewController {
         sender.isSelected = !sender.isSelected
         
         if sender.isSelected {
-            play()
+            if playerViewController?.status == .paused {
+                playerViewController?.play()
+            } else {
+                play()
+            }
         } else {
             playerViewController?.pause()
         }
@@ -101,6 +133,7 @@ class ViewController: UIViewController {
 extension ViewController: DLGSimplePlayerViewControllerDelegate {
     func didBeginRender(in viewController: DLGSimplePlayerViewController) {
         coverView?.isHidden = true
+//        viewController.pause()
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
         print("didReceiveError", error)

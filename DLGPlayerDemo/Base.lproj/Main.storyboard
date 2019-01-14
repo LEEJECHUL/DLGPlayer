@@ -95,7 +95,7 @@
                                 <rect key="frame" x="171.5" y="617" width="32" height="30"/>
                                 <state key="normal" title="Next"/>
                                 <connections>
-                                    <segue destination="ngc-aU-iHN" kind="show" id="hGF-yy-igC"/>
+                                    <segue destination="ngc-aU-iHN" kind="show" identifier="NextView" id="hGF-yy-igC"/>
                                 </connections>
                             </button>
                         </subviews>
