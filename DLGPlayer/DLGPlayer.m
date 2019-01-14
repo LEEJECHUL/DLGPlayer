@@ -110,13 +110,16 @@
     self.playing = NO;
     self.opened = NO;
     self.renderBegan = NO;
-    self.mediaPosition = 0;
-    self.bufferedDuration = 0;
-    self.mediaSyncTime = 0;
-    self.closing = NO;
-    self.opening = NO;
     
     __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(_processingQueue, ^{
+        weakSelf.mediaPosition = 0;
+        weakSelf.bufferedDuration = 0;
+        weakSelf.mediaSyncTime = 0;
+        weakSelf.closing = NO;
+        weakSelf.opening = NO;
+    });
     
     dispatch_async(_renderingQueue, ^{
         [weakSelf.view clear];
@@ -133,23 +136,22 @@
 
         weakSelf.opening = YES;
         
-        NSError *error = nil;
-        if ([weakSelf.audio open:&error]) {
-            weakSelf.decoder.audioChannels = [weakSelf.audio channels];
-            weakSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
-        } else {
-            [weakSelf handleError:error];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error = nil;
+            if ([weakSelf.audio open:&error]) {
+                weakSelf.decoder.audioChannels = [weakSelf.audio channels];
+                weakSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
+            } else {
+                [weakSelf handleError:error];
+            }
+        });
         
+        NSError *error = nil;
         if (![weakSelf.decoder open:url error:&error]) {
             weakSelf.opening = NO;
             [weakSelf handleError:error];
             return;
         }
-        
-        weakSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-            [weakSelf readAudioFrame:data frames:frames channels:channels];
-        };
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf.view setCurrentEAGLContext];
@@ -168,8 +170,12 @@
             weakSelf.bufferedDuration = 0;
             weakSelf.mediaPosition = 0;
             weakSelf.mediaSyncTime = 0;
-            weakSelf.opened = YES;
+
+            weakSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+                [weakSelf readAudioFrame:data frames:frames channels:channels];
+            };
             
+            weakSelf.opened = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:weakSelf];
         });
     });
@@ -189,18 +195,17 @@
         [weakSelf.decoder prepareClose];
         [weakSelf.decoder close];
         
-        NSArray<NSError *> *errors = nil;
-        if ([weakSelf.audio close:&errors]) {
-            [weakSelf clearVars];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSArray<NSError *> *errors = nil;
+            if ([weakSelf.audio close:&errors]) {
+                [weakSelf clearVars];
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:weakSelf];
-            });
-        } else {
-            for (NSError *error in errors) {
-                [weakSelf handleError:error];
+            } else {
+                for (NSError *error in errors) {
+                    [weakSelf handleError:error];
+                }
             }
-        }
+        });
     });
 }
 
