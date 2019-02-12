@@ -35,10 +35,7 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if (navigationController?.viewControllers.count ?? 0) > 1 {
-            playerViewController?.close()
-            play()
-        }
+        play()
     }
     private func refresh() {
         playerViewController?.close()
@@ -83,7 +80,7 @@ class ViewController: UIViewController {
     }
     
     private func play() {
-        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPOS?token=1234567890"
+        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         playerViewController?.open()
     }
     private func startTimer() {
