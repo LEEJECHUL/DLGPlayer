@@ -54,6 +54,7 @@
 
 - (void)dealloc {
     NSLog(@"DLGPlayer dealloc");
+    [self.decoder prepareClose];
 }
 
 - (void)initAll {
