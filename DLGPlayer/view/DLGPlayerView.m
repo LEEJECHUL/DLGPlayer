@@ -74,7 +74,6 @@
 }
 
 - (void)dealloc {
-    NSLog(@"DLGPlayerView dealloc");
 }
 
 + (Class)layerClass {

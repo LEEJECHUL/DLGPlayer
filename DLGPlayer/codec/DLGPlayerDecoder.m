@@ -58,7 +58,6 @@ static int interruptCallback(void *context) {
 @implementation DLGPlayerDecoder
 
 - (void)dealloc {
-    NSLog(@"DLGPlayerDecoder dealloc");
 }
 
 - (BOOL)open:(NSString *)url error:(NSError **)error {

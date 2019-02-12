@@ -53,7 +53,7 @@
 }
 
 - (void)dealloc {
-    NSLog(@"DLGPlayer dealloc");
+    [self clearVars];
 }
 
 - (void)initAll {
