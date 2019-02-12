@@ -53,7 +53,7 @@
 }
 
 - (void)dealloc {
-    [self clearVars];
+    NSLog(@"DLGPlayer dealloc");
 }
 
 - (void)initAll {
@@ -184,25 +184,25 @@
 - (void)close {
     [self pause];
     
-    __weak typeof(self)weakSelf = self;
+    __strong typeof(self)strongSelf = self;
     
     dispatch_async(_processingQueue, ^{
-        if (weakSelf.closing) {
+        if (strongSelf.closing) {
             return;
         }
         
-        weakSelf.closing = YES;
-        [weakSelf.decoder prepareClose];
-        [weakSelf.decoder close];
+        strongSelf.closing = YES;
+        [strongSelf.decoder prepareClose];
+        [strongSelf.decoder close];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             NSArray<NSError *> *errors = nil;
-            if ([weakSelf.audio close:&errors]) {
-                [weakSelf clearVars];
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:weakSelf];
+            if ([strongSelf.audio close:&errors]) {
+                [strongSelf clearVars];
+                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
             } else {
                 for (NSError *error in errors) {
-                    [weakSelf handleError:error];
+                    [strongSelf handleError:error];
                 }
             }
         });
