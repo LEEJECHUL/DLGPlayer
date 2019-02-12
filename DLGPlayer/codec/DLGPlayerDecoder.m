@@ -23,6 +23,16 @@
 
 #define DLGPlayerIOTimeout 30
 
+static NSTimeInterval g_dIOStartTime = 0;
+static bool g_bPrepareClose = FALSE;
+
+static int interruptCallback(void *context) {
+    NSTimeInterval t = [NSDate timeIntervalSinceReferenceDate];
+    NSTimeInterval dt = t - g_dIOStartTime;
+    if (g_bPrepareClose || dt > DLGPlayerIOTimeout) return 1;
+    return 0;
+}
+
 @interface DLGPlayerDecoder () {
     AVFormatContext *m_pFormatContext;
     
@@ -46,16 +56,6 @@
 @end
 
 @implementation DLGPlayerDecoder
-
-NSTimeInterval g_dIOStartTime = 0;
-bool g_bPrepareClose = FALSE;
-
-int interruptCallback(void *context) {
-    NSTimeInterval t = [NSDate timeIntervalSinceReferenceDate];
-    NSTimeInterval dt = t - g_dIOStartTime;
-    if (g_bPrepareClose || dt > DLGPlayerIOTimeout) return 1;
-    return 0;
-}
 
 - (void)dealloc {
     NSLog(@"DLGPlayerDecoder dealloc");
