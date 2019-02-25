@@ -64,6 +64,7 @@
 }
 
 - (void)initVars {
+    _frameDropDuration = DLGPlayerFrameDropDuration;
     _minBufferDuration = DLGPlayerMinBufferDuration;
     _maxBufferDuration = DLGPlayerMaxBufferDuration;
     _bufferedDuration = 0;
@@ -282,6 +283,8 @@
                     if (tempVFrames.count > 0) {
                         self.bufferedDuration += tempDuration;
                         tempDuration = 0;
+                        
+                        [self dropFrames:self.vframes allowsBufferDurationReducing:YES];
                         [self.vframes addObjectsFromArray:tempVFrames];
                         [tempVFrames removeAllObjects];
                     }
@@ -303,6 +306,7 @@
                             self.bufferedDuration += tempDuration;
                             tempDuration = 0;
                         }
+                        [self dropFrames:self.aframes allowsBufferDurationReducing:!self.decoder.hasVideo];
                         [self.aframes addObjectsFromArray:tempAFrames];
                         [tempAFrames removeAllObjects];
                     }
@@ -341,6 +345,26 @@
     }
     
     self.buffering = NO;
+}
+
+- (void)dropFrames:(NSMutableArray *)frames allowsBufferDurationReducing:(BOOL)allowsBufferDurationReducing {
+    if (!(self.frameDropDuration > 0)) {
+        return;
+    }
+    
+    NSInteger limit = self.frameDropDuration * _decoder.videoFPS;
+    
+    if (frames.count > limit) {
+        for (NSInteger i=0; i<limit; i++) {
+            DLGPlayerFrame *frame = (DLGPlayerFrame *) frames.lastObject;
+            
+            if (allowsBufferDurationReducing) {
+                self.bufferedDuration -= frame.duration;
+            }
+
+            [frames removeLastObject];
+        }
+    }
 }
 
 - (void)seekPositionInFrameReader {
@@ -424,7 +448,7 @@
     // Sync audio with video
     double syncTime = [self syncTime];
     NSTimeInterval t = MAX(frame.duration + syncTime, 0.01);
-
+    
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf render];

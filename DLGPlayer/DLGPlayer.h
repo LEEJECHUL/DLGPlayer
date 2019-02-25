@@ -27,6 +27,7 @@ typedef void (^onPauseComplete)(void);
 
 @property (readonly, strong) UIView *playerView;
 
+@property (nonatomic) double frameDropDuration;
 @property (nonatomic) double minBufferDuration;
 @property (nonatomic) double maxBufferDuration;
 @property (nonatomic) double position;

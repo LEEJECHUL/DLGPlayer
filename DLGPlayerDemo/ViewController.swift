@@ -23,7 +23,8 @@ class ViewController: UIViewController {
                 //            $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
-                $0.minBufferDuration = 1
+                $0.frameDropDuration = 1
+                $0.minBufferDuration = 0
             }
         }
     }
@@ -44,8 +45,6 @@ class ViewController: UIViewController {
         let rand1 = CGFloat(arc4random_uniform(2))
         let rand2 =  CGFloat(arc4random_uniform(3) + 1)
         let delay: TimeInterval = TimeInterval(rand1 + (1 / rand2))
-        
-        print("delay", delay)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             self.refresh()
@@ -80,7 +79,8 @@ class ViewController: UIViewController {
     }
     
     private func play() {
-        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+//        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         playerViewController?.open()
     }
     private func startTimer() {

@@ -26,6 +26,7 @@
 @property (nonatomic) BOOL isRepeat;
 @property (nonatomic) BOOL preventFromScreenLock;
 @property (nonatomic) BOOL restorePlayAfterAppEnterForeground;
+@property (nonatomic) double frameDropDuration;
 @property (nonatomic) double minBufferDuration;
 @property (nonatomic) double maxBufferDuration;
 @property (nullable, nonatomic, copy) NSString *url;
