@@ -142,7 +142,6 @@ static int interruptCallback(void *context) {
     if (astream >= 0 && acodectx != NULL) {
         aframe = av_frame_alloc();
         [DLGPlayerDecoder stream:fmtctx->streams[astream] fps:NULL timebase:&_audioTimebase default:0.025];
-        
         if (aframe == NULL) {
             astream = -1;
             if (acodectx != NULL) avcodec_free_context(&acodectx);
@@ -358,7 +357,7 @@ static int interruptCallback(void *context) {
 
 #pragma mark - Handle Frames
 - (NSArray *)readFrames {
-    if ((m_nVideoStream < 0 && m_nAudioStream < 0) || _isEOF) return nil;
+    if ((m_nVideoStream < 0 && m_nAudioStream < 0) || self.isEOF) return nil;
     
     AVFormatContext *fmtctx = m_pFormatContext;
     const int vstream = m_nVideoStream;

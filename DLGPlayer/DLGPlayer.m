@@ -284,7 +284,7 @@
                         self.bufferedDuration += tempDuration;
                         tempDuration = 0;
                         
-                        [self dropFrames:self.vframes allowsBufferDurationReducing:YES];
+                        [self dropVideoFrames];
                         [self.vframes addObjectsFromArray:tempVFrames];
                         [tempVFrames removeAllObjects];
                     }
@@ -306,7 +306,7 @@
                             self.bufferedDuration += tempDuration;
                             tempDuration = 0;
                         }
-                        [self dropFrames:self.aframes allowsBufferDurationReducing:!self.decoder.hasVideo];
+                        [self dropAudioFrames];
                         [self.aframes addObjectsFromArray:tempAFrames];
                         [tempAFrames removeAllObjects];
                     }
@@ -347,22 +347,58 @@
     self.buffering = NO;
 }
 
-- (void)dropFrames:(NSMutableArray *)frames allowsBufferDurationReducing:(BOOL)allowsBufferDurationReducing {
-    if (!(self.frameDropDuration > 0)) {
+- (void)dropAudioFrames {
+    if (self.frameDropDuration < 0) {
+        return;
+    }
+    if (self.frameDropDuration == 0) {
+        for (DLGPlayerFrame *frame in self.aframes) {
+            if (!self.decoder.hasVideo) {
+                self.bufferedDuration -= frame.duration;
+            }
+        }
+        [self.aframes removeAllObjects];
         return;
     }
     
-    NSInteger limit = self.frameDropDuration * _decoder.videoFPS;
+    __block double total = 0;
+    __block NSInteger count = self.aframes.count;
     
-    if (frames.count > limit) {
-        for (NSInteger i=0; i<limit; i++) {
-            DLGPlayerFrame *frame = (DLGPlayerFrame *) frames.lastObject;
-            
-            if (allowsBufferDurationReducing) {
-                self.bufferedDuration -= frame.duration;
+    for (NSInteger i=count - 1; i>=0; i--) {
+        DLGPlayerFrame *frame = (DLGPlayerFrame *) self.aframes[i];
+        total += frame.duration;
+        
+        if (total > self.frameDropDuration) {
+            if (!self.decoder.hasVideo) {
+                self.bufferedDuration -= total;
             }
+            
+            [self.aframes removeObjectsInRange:NSMakeRange(0, i)];
+            return;
+        }
+    }
+}
 
-            [frames removeLastObject];
+- (void)dropVideoFrames {
+    if (self.frameDropDuration < 0) {
+        return;
+    }
+    if (self.frameDropDuration == 0) {
+        for (DLGPlayerFrame *frame in self.vframes) {
+            self.bufferedDuration -= frame.duration;
+        }
+        [self.vframes removeAllObjects];
+        return;
+    }
+    
+    NSInteger limit = (NSInteger) floor(self.frameDropDuration * self.decoder.videoFPS);
+    NSInteger count = self.vframes.count;
+    
+    if (count > limit) {
+        for (NSInteger i=0; i<(count - self.decoder.videoFPS); i++) {
+            DLGPlayerFrame *frame = (DLGPlayerFrame *) self.vframes.firstObject;
+            self.bufferedDuration -= frame.duration;
+            [self.vframes removeObjectAtIndex:0];
         }
     }
 }
