@@ -23,7 +23,6 @@ class ViewController: UIViewController {
                 //            $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
-                $0.frameDropDuration = 1
                 $0.minBufferDuration = 0
             }
         }

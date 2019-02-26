@@ -97,14 +97,6 @@ typedef enum : NSUInteger {
     _player.audio.mute = isMute;
 }
 
-- (double)frameDropDuration {
-    return _player.frameDropDuration;
-}
-
-- (void)setFrameDropDuration:(double)frameDropDuration {
-    _player.frameDropDuration = frameDropDuration;
-}
-
 - (double)minBufferDuration {
     return _player.minBufferDuration;
 }
