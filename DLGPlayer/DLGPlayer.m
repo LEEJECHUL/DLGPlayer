@@ -266,6 +266,7 @@
            && (self.bufferedDuration + tempDuration) < self.maxBufferDuration) {
         @autoreleasepool {
             NSArray *fs = [self.decoder readFrames];
+            
             if (fs == nil) { break; }
             if (fs.count == 0) { continue; }
             
@@ -368,7 +369,7 @@
     if (!self.playing) return;
 
     BOOL eof = self.decoder.isEOF;
-    BOOL noframes = ((self.decoder.hasVideo && self.vframes.count <= 0) ||
+    BOOL noframes = ((self.decoder.hasVideo && self.vframes.count <= 0) &&
                      (self.decoder.hasAudio && self.aframes.count <= 0));
     
     // Check if reach the end and play all frames.

@@ -24,6 +24,7 @@ class ViewController: UIViewController {
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
+                $0.maxBufferDuration = 2
             }
         }
     }
@@ -78,7 +79,7 @@ class ViewController: UIViewController {
     }
     
     private func play() {
-        playerViewController?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
 //        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         playerViewController?.open()
     }
