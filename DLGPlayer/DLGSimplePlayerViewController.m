@@ -20,7 +20,7 @@ typedef enum : NSUInteger {
 @interface DLGSimplePlayerViewController () {
     BOOL restorePlay;
 }
-    
+
 @property (nonatomic, readwrite) DLGPlayer *player;
 @property (nonatomic, readwrite) DLGPlayerStatus status;
 @end
@@ -73,7 +73,19 @@ typedef enum : NSUInteger {
 
 #pragma mark - getter/setter
 - (BOOL)hasUrl {
-    return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
+    __block BOOL flag;
+    __strong typeof(self)strongSelf = self;
+    dispatch_sync(_player.processingQueue, ^{
+        flag = strongSelf->_url != nil && [strongSelf->_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
+    });
+    return flag;
+}
+
+- (void)setUrl:(NSString *)url {
+    __strong typeof(self)strongSelf = self;
+    dispatch_sync(_player.processingQueue, ^{
+        strongSelf->_url = url;
+    });
 }
 
 - (BOOL)isPlaying {
