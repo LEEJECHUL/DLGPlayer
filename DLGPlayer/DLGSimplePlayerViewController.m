@@ -73,17 +73,12 @@ typedef enum : NSUInteger {
 
 #pragma mark - getter/setter
 - (BOOL)hasUrl {
-    __block BOOL flag;
-    __strong typeof(self)strongSelf = self;
-    dispatch_sync(_player.processingQueue, ^{
-        flag = strongSelf->_url != nil && [strongSelf->_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
-    });
-    return flag;
+    return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
 }
 
 - (void)setUrl:(NSString *)url {
     __strong typeof(self)strongSelf = self;
-    dispatch_sync(_player.processingQueue, ^{
+    dispatch_async(_player.processingQueue, ^{
         strongSelf->_url = url;
     });
 }
