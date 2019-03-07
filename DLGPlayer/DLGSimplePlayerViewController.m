@@ -76,13 +76,6 @@ typedef enum : NSUInteger {
     return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
 }
 
-- (void)setUrl:(NSString *)url {
-    __strong typeof(self)strongSelf = self;
-    dispatch_async(_player.processingQueue, ^{
-        strongSelf->_url = url;
-    });
-}
-
 - (BOOL)isPlaying {
     return _player.playing;
 }

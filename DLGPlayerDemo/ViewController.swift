@@ -36,6 +36,7 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        playCount = 0
         play()
     }
     private func refresh() {
@@ -127,18 +128,50 @@ class ViewController: UIViewController {
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController?.player.brightness = sender.value
     }
+    
+    private var playCount: Int = 0
 }
 
 extension ViewController: DLGSimplePlayerViewControllerDelegate {
+    
+    private func playTest(_ count: Int) {
+        let url = count % 2 == 0 ?
+            "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
+        "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        
+        playerViewController?.close()
+        
+        print(") ------------------------------------------------------------------------------------")
+        print(") open", url)
+        playerViewController?.url = url
+        playerViewController?.open()
+        print(") opening", playerViewController?.url)
+    }
+    
+    
     func didBeginRender(in viewController: DLGSimplePlayerViewController) {
         coverView?.isHidden = true
 //        viewController.pause()
+        print(") opened", viewController.url)
+        
+        if #available(iOS 10.0, *), playCount < 5 {
+            var count = 0
+            
+            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
+                self.playTest(count)
+                count += 1
+                
+                if count > 5 {
+                    $0.invalidate()
+                }
+            }
+        }
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
         print("didReceiveError", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
-        print("didChange", viewController.hash, status.stringValue)
+//        print("didChange", viewController.hash, status.stringValue)
         playOrPauseButton.isSelected = viewController.controlStatus.playing
         muteButton.isSelected = !viewController.isMute
         
