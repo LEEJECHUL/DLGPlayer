@@ -154,18 +154,18 @@ extension ViewController: DLGSimplePlayerViewControllerDelegate {
 //        viewController.pause()
         print(") opened", viewController.url)
         
-        if #available(iOS 10.0, *), playCount < 5 {
-            var count = 0
-            
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
-                self.playTest(count)
-                count += 1
-                
-                if count > 5 {
-                    $0.invalidate()
-                }
-            }
-        }
+//        if #available(iOS 10.0, *), playCount < 5 {
+//            var count = 0
+//            
+//            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
+//                self.playTest(count)
+//                count += 1
+//                
+//                if count > 5 {
+//                    $0.invalidate()
+//                }
+//            }
+//        }
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
         print("didReceiveError", error)
