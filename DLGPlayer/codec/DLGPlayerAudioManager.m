@@ -12,6 +12,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <Accelerate/Accelerate.h>
+#import <UIKit/UIKit.h>
 
 #define MAX_FRAME_SIZE  4096
 #define MAX_CHANNEL     2
@@ -37,6 +38,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     float *_audioData;
 }
 @property (atomic) AudioUnit audioUnit;
+@property (nonatomic, readonly) BOOL isBackground;
 @end
 
 @implementation DLGPlayerAudioManager
@@ -85,6 +87,10 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     } else {
         [self play];
     }
+}
+
+- (BOOL)isBackground {
+    return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
 }
 
 /*
@@ -253,6 +259,12 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     if (_closing) return NO;
     _closing = YES;
     
+    if (self.isBackground) {
+        _closing = NO;
+        [self unregisterNotifications];
+        return YES;
+    }
+    
     NSMutableArray<NSError *> *errs = nil;
     if (errors != nil) errs = [NSMutableArray array];
     
@@ -322,6 +334,11 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 - (BOOL)play:(NSError **)error {
     if (_mute) {
+        return _playing;
+    }
+    
+    if (self.isBackground) {
+        _playing = NO;
         return _playing;
     }
     

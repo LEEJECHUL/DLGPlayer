@@ -152,9 +152,9 @@
         });
         
         NSError *error = nil;
-        if (![weakSelf.decoder open:url error:&error]) {
-            weakSelf.opening = NO;
-            [weakSelf handleError:error];
+        if (![strongSelf.decoder open:url error:&error]) {
+            strongSelf.opening = NO;
+            [strongSelf handleError:error];
             return;
         }
         
@@ -195,7 +195,7 @@
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
-        __strong typeof(self)strongSelf = self;
+        __strong typeof(self)strongSelf = weakSelf;
         
         if (strongSelf.closing) {
             return;
