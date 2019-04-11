@@ -114,33 +114,43 @@
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        strongSelf.mediaPosition = 0;
-        strongSelf.bufferedDuration = 0;
-        strongSelf.mediaSyncTime = 0;
-        strongSelf.closing = NO;
-        strongSelf.opening = NO;
+        
+        if (strongSelf) {
+            strongSelf.mediaPosition = 0;
+            strongSelf.bufferedDuration = 0;
+            strongSelf.mediaSyncTime = 0;
+            strongSelf.closing = NO;
+            strongSelf.opening = NO;
+        }
     });
     
     dispatch_async(_renderingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        [strongSelf.view clear];
+        
+        if (strongSelf) {
+            [strongSelf.view clear];
+        }
     });
 }
 
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
-
+    
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        if (strongSelf.opening) {
+        if (strongSelf == nil || strongSelf.opening) {
             return;
         }
-
+        
         weakSelf.opening = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
+            
+            if (strongSelf == nil) {
+                return;
+            }
             
             NSError *error = nil;
             if ([strongSelf.audio open:&error]) {
@@ -161,6 +171,10 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
+            if (strongSelf == nil) {
+                return;
+            }
+            
             [strongSelf.view setCurrentEAGLContext];
             
             strongSelf.view.isYUV = [weakSelf.decoder isYUV];
@@ -177,7 +191,7 @@
             strongSelf.bufferedDuration = 0;
             strongSelf.mediaPosition = 0;
             strongSelf.mediaSyncTime = 0;
-
+            
             __weak typeof(strongSelf)ws = strongSelf;
             strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
                 [ws readAudioFrame:data frames:frames channels:channels];
@@ -197,7 +211,7 @@
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
-        if (strongSelf.closing) {
+        if (strongSelf == nil || strongSelf.closing) {
             return;
         }
         
@@ -207,6 +221,10 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(self)strongSelf = weakSelf;
+            
+            if (strongSelf == nil) {
+                return;
+            }
             
             NSArray<NSError *> *errors = nil;
             if ([strongSelf.audio close:&errors]) {
@@ -232,7 +250,10 @@
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        [strongSelf runFrameReader];
+        
+        if (strongSelf != nil) {
+            [strongSelf runFrameReader];
+        }
     });
     
     NSError *error = nil;
@@ -360,7 +381,7 @@
 
 - (void)seekPositionInFrameReader {
     [self.decoder seek:self.requestSeekPosition];
-
+    
     {
         dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_FOREVER);
         [self.vframes removeAllObjects];
@@ -371,7 +392,7 @@
         [self.aframes removeAllObjects];
         dispatch_semaphore_signal(self.aFramesLock);
     }
-
+    
     self.bufferedDuration = 0;
     self.requestSeek = NO;
     self.mediaSyncTime = 0;
@@ -380,7 +401,7 @@
 
 - (void)render {
     if (!self.playing) return;
-
+    
     BOOL eof = self.decoder.isEOF;
     BOOL noframes = ((self.decoder.hasVideo && self.vframes.count <= 0) &&
                      (self.decoder.hasAudio && self.aframes.count <= 0));
@@ -488,7 +509,7 @@
  */
 - (void)readAudioFrame:(float *)data frames:(UInt32)frames channels:(UInt32)channels {
     if (!self.playing) return;
-
+    
     while(frames > 0) {
         @autoreleasepool {
             if (self.playingAudioFrame == nil) {
