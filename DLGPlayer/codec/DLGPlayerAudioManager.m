@@ -128,7 +128,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     AVAudioSessionRouteDescription *route = session.currentRoute;
-    if (route.outputs.count == 0) {
+    if (session.currentRoute.outputs.count == 0) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
                             andCode:DLGPlayerErrorCodeNoAudioOuput

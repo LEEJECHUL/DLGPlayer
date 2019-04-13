@@ -139,19 +139,13 @@
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        if (strongSelf == nil || strongSelf.opening) {
+        if (!strongSelf || strongSelf.opening) {
             return;
         }
         
-        weakSelf.opening = YES;
+        strongSelf.opening = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-            
-            if (strongSelf == nil) {
-                return;
-            }
-            
             NSError *error = nil;
             if ([strongSelf.audio open:&error]) {
                 strongSelf.decoder.audioChannels = [weakSelf.audio channels];
@@ -169,12 +163,6 @@
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-            
-            if (strongSelf == nil) {
-                return;
-            }
-            
             [strongSelf.view setCurrentEAGLContext];
             
             strongSelf.view.isYUV = [weakSelf.decoder isYUV];
@@ -211,7 +199,7 @@
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
-        if (strongSelf == nil || strongSelf.closing) {
+        if (!strongSelf || strongSelf.closing) {
             return;
         }
         
@@ -220,12 +208,6 @@
         [strongSelf.decoder close];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(self)strongSelf = weakSelf;
-            
-            if (strongSelf == nil) {
-                return;
-            }
-            
             NSArray<NSError *> *errors = nil;
             if ([strongSelf.audio close:&errors]) {
                 [strongSelf clearVars];
