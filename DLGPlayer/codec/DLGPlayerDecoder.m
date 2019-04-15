@@ -159,15 +159,14 @@ static int interruptCallback(void *context) {
             astream = -1;
             if (acodectx != NULL) avcodec_free_context(&acodectx);
             if (aframe != NULL) av_frame_free(&aframe);
-            return;
-        }
-        
-        ret = swr_init(aswrctx);
-        if (ret < 0) {
-            astream = -1;
-            if (aswrctx != NULL) swr_free(&aswrctx);
-            if (acodectx != NULL) avcodec_free_context(&acodectx);
-            if (aframe != NULL) av_frame_free(&aframe);
+        } else {
+            ret = swr_init(aswrctx);
+            if (ret < 0) {
+                astream = -1;
+                if (aswrctx != NULL) swr_free(&aswrctx);
+                if (acodectx != NULL) avcodec_free_context(&acodectx);
+                if (aframe != NULL) av_frame_free(&aframe);
+            }
         }
     }
     
