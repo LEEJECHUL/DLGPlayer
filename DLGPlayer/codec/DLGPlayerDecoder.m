@@ -159,6 +159,7 @@ static int interruptCallback(void *context) {
             astream = -1;
             if (acodectx != NULL) avcodec_free_context(&acodectx);
             if (aframe != NULL) av_frame_free(&aframe);
+            return;
         }
         
         ret = swr_init(aswrctx);
