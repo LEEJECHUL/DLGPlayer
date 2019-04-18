@@ -123,6 +123,14 @@
             strongSelf.opening = NO;
         }
     });
+    
+    dispatch_async(_renderingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf) {
+            [strongSelf.view clear];
+        }
+    });
 }
 
 - (void)open:(NSString *)url {
@@ -187,14 +195,6 @@
     [self pause];
     
     __weak typeof(self)weakSelf = self;
-    
-    dispatch_async(_renderingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (strongSelf) {
-            [strongSelf.view clear];
-        }
-    });
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
