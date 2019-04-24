@@ -100,7 +100,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     AVAudioSession *session = [AVAudioSession sharedInstance];
     
     NSError *rawError = nil;
-    if (![session setCategory:AVAudioSessionCategoryPlayback error:&rawError]) {
+    if (![session setCategory:AVAudioSessionCategoryAmbient error:&rawError]) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
                             andCode:DLGPlayerErrorCodeCannotSetAudioCategory
