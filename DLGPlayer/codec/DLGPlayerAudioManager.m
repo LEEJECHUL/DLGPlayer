@@ -96,7 +96,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (AVAudioSessionCategory)category {
-    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient
+    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }
 
 /*
