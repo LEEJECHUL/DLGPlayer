@@ -77,10 +77,16 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
 }
 
-#pragma mark - Added by KKH to mute sound.
+#pragma mark - Added by Steve Kim.
+
+- (BOOL)isBackground {
+    return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
+}
 
 - (void)setMute:(BOOL)mute {
     _mute = mute;
+    
+    [[AVAudioSession sharedInstance] setCategory:self.category error:nil];
     
     if (_mute) {
         [self pause];
@@ -89,8 +95,8 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
 }
 
-- (BOOL)isBackground {
-    return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
+- (AVAudioSessionCategory)category {
+    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient
 }
 
 /*
@@ -98,9 +104,9 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
  */
 - (BOOL)open:(NSError **)error {
     AVAudioSession *session = [AVAudioSession sharedInstance];
-    
     NSError *rawError = nil;
-    if (![session setCategory:AVAudioSessionCategoryAmbient error:&rawError]) {
+    
+    if (![session setCategory:self.category error:&rawError]) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
                             andCode:DLGPlayerErrorCodeCannotSetAudioCategory
@@ -127,7 +133,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
-    AVAudioSessionRouteDescription *route = session.currentRoute;
     if (session.currentRoute.outputs.count == 0) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
