@@ -110,19 +110,19 @@
     self.opened = NO;
     self.renderBegan = NO;
     
-    __weak typeof(self)weakSelf = self;
+//    __weak typeof(self)weakSelf = self;
     
-    dispatch_async(_processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (strongSelf) {
-            strongSelf.mediaPosition = 0;
-            strongSelf.bufferedDuration = 0;
-            strongSelf.mediaSyncTime = 0;
-            strongSelf.closing = NO;
-            strongSelf.opening = NO;
-        }
-    });
+//    dispatch_async(_processingQueue, ^{
+//        __strong typeof(weakSelf)strongSelf = weakSelf;
+    
+//        if (strongSelf) {
+            self.mediaPosition = 0;
+            self.bufferedDuration = 0;
+            self.mediaSyncTime = 0;
+            self.closing = NO;
+            self.opening = NO;
+//        }
+//    });
 }
 
 - (void)open:(NSString *)url {
@@ -184,37 +184,55 @@
 }
 
 - (void)close {
+    if (self.closing) {
+        return;
+    }
+    
     [self pause];
+    
+    self.closing = YES;
     
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(_processingQueue, ^{
-        __strong typeof(self)strongSelf = weakSelf;
+    NSArray<NSError *> *errors = nil;
+    
+    void (^clear)(DLGPlayer *) = ^(DLGPlayer *player) {
+        [player.decoder prepareClose];
+        [player.decoder close];
+        [player clearVars];
         
-        if (!strongSelf || strongSelf.closing) {
-            return;
-        }
-        
-        strongSelf.closing = YES;
-        [strongSelf.decoder prepareClose];
-        [strongSelf.decoder close];
-        
-        dispatch_async(strongSelf.renderingQueue, ^{
-            [strongSelf.view clear];
+        dispatch_async(player.renderingQueue, ^{
+            [player.view clear];
         });
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSArray<NSError *> *errors = nil;
-            if ([strongSelf.audio close:&errors]) {
-                [strongSelf clearVars];
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
-            } else {
-                for (NSError *error in errors) {
-                    [strongSelf handleError:error];
-                }
+    };
+    
+    if ([self.audio close:&errors]) {
+        dispatch_async(_processingQueue, ^{
+            __strong typeof(self)strongSelf = weakSelf;
+            
+            if (strongSelf) {
+                clear(strongSelf);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
+                });
             }
         });
-    });
+    } else {
+        dispatch_async(_processingQueue, ^{
+            __strong typeof(self)strongSelf = weakSelf;
+            
+            if (strongSelf) {
+                clear(strongSelf);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    for (NSError *error in errors) {
+                        [strongSelf handleError:error];
+                    }
+                });
+            }
+        });
+    }
 }
 
 - (void)play {

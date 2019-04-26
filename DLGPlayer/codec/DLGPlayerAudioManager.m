@@ -38,7 +38,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     float *_audioData;
 }
 @property (atomic) AudioUnit audioUnit;
-@property (nonatomic, readonly) BOOL isBackground;
 @end
 
 @implementation DLGPlayerAudioManager
@@ -71,11 +70,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     NSLog(@"DLGPlayerAudioManager dealloc");
     [self unregisterNotifications];
     
-    if (self.audioUnit) {
-        AudioUnitUninitialize(self.audioUnit);
-        self.audioUnit = NULL;
-    }
-    
     if (_audioData) {
         free(_audioData);
         _audioData = NULL;
@@ -83,10 +77,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 #pragma mark - Added by Steve Kim.
-
-- (BOOL)isBackground {
-    return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
-}
 
 - (void)setMute:(BOOL)mute {
     _mute = mute;
@@ -206,6 +196,8 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
+    self.audioUnit = audioUnit;
+    
     AudioStreamBasicDescription streamDescr = {0};
     UInt32 size = sizeof(AudioStreamBasicDescription);
     status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
@@ -256,8 +248,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
-    self.audioUnit = audioUnit;
-    
     return YES;
 }
 
@@ -269,18 +259,12 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     if (_closing) return NO;
     _closing = YES;
     
-    if (self.isBackground) {
-        _closing = NO;
-        [self unregisterNotifications];
-        return YES;
-    }
-    
     NSMutableArray<NSError *> *errs = nil;
     if (errors != nil) errs = [NSMutableArray array];
     
     BOOL closed = YES;
     
-    if (_opened && self.audioUnit != NULL) {
+    if (_opened && self.audioUnit) {
         [self pause];
         [self unregisterNotifications];
         
@@ -330,7 +314,9 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
             }
         }
         
-        if (closed) _opened = NO;
+        if (closed) {
+            _opened = NO;
+        }
     }
     
     _closing = NO;
@@ -344,11 +330,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 - (BOOL)play:(NSError **)error {
     if (_mute) {
-        return _playing;
-    }
-    
-    if (self.isBackground) {
-        _playing = NO;
         return _playing;
     }
     

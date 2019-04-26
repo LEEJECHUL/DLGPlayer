@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet private weak var muteButton: UIButton!
     @IBOutlet private weak var playOrPauseButton: UIButton!
     
-    private var timer: Timer?
+    private var isFirstViewAppearance = true
     private var playerViewController: DLGSimplePlayerViewController? {
         didSet {
             playerViewController.map {
@@ -36,38 +36,18 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        playCount = 0
-        play()
-    }
-    private func refresh() {
-        playerViewController?.close()
-        play()
-        
-        let rand1 = CGFloat(arc4random_uniform(2))
-        let rand2 =  CGFloat(arc4random_uniform(3) + 1)
-        let delay: TimeInterval = TimeInterval(rand1 + (1 / rand2))
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            self.refresh()
+        if isFirstViewAppearance {
+            startHardTest()
         }
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-//        refresh()
-        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            if self.coverView == nil {
-//                self.navigationController?.popViewController(animated: true)
-//            } else {
-//                self.performSegue(withIdentifier: "NextView", sender: nil)
-//            }
-//        }
+        isFirstViewAppearance = false
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        stopTimer()
         playerViewController?.close()
         coverView?.isHidden = false
     }
@@ -79,23 +59,46 @@ class ViewController: UIViewController {
         }
     }
     
-    private func play() {
+    // MARK: - RTMP Test
+    
+    private func playRTMP() {
         playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
-//        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         playerViewController?.open()
     }
-    private func startTimer() {
-        stopTimer()
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerCompletion), userInfo: nil, repeats: true)
+    
+    // MARK: - Hard Test
+    
+    private let hardTestCount: Int = 100
+    private var playCount: Int = 0
+    private func startHardTest() {
+        if #available(iOS 10.0, *), playCount < hardTestCount {
+            var count = 0
+            
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) {
+                self.playTest(count)
+                count += 1
+                
+                if count > self.hardTestCount {
+                    $0.invalidate()
+                }
+            }
+        }
     }
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
+    private func playTest(_ count: Int) {
+        let url = count % 2 == 0 ?
+            "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
+        "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        
+        playerViewController?.close()
+        
+        print("[playTest] ------------------------------------------------------------------------------------")
+        print("[playTest] will open -> ", url)
+        playerViewController?.url = url
+        playerViewController?.open()
+        print("[playTest] opening -> ", playerViewController?.url)
     }
     
-    @objc private func timerCompletion() {
-        //        print("player.position", playerViewController.player.position)
-    }
+    // MARK: - Private Selectors
     
     @IBAction private func captureButtonClicked() {
         playerViewController?.player.snapshot()
@@ -115,7 +118,7 @@ class ViewController: UIViewController {
             if playerViewController?.status == .paused {
                 playerViewController?.play()
             } else {
-                play()
+                playRTMP()
             }
         } else {
             playerViewController?.pause()
@@ -123,66 +126,25 @@ class ViewController: UIViewController {
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
         playerViewController?.close()
-        play()
+        playRTMP()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController?.player.brightness = sender.value
     }
-    
-    private var playCount: Int = 0
 }
 
 extension ViewController: DLGSimplePlayerViewControllerDelegate {
-    
-    private func playTest(_ count: Int) {
-        let url = count % 2 == 0 ?
-            "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
-        "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
-        
-        playerViewController?.close()
-        
-        print(") ------------------------------------------------------------------------------------")
-        print(") open", url)
-        playerViewController?.url = url
-        playerViewController?.open()
-        print(") opening", playerViewController?.url)
-    }
-    
-    
     func didBeginRender(in viewController: DLGSimplePlayerViewController) {
+        print("didBeginRender -> ", viewController.url)
         coverView?.isHidden = true
-//        viewController.pause()
-        print(") opened", viewController.url)
-        
-//        if #available(iOS 10.0, *), playCount < 5 {
-//            var count = 0
-//            
-//            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
-//                self.playTest(count)
-//                count += 1
-//                
-//                if count > 5 {
-//                    $0.invalidate()
-//                }
-//            }
-//        }
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
-        print("didReceiveError", error)
+        print("didReceiveError -> ", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
 //        print("didChange", viewController.hash, status.stringValue)
         playOrPauseButton.isSelected = viewController.controlStatus.playing
         muteButton.isSelected = !viewController.isMute
-        
-        switch status {
-        case .opened:
-            startTimer()
-        case .paused,
-             .closed:
-            stopTimer()
-        default: ()
-        }
     }
 }
 
