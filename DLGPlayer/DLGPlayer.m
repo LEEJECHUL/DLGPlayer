@@ -180,8 +180,6 @@
         return;
     }
     
-    __weak typeof(self)weakSelf = self;
-    
     NSArray<NSError *> *errors = nil;
     
     void (^clear)(DLGPlayer *) = ^(DLGPlayer *player) {
@@ -194,13 +192,13 @@
         });
     };
     
+    __strong typeof(self)strongSelf = self;
+    
     self.closing = YES;
     
     if ([self.audio close:&errors]) {
         dispatch_async(_processingQueue, ^{
-            __strong typeof(self)strongSelf = weakSelf;
-            
-            if (strongSelf && !strongSelf.closing) {
+            if (strongSelf) {
                 clear(strongSelf);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -210,9 +208,7 @@
         });
     } else {
         dispatch_async(_processingQueue, ^{
-            __strong typeof(self)strongSelf = weakSelf;
-            
-            if (strongSelf && !strongSelf.closing) {
+            if (strongSelf) {
                 clear(strongSelf);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
