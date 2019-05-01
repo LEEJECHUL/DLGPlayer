@@ -200,7 +200,7 @@
         dispatch_async(_processingQueue, ^{
             __strong typeof(self)strongSelf = weakSelf;
             
-            if (strongSelf) {
+            if (strongSelf && !strongSelf.closing) {
                 clear(strongSelf);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -212,7 +212,7 @@
         dispatch_async(_processingQueue, ^{
             __strong typeof(self)strongSelf = weakSelf;
             
-            if (strongSelf) {
+            if (strongSelf && !strongSelf.closing) {
                 clear(strongSelf);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
