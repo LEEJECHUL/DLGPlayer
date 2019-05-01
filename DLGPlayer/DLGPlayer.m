@@ -118,6 +118,7 @@
 }
 
 - (void)open:(NSString *)url {
+    NSLog(@"open");
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
@@ -127,6 +128,7 @@
             return;
         }
         
+        NSLog(@"opening");
         strongSelf.opening = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -176,15 +178,17 @@
 }
 
 - (void)close {
+    NSLog(@"close");
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
-        if (!strongSelf || strongSelf.opening) {
+        if (!strongSelf || strongSelf.closing) {
             return;
         }
         
+        NSLog(@"closing");
         strongSelf.closing = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -200,7 +204,7 @@
             
             NSArray<NSError *> *errors = nil;
             
-            if ([self.audio close:&errors]) {
+            if ([strongSelf.audio close:&errors]) {
                 clear();
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
             } else {
