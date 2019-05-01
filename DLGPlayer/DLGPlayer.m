@@ -118,10 +118,12 @@
 }
 
 - (void)open:(NSString *)url {
+    NSLog(@"open")
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
+        NSLog(@"open strongSelf -> %d", strongSelf != nil)
         
         if (!strongSelf || strongSelf.opening) {
             return;
@@ -176,10 +178,7 @@
 }
 
 - (void)close {
-    if (self.closing) {
-        return;
-    }
-    
+    NSLog(@"close")
     void (^clear)(DLGPlayer *) = ^(DLGPlayer *player) {
         [player.decoder prepareClose];
         [player.decoder close];
@@ -194,6 +193,7 @@
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
+        NSLog(@"close strongSelf -> %d", strongSelf != nil)
         
         if (strongSelf && !strongSelf.closing) {
             strongSelf.closing = YES;
