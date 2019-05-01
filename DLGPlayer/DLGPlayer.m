@@ -184,6 +184,8 @@
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
+        NSLog(@"strongSelf -> %d", strongSelf != nil);
+        
         if (!strongSelf || strongSelf.closing) {
             return;
         }
@@ -191,10 +193,11 @@
         NSLog(@"closing");
         strongSelf.closing = YES;
         
+        [strongSelf.decoder prepareClose];
+        [strongSelf.decoder close];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             void (^clear)(void) = ^(void) {
-                [strongSelf.decoder prepareClose];
-                [strongSelf.decoder close];
                 [strongSelf clearVars];
                 
                 dispatch_async(strongSelf.renderingQueue, ^{
