@@ -103,26 +103,18 @@
 - (void)clearVars {
     [self.vframes removeAllObjects];
     [self.aframes removeAllObjects];
+    
     self.playingAudioFrame = nil;
     self.playingAudioFrameDataPosition = 0;
     self.buffering = NO;
     self.playing = NO;
     self.opened = NO;
     self.renderBegan = NO;
-    
-//    __weak typeof(self)weakSelf = self;
-    
-//    dispatch_async(_processingQueue, ^{
-//        __strong typeof(weakSelf)strongSelf = weakSelf;
-    
-//        if (strongSelf) {
-            self.mediaPosition = 0;
-            self.bufferedDuration = 0;
-            self.mediaSyncTime = 0;
-            self.closing = NO;
-            self.opening = NO;
-//        }
-//    });
+    self.mediaPosition = 0;
+    self.bufferedDuration = 0;
+    self.mediaSyncTime = 0;
+    self.closing = NO;
+    self.opening = NO;
 }
 
 - (void)open:(NSString *)url {
@@ -188,10 +180,6 @@
         return;
     }
     
-    [self pause];
-    
-    self.closing = YES;
-    
     __weak typeof(self)weakSelf = self;
     
     NSArray<NSError *> *errors = nil;
@@ -205,6 +193,8 @@
             [player.view clear];
         });
     };
+    
+    self.closing = YES;
     
     if ([self.audio close:&errors]) {
         dispatch_async(_processingQueue, ^{
