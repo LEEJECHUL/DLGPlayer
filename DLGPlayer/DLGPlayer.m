@@ -178,7 +178,7 @@
 }
 
 - (void)close {
-    if (self.closing || !self.opened) {
+    if (self.closing) {
         return;
     }
     
@@ -190,7 +190,7 @@
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
-        if (!strongSelf || strongSelf.closing || !strongSelf.opened) {
+        if (!strongSelf || strongSelf.closing) {
             return;
         }
         
