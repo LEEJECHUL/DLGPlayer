@@ -256,7 +256,10 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
-    if (_closing) return NO;
+    if (_closing) {
+        return NO;
+    }
+    
     _closing = YES;
     
     NSMutableArray<NSError *> *errs = nil;
