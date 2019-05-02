@@ -221,6 +221,10 @@
 }
 
 - (void)play {
+    if (!self.opened || self.playing || self.closing) {
+        return;
+    }
+    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{

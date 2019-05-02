@@ -29,6 +29,13 @@ class ViewController: UIViewController {
         }
     }
     
+    deinit {
+        
+        
+        print("deinit")
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,8 +43,8 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isFirstViewAppearance {
-            startHardTest()
+        if isFirstViewAppearance, (navigationController?.viewControllers.count ?? 0) > 1 {
+            playRTMP()
         }
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -68,14 +75,14 @@ class ViewController: UIViewController {
     
     // MARK: - Hard Test
     
-    private let hardTestCount: Int = 100
+    private let hardTestCount: Int = 10
     private var playCount: Int = 0
     private func startHardTest() {
         if #available(iOS 10.0, *), playCount < hardTestCount {
             var count = 0
             
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) {
-                self.playTest(count)
+                self.playTest(0)
                 count += 1
                 
                 if count > self.hardTestCount {
@@ -91,11 +98,11 @@ class ViewController: UIViewController {
         
         playerViewController?.close()
         
-        print("[playTest] ------------------------------------------------------------------------------------")
-        print("[playTest] will open -> ", url)
+//        print("[playTest] ------------------------------------------------------------------------------------")
+//        print("[playTest] will open -> ", url)
         playerViewController?.url = url
         playerViewController?.open()
-        print("[playTest] opening -> ", playerViewController?.url)
+//        print("[playTest] opening -> ", playerViewController?.url)
     }
     
     // MARK: - Private Selectors
