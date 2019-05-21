@@ -197,10 +197,7 @@
         strongSelf.closing = YES;
         
         [strongSelf.decoder close];
-        
-        dispatch_sync(strongSelf.renderingQueue, ^{
-            [strongSelf.view clear];
-        });
+        [strongSelf.view clear];
         
         NSArray<NSError *> *errors = nil;
         

@@ -24,7 +24,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="flH-GR-u9z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-191" y="27"/>
+            <point key="canvasLocation" x="-698" y="54"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -91,6 +91,14 @@
                                     <action selector="refreshButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="htd-0z-qz7"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x6T-MI-esJ">
+                                <rect key="frame" x="323" y="145" width="32" height="30"/>
+                                <state key="normal" title="Stop"/>
+                                <state key="selected" title="Pause"/>
+                                <connections>
+                                    <action selector="stopButtonClicked" destination="BYZ-38-t0r" eventType="touchUpInside" id="ac3-li-bxC"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kvf-8W-DwS">
                                 <rect key="frame" x="171.5" y="617" width="32" height="30"/>
                                 <state key="normal" title="Next"/>
@@ -101,6 +109,7 @@
                         </subviews>
                         <color key="backgroundColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="U7U-Qy-3pL" firstAttribute="top" secondItem="x6T-MI-esJ" secondAttribute="bottom" constant="8" id="53N-zg-bls"/>
                             <constraint firstItem="uiH-fC-hAT" firstAttribute="centerY" secondItem="Llk-G2-h40" secondAttribute="centerY" id="7bN-qa-KTu"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="8LV-9o-CmP"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9op-9L-DDg"/>
@@ -116,6 +125,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="U7U-Qy-3pL" secondAttribute="trailing" constant="20" id="gDr-si-HS6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="E2A-Jz-ZOg" secondAttribute="trailing" id="jOm-O6-zo2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Kvf-8W-DwS" secondAttribute="bottom" constant="20" id="kll-mF-JKa"/>
+                            <constraint firstItem="x6T-MI-esJ" firstAttribute="trailing" secondItem="U7U-Qy-3pL" secondAttribute="trailing" id="rBC-ev-SjV"/>
                             <constraint firstItem="Kvf-8W-DwS" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="rJs-ng-CSg"/>
                             <constraint firstItem="Qy7-pk-JEK" firstAttribute="centerY" secondItem="U7U-Qy-3pL" secondAttribute="centerY" id="t19-rs-J6z"/>
                             <constraint firstItem="0Hq-Tr-LTU" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="bottom" constant="8" id="tTz-hv-bw3"/>

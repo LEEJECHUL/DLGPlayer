@@ -39,12 +39,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isFirstViewAppearance, (navigationController?.viewControllers.count ?? 0) > 1 {
-            playRTMP()
+        if isFirstViewAppearance {
+            playDownload()
         }
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -66,8 +67,12 @@ class ViewController: UIViewController {
         }
     }
     
-    // MARK: - RTMP Test
+    // MARK: - Play Test
     
+    private func playDownload() {
+        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        playerViewController?.open()
+    }
     private func playRTMP() {
         playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
         playerViewController?.open()
@@ -114,6 +119,9 @@ class ViewController: UIViewController {
                 self?.view.addSubview($0)
         }
     }
+    @IBAction private func leftBarButtonItemClicked() {
+        dismiss(animated: true)
+    }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         playerViewController?.isMute = !sender.isSelected
@@ -134,6 +142,9 @@ class ViewController: UIViewController {
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
         playerViewController?.close()
         playRTMP()
+    }
+    @IBAction private func stopButtonClicked() {
+        playerViewController?.close()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController?.player.brightness = sender.value
