@@ -44,9 +44,9 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isFirstViewAppearance {
-            playDownload()
-        }
+//        if isFirstViewAppearance {
+            playRTMP()
+//        }
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -118,6 +118,9 @@ class ViewController: UIViewController {
             .map { [weak self] in
                 self?.view.addSubview($0)
         }
+    }
+    @IBAction private func closeButtonClicked() {
+        dismiss(animated: true)
     }
     @IBAction private func leftBarButtonItemClicked() {
         dismiss(animated: true)

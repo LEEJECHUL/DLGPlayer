@@ -103,7 +103,7 @@
                                 <rect key="frame" x="171.5" y="617" width="32" height="30"/>
                                 <state key="normal" title="Next"/>
                                 <connections>
-                                    <segue destination="ngc-aU-iHN" kind="show" identifier="NextView" id="hGF-yy-igC"/>
+                                    <segue destination="ngc-aU-iHN" kind="presentation" identifier="NextView" id="hGF-yy-igC"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -180,19 +180,19 @@
                                 </connections>
                             </containerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Brightness" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="amF-zF-GUq">
-                                <rect key="frame" x="20" y="84" width="82" height="21"/>
+                                <rect key="frame" x="20" y="40" width="82" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.23529411759999999" green="0.49803921569999998" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="x1V-Cm-Tel">
-                                <rect key="frame" x="18" y="113" width="339" height="31"/>
+                                <rect key="frame" x="18" y="69" width="339" height="31"/>
                                 <connections>
                                     <action selector="valueChanged:" destination="ngc-aU-iHN" eventType="valueChanged" id="X2V-ek-EKb"/>
                                 </connections>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7uQ-ll-hzl">
-                                <rect key="frame" x="20" y="183" width="70" height="30"/>
+                                <rect key="frame" x="20" y="139" width="70" height="30"/>
                                 <state key="normal" title="Sound Off"/>
                                 <state key="selected" title="Sound On"/>
                                 <connections>
@@ -200,7 +200,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="07x-ar-Xgi">
-                                <rect key="frame" x="106" y="183" width="101" height="30"/>
+                                <rect key="frame" x="106" y="139" width="101" height="30"/>
                                 <state key="normal" title="Capture Image"/>
                                 <state key="selected" title="Sound On"/>
                                 <connections>
@@ -208,7 +208,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qse-yW-31x">
-                                <rect key="frame" x="325" y="183" width="30" height="30"/>
+                                <rect key="frame" x="325" y="139" width="30" height="30"/>
                                 <state key="normal" title="Play"/>
                                 <state key="selected" title="Pause"/>
                                 <connections>
@@ -216,11 +216,18 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OHb-1e-yBA">
-                                <rect key="frame" x="256" y="183" width="53" height="30"/>
+                                <rect key="frame" x="256" y="139" width="53" height="30"/>
                                 <state key="normal" title="Refresh"/>
                                 <state key="selected" title="Pause"/>
                                 <connections>
                                     <action selector="refreshButtonClicked:" destination="ngc-aU-iHN" eventType="touchUpInside" id="SqE-b7-LWl"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="02Q-3Z-4jQ">
+                                <rect key="frame" x="168" y="617" width="39" height="30"/>
+                                <state key="normal" title="Close"/>
+                                <connections>
+                                    <action selector="closeButtonClicked" destination="ngc-aU-iHN" eventType="touchUpInside" id="fgn-qP-OkR"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -229,6 +236,7 @@
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="cGQ-aZ-CVk" secondAttribute="trailing" id="00c-sw-tTa"/>
                             <constraint firstItem="amF-zF-GUq" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" constant="20" id="0Mg-Bv-iGK"/>
                             <constraint firstItem="07x-ar-Xgi" firstAttribute="leading" secondItem="7uQ-ll-hzl" secondAttribute="trailing" constant="16" id="2uk-5O-eR3"/>
+                            <constraint firstItem="02Q-3Z-4jQ" firstAttribute="centerX" secondItem="bc5-MZ-fgG" secondAttribute="centerX" id="5R2-ZE-AXR"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" secondItem="qse-yW-31x" secondAttribute="trailing" constant="20" id="D5Y-Hu-Il2"/>
                             <constraint firstItem="amF-zF-GUq" firstAttribute="top" secondItem="bc5-MZ-fgG" secondAttribute="top" constant="20" id="Fd5-QG-ZPl"/>
                             <constraint firstItem="OHb-1e-yBA" firstAttribute="centerY" secondItem="qse-yW-31x" secondAttribute="centerY" id="Ooi-lW-4AH"/>
@@ -241,6 +249,7 @@
                             <constraint firstItem="cGQ-aZ-CVk" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" id="eP4-1v-CgN"/>
                             <constraint firstItem="bc5-MZ-fgG" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7uQ-ll-hzl" secondAttribute="trailing" symbolic="YES" id="hTk-hT-WkQ"/>
                             <constraint firstItem="qse-yW-31x" firstAttribute="centerY" secondItem="07x-ar-Xgi" secondAttribute="centerY" id="oIn-tQ-Yfb"/>
+                            <constraint firstItem="bc5-MZ-fgG" firstAttribute="bottom" secondItem="02Q-3Z-4jQ" secondAttribute="bottom" constant="20" id="usn-j1-oPV"/>
                             <constraint firstItem="x1V-Cm-Tel" firstAttribute="leading" secondItem="bc5-MZ-fgG" secondAttribute="leading" constant="20" id="wDi-4j-bks"/>
                             <constraint firstItem="07x-ar-Xgi" firstAttribute="centerY" secondItem="7uQ-ll-hzl" secondAttribute="centerY" id="ygK-j4-8sa"/>
                         </constraints>

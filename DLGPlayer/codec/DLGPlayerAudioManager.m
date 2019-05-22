@@ -61,7 +61,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     _bitsPerChannel = 0;
     _channelsPerFrame = 0;
     _bufferDuration = 1;
-    self.audioUnit = NULL;
+    _audioUnit = NULL;
     _audioData = (float *)calloc(MAX_FRAME_SIZE * MAX_CHANNEL, sizeof(float));
     _frameReaderBlock = nil;
 }
@@ -200,8 +200,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     
     AudioStreamBasicDescription streamDescr = {0};
     UInt32 size = sizeof(AudioStreamBasicDescription);
-    status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
-                                  0, &streamDescr, &size);
+    status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
     if (status != noErr) {
         NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
         [DLGPlayerUtils createError:error
@@ -213,8 +212,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     streamDescr.mSampleRate = sampleRate;
-    status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
-                                  0, &streamDescr, size);
+    status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
     if (status != noErr) {
         NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
     }
@@ -225,7 +223,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     AURenderCallbackStruct renderCallbackStruct;
     renderCallbackStruct.inputProc = renderCallback;
     renderCallbackStruct.inputProcRefCon = (__bridge void *)(self);
-    
+
     status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
     if (status != noErr) {
         NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];

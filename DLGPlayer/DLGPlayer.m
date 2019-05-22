@@ -118,16 +118,12 @@
 }
 
 - (void)open:(NSString *)url {
-    if (self.opening) {
-        return;
-    }
-    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        if (!strongSelf || strongSelf.opening) {
+        if (!strongSelf || strongSelf.opening || strongSelf.closing) {
             return;
         }
         
@@ -138,26 +134,35 @@
             strongSelf.decoder.audioChannels = [weakSelf.audio channels];
             strongSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
         } else {
-            [strongSelf handleError:error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [strongSelf handleError:error];
+            });
         }
         
         if (![strongSelf.decoder open:url error:&error]) {
             strongSelf.opening = NO;
-            [strongSelf handleError:error];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [strongSelf handleError:error];
+            });
             return;
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            if (!strongSelf.opening || strongSelf.closing) {
+                return;
+            }
+            
             [strongSelf.view setCurrentEAGLContext];
             
-            strongSelf.view.isYUV = [weakSelf.decoder isYUV];
-            strongSelf.view.keepLastFrame = [weakSelf.decoder hasPicture] && ![weakSelf.decoder hasVideo];
-            strongSelf.view.rotation = weakSelf.decoder.rotation;
-            strongSelf.view.contentSize = CGSizeMake([weakSelf.decoder videoWidth], [weakSelf.decoder videoHeight]);
+            strongSelf.view.isYUV = [strongSelf.decoder isYUV];
+            strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
+            strongSelf.view.rotation = strongSelf.decoder.rotation;
+            strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
             strongSelf.view.contentMode = UIViewContentModeScaleAspectFit;
             
-            strongSelf.duration = weakSelf.decoder.duration;
-            strongSelf.metadata = weakSelf.decoder.metadata;
+            strongSelf.duration = strongSelf.decoder.duration;
+            strongSelf.metadata = strongSelf.decoder.metadata;
             strongSelf.opening = NO;
             strongSelf.buffering = NO;
             strongSelf.playing = NO;
@@ -178,14 +183,9 @@
 }
 
 - (void)close {
-    if (self.closing) {
-        return;
-    }
+    __weak typeof(self)weakSelf = self;
     
     [self pause];
-    [self.decoder prepareClose];
-    
-    __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
@@ -196,6 +196,7 @@
         
         strongSelf.closing = YES;
         
+        [strongSelf.decoder prepareClose];
         [strongSelf.decoder close];
         [strongSelf.view clear];
         
@@ -208,6 +209,8 @@
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
             });
         } else {
+            [strongSelf clearVars];
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 for (NSError *error in errors) {
                     [strongSelf handleError:error];
@@ -218,10 +221,6 @@
 }
 
 - (void)play {
-    if (!self.opened || self.playing || self.closing) {
-        return;
-    }
-    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(_processingQueue, ^{
@@ -575,13 +574,11 @@
 
 #pragma mark - Handle Error
 - (void)handleError:(NSError *)error {
-    if (error == nil) return;
-    NSDictionary *userInfo = @{ DLGPlayerNotificationErrorKey : error };
-    __weak typeof(self)weakSelf = self;
+    if (error == nil) {
+        return;
+    }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:weakSelf userInfo:userInfo];
-    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:@{DLGPlayerNotificationErrorKey: error}];
 }
 
 @end
