@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  RootViewController.swift
 //  DLGPlayerDemo
 //
 //  Created by KWANG HYOUN KIM on 07/12/2018.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class RootViewController: UIViewController {
     
     @IBOutlet private weak var coverView: UIView?
     @IBOutlet private weak var muteButton: UIButton!
@@ -20,7 +20,7 @@ class ViewController: UIViewController {
             playerViewController.map {
                 $0.delegate = self
                 $0.isAutoplay = true
-                //            $0.isMute = true
+                $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
@@ -74,7 +74,7 @@ class ViewController: UIViewController {
         playerViewController?.open()
     }
     private func playRTMP() {
-        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
         playerViewController?.open()
     }
     
@@ -98,7 +98,7 @@ class ViewController: UIViewController {
     }
     private func playTest(_ count: Int) {
         let url = count % 2 == 0 ?
-            "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
+            "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
         "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         
         playerViewController?.close()
@@ -118,12 +118,6 @@ class ViewController: UIViewController {
             .map { [weak self] in
                 self?.view.addSubview($0)
         }
-    }
-    @IBAction private func closeButtonClicked() {
-        dismiss(animated: true)
-    }
-    @IBAction private func leftBarButtonItemClicked() {
-        dismiss(animated: true)
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
@@ -154,13 +148,13 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: DLGSimplePlayerViewControllerDelegate {
+extension RootViewController: DLGSimplePlayerViewControllerDelegate {
     func didBeginRender(in viewController: DLGSimplePlayerViewController) {
-        print("didBeginRender -> ", viewController.url)
+//        print("didBeginRender -> ", viewController.url)
         coverView?.isHidden = true
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didReceiveError error: Error) {
-        print("didReceiveError -> ", error)
+//        print("didReceiveError -> ", error)
     }
     func viewController(_ viewController: DLGSimplePlayerViewController, didChange status: DLGPlayerStatus) {
 //        print("didChange", viewController.hash, status.stringValue)

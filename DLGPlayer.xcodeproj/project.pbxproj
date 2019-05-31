@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23241CAE22A0B45400871C58 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23241CAD22A0B45400871C58 /* SecondViewController.swift */; };
 		235409B421BA05A100533B9B /* DLGPlayerDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291821B810B40012243A /* DLGPlayerDecoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409B521BA05A400533B9B /* DLGPlayerAudioManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291921B810B40012243A /* DLGPlayerAudioManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409B621BA05A900533B9B /* DLGPlayerDef.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293621B810B50012243A /* DLGPlayerDef.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -22,7 +23,7 @@
 		237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */; };
 		239BC97121C234CF00DEEC73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97021C234CF00DEEC73 /* AppDelegate.swift */; };
-		239BC97321C234CF00DEEC73 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97221C234CF00DEEC73 /* ViewController.swift */; };
+		239BC97321C234CF00DEEC73 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97221C234CF00DEEC73 /* RootViewController.swift */; };
 		239BC97621C234CF00DEEC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97421C234CF00DEEC73 /* Main.storyboard */; };
 		239BC97821C234D000DEEC73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97721C234D000DEEC73 /* Assets.xcassets */; };
 		239BC97B21C234D000DEEC73 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97921C234D000DEEC73 /* LaunchScreen.storyboard */; };
@@ -63,13 +64,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23241CAD22A0B45400871C58 /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
 		235409C421BA177A00533B9B /* DLGSimplePlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGSimplePlayerViewController.h; sourceTree = "<group>"; };
 		235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGSimplePlayerViewController.m; sourceTree = "<group>"; };
 		237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGPlayerControlStatus.h; sourceTree = "<group>"; };
 		237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerControlStatus.m; sourceTree = "<group>"; };
 		239BC96E21C234CF00DEEC73 /* DLGPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DLGPlayerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		239BC97021C234CF00DEEC73 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		239BC97221C234CF00DEEC73 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		239BC97221C234CF00DEEC73 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
 		239BC97521C234CF00DEEC73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		239BC97721C234D000DEEC73 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		239BC97A21C234D000DEEC73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -142,12 +144,13 @@
 		239BC96F21C234CF00DEEC73 /* DLGPlayerDemo */ = {
 			isa = PBXGroup;
 			children = (
+				239BC97C21C234D000DEEC73 /* Info.plist */,
 				239BC97021C234CF00DEEC73 /* AppDelegate.swift */,
-				239BC97221C234CF00DEEC73 /* ViewController.swift */,
-				239BC97421C234CF00DEEC73 /* Main.storyboard */,
+				239BC97221C234CF00DEEC73 /* RootViewController.swift */,
+				23241CAD22A0B45400871C58 /* SecondViewController.swift */,
 				239BC97721C234D000DEEC73 /* Assets.xcassets */,
 				239BC97921C234D000DEEC73 /* LaunchScreen.storyboard */,
-				239BC97C21C234D000DEEC73 /* Info.plist */,
+				239BC97421C234CF00DEEC73 /* Main.storyboard */,
 			);
 			path = DLGPlayerDemo;
 			sourceTree = "<group>";
@@ -425,7 +428,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				239BC97321C234CF00DEEC73 /* ViewController.swift in Sources */,
+				23241CAE22A0B45400871C58 /* SecondViewController.swift in Sources */,
+				239BC97321C234CF00DEEC73 /* RootViewController.swift in Sources */,
 				239BC97121C234CF00DEEC73 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
