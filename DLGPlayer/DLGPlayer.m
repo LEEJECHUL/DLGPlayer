@@ -41,6 +41,9 @@
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
 @end
 
+static dispatch_queue_t processingQueue;
+static dispatch_queue_t renderingQueue;
+
 @implementation DLGPlayer
 
 - (id)init {
@@ -83,8 +86,13 @@
     _requestSeekPosition = 0;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
-    _renderingQueue = dispatch_queue_create("DLGPlayer.renderingQueue", DISPATCH_QUEUE_SERIAL);
-    _processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
+    
+    if (!processingQueue) {
+        processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    if (!renderingQueue) {
+        renderingQueue = dispatch_queue_create("DLGPlayer.renderingQueue", DISPATCH_QUEUE_SERIAL);
+    }
 }
 
 - (void)initView {
@@ -120,7 +128,7 @@
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(_processingQueue, ^{
+    dispatch_async(processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.opening || strongSelf.closing) {
@@ -187,7 +195,7 @@
     
     [self pause];
     
-    dispatch_async(_processingQueue, ^{
+    dispatch_async(processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.closing) {
@@ -198,7 +206,10 @@
         
         [strongSelf.decoder prepareClose];
         [strongSelf.decoder close];
-        [strongSelf.view clear];
+        
+        dispatch_sync(renderingQueue, ^{
+            [strongSelf.view clear];
+        });
         
         NSArray<NSError *> *errors = nil;
         
@@ -223,7 +234,7 @@
 - (void)play {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(_processingQueue, ^{
+    dispatch_async(processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
@@ -454,7 +465,7 @@
 - (void)renderView:(DLGPlayerVideoFrame *)frame {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(_renderingQueue, ^{
+    dispatch_sync(renderingQueue, ^{
         [weakSelf.view render:frame];
         
         if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {

@@ -301,6 +301,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
         
         NSError *error = nil;
         AVAudioSession *session = [AVAudioSession sharedInstance];
+        
         if (![session setActive:NO error:&error]) {
             closed = NO;
             if (errs != nil) {
