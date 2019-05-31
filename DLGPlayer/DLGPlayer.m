@@ -39,10 +39,10 @@
 
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
+@property (nonatomic, strong) dispatch_queue_t renderingQueue;
 @end
 
 static dispatch_queue_t processingQueue;
-static dispatch_queue_t renderingQueue;
 
 @implementation DLGPlayer
 
@@ -86,12 +86,10 @@ static dispatch_queue_t renderingQueue;
     _requestSeekPosition = 0;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
+    _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     
     if (!processingQueue) {
         processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
-    }
-    if (!renderingQueue) {
-        renderingQueue = dispatch_queue_create("DLGPlayer.renderingQueue", DISPATCH_QUEUE_SERIAL);
     }
 }
 
@@ -206,10 +204,7 @@ static dispatch_queue_t renderingQueue;
         
         [strongSelf.decoder prepareClose];
         [strongSelf.decoder close];
-        
-        dispatch_sync(renderingQueue, ^{
-            [strongSelf.view clear];
-        });
+        [strongSelf.view clear];
         
         NSArray<NSError *> *errors = nil;
         
@@ -465,7 +460,7 @@ static dispatch_queue_t renderingQueue;
 - (void)renderView:(DLGPlayerVideoFrame *)frame {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(renderingQueue, ^{
+    dispatch_sync(_renderingQueue, ^{
         [weakSelf.view render:frame];
         
         if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {
