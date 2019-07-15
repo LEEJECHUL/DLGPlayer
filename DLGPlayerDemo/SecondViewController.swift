@@ -55,7 +55,7 @@ class SecondViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        playerViewController?.close()
+        playerViewController?.stop()
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -99,7 +99,7 @@ class SecondViewController: UIViewController {
             "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
         "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         
-        playerViewController?.close()
+        playerViewController?.stop()
         
         //        print("[playTest] ------------------------------------------------------------------------------------")
         //        print("[playTest] will open -> ", url)
@@ -141,11 +141,11 @@ class SecondViewController: UIViewController {
         }
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
-        playerViewController?.close()
+        playerViewController?.stop()
         playRTMP()
     }
     @IBAction private func stopButtonClicked() {
-        playerViewController?.close()
+        playerViewController?.stop()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController?.player.brightness = sender.value

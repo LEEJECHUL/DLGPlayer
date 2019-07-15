@@ -125,12 +125,6 @@ typedef enum : NSUInteger {
     [_player open:_url];
 }
     
-- (void)close {
-    self.status = DLGPlayerStatusClosing;
-    [UIApplication sharedApplication].idleTimerDisabled = NO;
-    [_player close];
-}
-    
 - (void)play {
     [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
     [_player play];
@@ -146,6 +140,12 @@ typedef enum : NSUInteger {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player pause];
     self.status = DLGPlayerStatusPaused;
+}
+
+- (void)stop {
+    self.status = DLGPlayerStatusClosing;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [_player close];
 }
     
     
@@ -205,8 +205,12 @@ typedef enum : NSUInteger {
     
 - (void)notifyPlayerEOF:(NSNotification *)notif {
     self.status = DLGPlayerStatusEOF;
-    if (_isRepeat) [self replay];
-    else [self close];
+    
+    if (_isRepeat) {
+        [self replay];
+    } else {
+        [self stop];
+    }
 }
     
 - (void)notifyPlayerClosed:(NSNotification *)notif {

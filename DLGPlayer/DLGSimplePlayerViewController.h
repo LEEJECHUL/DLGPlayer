@@ -34,7 +34,7 @@
 @property (nonnull, nonatomic, readonly) DLGPlayer *player;
 @property (nullable, nonatomic, weak) id<DLGSimplePlayerViewControllerDelegate> delegate;
 - (void)open;
-- (void)close;
 - (void)play;
 - (void)pause;
+- (void)stop;
 @end
