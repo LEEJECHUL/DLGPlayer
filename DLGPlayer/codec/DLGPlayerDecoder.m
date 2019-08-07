@@ -391,6 +391,7 @@ static int interruptCallback(void *context) {
          * https://ffmpeg.org/doxygen/3.1/group__lavc__encdec.html
          */
         NSArray<DLGPlayerFrame *> *fs = nil;
+        
         if (packet.stream_index == vstream) {
             fs = [self handleVideoPacket:&packet byContext:vcodectx andFrame:vframe andSwsContext:swsctx andSwsFrame:vswsframe];
             reading = NO;

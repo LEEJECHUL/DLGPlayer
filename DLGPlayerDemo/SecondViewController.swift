@@ -23,7 +23,7 @@ class SecondViewController: UIViewController {
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
-                $0.maxBufferDuration = 2
+                $0.maxBufferDuration = 4
             }
         }
     }

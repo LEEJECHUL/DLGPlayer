@@ -269,6 +269,7 @@ static dispatch_queue_t processingQueue;
     @autoreleasepool {
         while (self.playing && !self.closing) {
             [self readFrame];
+            
             if (self.requestSeek) {
                 [self seekPositionInFrameReader];
             } else {
@@ -286,9 +287,15 @@ static dispatch_queue_t processingQueue;
     double tempDuration = 0;
     dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
     
-    while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek
-           && (self.bufferedDuration + tempDuration) < self.maxBufferDuration) {
+    while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
         @autoreleasepool {
+            if (self.bufferedDuration + tempDuration > self.maxBufferDuration) {
+                [self.vframes removeAllObjects];
+                [self.aframes removeAllObjects];
+                self.bufferedDuration = 0;
+                NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
+            }
+            
             NSArray *fs = [self.decoder readFrames];
             
             if (fs == nil) { break; }
@@ -448,6 +455,7 @@ static dispatch_queue_t processingQueue;
     [self renderView:frame];
     
     // Sync audio with video
+    
     double syncTime = [self syncTime];
     NSTimeInterval t = MAX(frame.duration + syncTime, 0.01);
     

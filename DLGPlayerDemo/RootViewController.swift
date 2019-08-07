@@ -20,9 +20,10 @@ class RootViewController: UIViewController {
             playerViewController.map {
                 $0.delegate = self
                 $0.isAutoplay = true
-                $0.isMute = true
+//                $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
+                $0.maxBufferDuration = 2
             }
         }
     }
