@@ -20,6 +20,7 @@
 
 @interface DLGSimplePlayerViewController : UIViewController
 @property (nonatomic, readonly) BOOL hasUrl;
+@property (nonatomic) BOOL isAllowsFrameDrop;
 @property (nonatomic) BOOL isAutoplay;
 @property (nonatomic) BOOL isMute;
 @property (nonatomic, readonly) BOOL isPlaying;

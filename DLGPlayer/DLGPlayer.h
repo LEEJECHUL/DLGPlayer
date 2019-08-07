@@ -31,6 +31,7 @@ typedef void (^onPauseComplete)(void);
 @property (nonatomic) double maxBufferDuration;
 @property (nonatomic) double position;
 @property (nonatomic) double duration;
+@property (nonatomic) BOOL allowsFrameDrop;
 @property (nonatomic) BOOL opened;
 @property (nonatomic) BOOL playing;
 @property (nonatomic) BOOL buffering;

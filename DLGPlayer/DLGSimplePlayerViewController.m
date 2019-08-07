@@ -112,6 +112,14 @@ typedef enum : NSUInteger {
 - (void)setMaxBufferDuration:(double)maxBufferDuration {
     _player.maxBufferDuration = maxBufferDuration;
 }
+
+- (BOOL)isAllowsFrameDrop {
+    return _player.allowsFrameDrop;
+}
+
+- (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
+    _player.allowsFrameDrop = isAllowsFrameDrop;
+}
     
 #pragma mark - Init
 - (void)initAll {
