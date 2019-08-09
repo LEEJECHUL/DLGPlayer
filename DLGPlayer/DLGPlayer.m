@@ -55,7 +55,7 @@ static dispatch_queue_t processingQueue;
 }
 
 - (void)dealloc {
-    if (DLGPlayerDebugEnabled) {
+    if (DLGPlayerUtils.debugEnabled) {
         NSLog(@"DLGPlayer dealloc");
     }
 }
@@ -292,8 +292,8 @@ static dispatch_queue_t processingQueue;
     
     while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
         @autoreleasepool {
-            if (DLGPlayerDebugEnabled) {
-                NSLog(@"DLGPlayer bufferedDuration: %f, tempDuration: %f, maxBufferDuration: %f -> ", self.bufferedDuration, tempDuration, self.maxBufferDuration);
+            if (DLGPlayerUtils.debugEnabled) {
+                NSLog(@"DLGPlayer bufferedDuration: %f, tempDuration: %f, maxBufferDuration: %f", self.bufferedDuration, tempDuration, self.maxBufferDuration);
             }
             
             if (self.bufferedDuration + tempDuration > self.maxBufferDuration) {
@@ -308,7 +308,7 @@ static dispatch_queue_t processingQueue;
                         [self.aframes removeAllObjects];
                         dispatch_semaphore_signal(self.aFramesLock);
                     }
-                    if (DLGPlayerDebugEnabled) {
+                    if (DLGPlayerUtils.debugEnabled) {
                         NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
                     }
                 } else {
@@ -475,6 +475,10 @@ static dispatch_queue_t processingQueue;
     [self renderView:frame];
     
     // Sync audio with video
+    
+    if (DLGPlayerUtils.debugEnabled) {
+        NSLog(@"DLGPlayer render -> frame.duration: %f", frame.duration);
+    }
     
     double syncTime = [self syncTime];
     NSTimeInterval t = MAX(frame.duration + syncTime, 0.01);

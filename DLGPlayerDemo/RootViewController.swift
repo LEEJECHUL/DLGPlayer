@@ -39,6 +39,8 @@ class RootViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        DLGPlayerUtils.setDebugEnabled(true)
+        
 //        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {

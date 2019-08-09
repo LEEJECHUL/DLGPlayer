@@ -175,7 +175,7 @@
     // Create program
     GLuint program = glCreateProgram();
     if (program == 0) {
-        if (DLGPlayerDebugEnabled) {
+        if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"FAILED to create program.");
         }
         return;
@@ -212,7 +212,7 @@
         if (length > 1) {
             char *log = malloc(sizeof(char) * length);
             glGetProgramInfoLog(program, length, NULL, log);
-            if (DLGPlayerDebugEnabled) {
+            if (DLGPlayerUtils.debugEnabled) {
                 NSLog(@"FAILED to link program, error: %s", log);
             }
             free(log);
@@ -424,7 +424,7 @@
     // 1. Create shader
     GLuint shader = glCreateShader(type);
     if (shader == 0) {
-        if (DLGPlayerDebugEnabled) {
+        if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"FAILED to create shader.");
         }
         return 0;
@@ -447,7 +447,7 @@
         if (length > 1) {
             char *log = malloc(sizeof(char) * length);
             glGetShaderInfoLog(shader, length, NULL, log);
-            if (DLGPlayerDebugEnabled) {
+            if (DLGPlayerUtils.debugEnabled) {
                 NSLog(@"FAILED to compile shader, error: %s", log);
             }
             free(log);
@@ -463,7 +463,7 @@
     NSError *error = nil;
     NSString *shaderString = [NSString stringWithContentsOfFile:shaderFile encoding:NSUTF8StringEncoding error:&error];
     if (shaderString == nil) {
-        if (DLGPlayerDebugEnabled) {
+        if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"FAILED to load shader file: %@, Error: %@", shaderFile, error);
         }
         return 0;

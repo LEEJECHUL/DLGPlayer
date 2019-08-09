@@ -262,11 +262,11 @@ typedef enum : NSUInteger {
             strongSelf.status = DLGPlayerStatusNone;
         });
         
-        if (DLGPlayerDebugEnabled) {
+        if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"Player decoder error: %@", error);
         }
     } else if ([error.domain isEqualToString:DLGPlayerErrorDomainAudioManager]) {
-        if (DLGPlayerDebugEnabled) {
+        if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"Player audio error: %@", error);
         }
     }

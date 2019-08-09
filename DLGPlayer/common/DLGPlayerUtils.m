@@ -9,6 +9,8 @@
 #import "DLGPlayerUtils.h"
 #import "DLGPlayerDef.h"
 
+static BOOL debugEnabled = NO;
+
 @implementation DLGPlayerUtils
 
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message {
@@ -50,5 +52,14 @@
     [ms appendFormat:@"%d", s];
     return ms;
 }
+
++ (BOOL)debugEnabled {
+    return debugEnabled;
+}
+
++ (void)setDebugEnabled:(BOOL)enabled {
+    debugEnabled = enabled;
+}
+
 
 @end
