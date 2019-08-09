@@ -30,6 +30,7 @@
 @property (atomic) double mediaSyncTime;
 @property (atomic) double mediaSyncPosition;
 
+@property (atomic) BOOL frameDropped;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) double requestSeekPosition;
@@ -40,7 +41,6 @@
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
 @property (nonatomic, strong) dispatch_queue_t renderingQueue;
-@property (nonatomic, strong) dispatch_queue_t decodingQueue;
 @end
 
 static dispatch_queue_t processingQueue;
@@ -89,7 +89,6 @@ static dispatch_queue_t processingQueue;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
-    _decodingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.decodingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     
     if (!processingQueue) {
         processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
@@ -124,6 +123,7 @@ static dispatch_queue_t processingQueue;
     self.mediaSyncTime = 0;
     self.closing = NO;
     self.opening = NO;
+    self.frameDropped = NO;
 }
 
 - (void)open:(NSString *)url {
@@ -251,9 +251,7 @@ static dispatch_queue_t processingQueue;
             }
         });
         
-        dispatch_async(strongSelf.decodingQueue, ^{
-            [strongSelf runFrameReader];
-        });
+        [strongSelf runFrameReader];
     });
 }
 
@@ -294,12 +292,12 @@ static dispatch_queue_t processingQueue;
     
     while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
         @autoreleasepool {
-//            NSLog(@"self.bufferedDuration + tempDuration, self.maxBufferDuration -> %f, %f", self.bufferedDuration + tempDuration, self.maxBufferDuration);
             if (self.bufferedDuration + tempDuration > self.maxBufferDuration) {
-                if (self.allowsFrameDrop) {
+                if (self.allowsFrameDrop && !self.frameDropped) {
                     [self.vframes removeAllObjects];
                     [self.aframes removeAllObjects];
                     self.bufferedDuration = 0;
+                    self.frameDropped = YES;
                     NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
                 } else {
                     continue;
@@ -478,7 +476,7 @@ static dispatch_queue_t processingQueue;
 - (void)renderView:(DLGPlayerVideoFrame *)frame {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(self.renderingQueue, ^{
+    dispatch_sync(_renderingQueue, ^{
         [weakSelf.view render:frame];
         
         if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {
