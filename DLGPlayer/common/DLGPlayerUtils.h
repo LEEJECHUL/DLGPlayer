@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+static BOOL DLGPlayerDebugEnabled = NO;
+
 @interface DLGPlayerUtils : NSObject
 
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message;

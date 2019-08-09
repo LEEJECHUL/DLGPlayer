@@ -55,7 +55,9 @@ static dispatch_queue_t processingQueue;
 }
 
 - (void)dealloc {
-    NSLog(@"DLGPlayer dealloc");
+    if (DLGPlayerDebugEnabled) {
+        NSLog(@"DLGPlayer dealloc");
+    }
 }
 
 - (void)initAll {
@@ -290,6 +292,10 @@ static dispatch_queue_t processingQueue;
     
     while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
         @autoreleasepool {
+            if (DLGPlayerDebugEnabled) {
+                NSLog(@"DLGPlayer bufferedDuration: %f, tempDuration: %f, maxBufferDuration: %f -> ", self.bufferedDuration, tempDuration, self.maxBufferDuration);
+            }
+            
             if (self.bufferedDuration + tempDuration > self.maxBufferDuration) {
                 if (self.allowsFrameDrop) {
                     if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
@@ -302,7 +308,9 @@ static dispatch_queue_t processingQueue;
                         [self.aframes removeAllObjects];
                         dispatch_semaphore_signal(self.aFramesLock);
                     }
-                    NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
+                    if (DLGPlayerDebugEnabled) {
+                        NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
+                    }
                 } else {
                     continue;
                 }

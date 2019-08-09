@@ -276,9 +276,13 @@ typedef enum : NSUInteger {
             strongSelf.status = DLGPlayerStatusNone;
         });
 
-        NSLog(@"Player decoder error: %@", error);
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"Player decoder error: %@", error);
+        }
     } else if ([error.domain isEqualToString:DLGPlayerErrorDomainAudioManager]) {
-        NSLog(@"Player audio error: %@", error);
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"Player audio error: %@", error);
+        }
         // I am not sure what will cause the audio error,
         // if it happens, please issue to me
     }

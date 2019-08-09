@@ -67,7 +67,9 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)dealloc {
-    NSLog(@"DLGPlayerAudioManager dealloc");
+    if (DLGPlayerDebugEnabled) {
+        NSLog(@"DLGPlayerAudioManager dealloc");
+    }
     [self unregisterNotifications];
     
     if (_audioData) {
@@ -111,12 +113,16 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     if (![session setPreferredIOBufferDuration:_bufferDuration error:&rawError]) {
-        NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", _bufferDuration, rawError);
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", _bufferDuration, rawError);
+        }
     }
     
     double prefferedSampleRate = PREFERRED_SAMPLE_RATE;
     if (![session setPreferredSampleRate:prefferedSampleRate error:&rawError]) {
-        NSLog(@"setPreferredSampleRate: %.4f, error: %@", prefferedSampleRate, rawError);
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"setPreferredSampleRate: %.4f, error: %@", prefferedSampleRate, rawError);
+        }
     }
     
     if (![session setActive:YES error:&rawError]) {
@@ -213,7 +219,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     
     streamDescr.mSampleRate = sampleRate;
     status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
-    if (status != noErr) {
+    if (status != noErr && DLGPlayerDebugEnabled) {
         NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
     }
     

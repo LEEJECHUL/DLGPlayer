@@ -6,6 +6,7 @@
 //  Copyright © 2016 Liu Junqi. All rights reserved.
 //
 
+#import "DLGPlayerUtils.h"
 #import "DLGPlayerView.h"
 #import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/ES2/gl.h>
@@ -174,7 +175,9 @@
     // Create program
     GLuint program = glCreateProgram();
     if (program == 0) {
-        NSLog(@"FAILED to create program.");
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"FAILED to create program.");
+        }
         return;
     }
     
@@ -209,7 +212,9 @@
         if (length > 1) {
             char *log = malloc(sizeof(char) * length);
             glGetProgramInfoLog(program, length, NULL, log);
-            NSLog(@"FAILED to link program, error: %s", log);
+            if (DLGPlayerDebugEnabled) {
+                NSLog(@"FAILED to link program, error: %s", log);
+            }
             free(log);
         }
         
@@ -419,7 +424,9 @@
     // 1. Create shader
     GLuint shader = glCreateShader(type);
     if (shader == 0) {
-        NSLog(@"FAILED to create shader.");
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"FAILED to create shader.");
+        }
         return 0;
     }
     
@@ -440,7 +447,9 @@
         if (length > 1) {
             char *log = malloc(sizeof(char) * length);
             glGetShaderInfoLog(shader, length, NULL, log);
-            NSLog(@"FAILED to compile shader, error: %s", log);
+            if (DLGPlayerDebugEnabled) {
+                NSLog(@"FAILED to compile shader, error: %s", log);
+            }
             free(log);
         }
         glDeleteShader(shader);
@@ -454,7 +463,9 @@
     NSError *error = nil;
     NSString *shaderString = [NSString stringWithContentsOfFile:shaderFile encoding:NSUTF8StringEncoding error:&error];
     if (shaderString == nil) {
-        NSLog(@"FAILED to load shader file: %@, Error: %@", shaderFile, error);
+        if (DLGPlayerDebugEnabled) {
+            NSLog(@"FAILED to load shader file: %@, Error: %@", shaderFile, error);
+        }
         return 0;
     }
     
