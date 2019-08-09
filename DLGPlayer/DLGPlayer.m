@@ -30,7 +30,6 @@
 @property (atomic) double mediaSyncTime;
 @property (atomic) double mediaSyncPosition;
 
-@property (atomic) BOOL frameDropped;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) double requestSeekPosition;
@@ -123,7 +122,6 @@ static dispatch_queue_t processingQueue;
     self.mediaSyncTime = 0;
     self.closing = NO;
     self.opening = NO;
-    self.frameDropped = NO;
 }
 
 - (void)open:(NSString *)url {
@@ -293,11 +291,17 @@ static dispatch_queue_t processingQueue;
     while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
         @autoreleasepool {
             if (self.bufferedDuration + tempDuration > self.maxBufferDuration) {
-                if (self.allowsFrameDrop && !self.frameDropped) {
-                    [self.vframes removeAllObjects];
-                    [self.aframes removeAllObjects];
-                    self.bufferedDuration = 0;
-                    self.frameDropped = YES;
+                if (self.allowsFrameDrop) {
+                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
+                        [self.vframes removeAllObjects];
+                        dispatch_semaphore_signal(self.vFramesLock);
+                    }
+                    
+                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
+                        self.bufferedDuration = 0;
+                        [self.aframes removeAllObjects];
+                        dispatch_semaphore_signal(self.aFramesLock);
+                    }
                     NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
                 } else {
                     continue;

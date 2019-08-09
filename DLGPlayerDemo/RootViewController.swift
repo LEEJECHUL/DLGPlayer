@@ -24,7 +24,7 @@ class RootViewController: UIViewController {
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
-                $0.maxBufferDuration = 1
+                $0.maxBufferDuration = 3
             }
         }
     }
