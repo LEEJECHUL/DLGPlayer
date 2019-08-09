@@ -78,7 +78,7 @@ static dispatch_queue_t processingQueue;
     _aframes = [NSMutableArray arrayWithCapacity:128];
     _playingAudioFrame = nil;
     _playingAudioFrameDataPosition = 0;
-    _allowsFrameDrop = YES;
+    _allowsFrameDrop = NO;
     _closing = NO;
     _opening = NO;
     _buffering = NO;
@@ -304,10 +304,12 @@ static dispatch_queue_t processingQueue;
                     }
                     
                     if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
-                        self.bufferedDuration = 0;
                         [self.aframes removeAllObjects];
                         dispatch_semaphore_signal(self.aFramesLock);
                     }
+                    
+                    self.bufferedDuration = 0;
+                    
                     if (DLGPlayerUtils.debugEnabled) {
                         NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
                     }
