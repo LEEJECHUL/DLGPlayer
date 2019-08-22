@@ -52,6 +52,11 @@
 
 @implementation DLGPlayerView
 
+@synthesize isYUV = _isYUV;
+@synthesize keepLastFrame = _keepLastFrame;
+@synthesize rotation = _rotation;
+@synthesize contentSize = _contentSize;
+
 - (id)init {
     self = [super init];
     if (self) {
@@ -94,12 +99,12 @@
     [self updatePosition];
     [self updateScale];
     [self updateRotationMatrix];
-    [self render:self.lastFrame];
+    [self render:_lastFrame];
 }
 
 - (void)clear {
-    self.keepLastFrame = NO;
-    self.lastFrame = nil;
+    _keepLastFrame = NO;
+    _lastFrame = nil;
     [self render:nil];
 }
 
@@ -125,8 +130,8 @@
     [self initTexCord];
     [self initProjection];
     
-    self.rotation = 0;
-    self.keepLastFrame = NO;
+    _rotation = 0;
+    _keepLastFrame = NO;
     
     return YES;
 }
@@ -301,7 +306,7 @@
 - (void)updateRotationMatrix {
     if (_shouldRotate) {
         if (_isFlipVertical) { [DLGPlayerView flipVertical:_mat3Rotation]; }
-        else { [DLGPlayerView rotate:self.rotation matrix:_mat3Rotation]; }
+        else { [DLGPlayerView rotate:_rotation matrix:_mat3Rotation]; }
     }
     if (_shouldScale) {
         [DLGPlayerView ratio:(GLfloat)_backingWidth/(GLfloat)_backingHeight matrix:_mat3Ratio];
@@ -352,7 +357,7 @@
     // Set frame
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
-    if ([frame prepareRender:_programHandle]) {
+    if ([frame prepareProgram:_programHandle]) {
         glUniformMatrix4fv(_projectionSlot, 1, GL_FALSE, _mat4Projection);
         if (_shouldRotate) {
             glUniformMatrix3fv(_rotationSlot, 1, GL_FALSE, _mat3Rotation);
@@ -371,7 +376,7 @@
 
     [_context presentRenderbuffer:GL_RENDERBUFFER];
     
-    if (_keepLastFrame) self.lastFrame = frame;
+    if (_keepLastFrame) _lastFrame = frame;
 }
 
 /*

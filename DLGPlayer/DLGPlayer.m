@@ -14,10 +14,12 @@
 #import "DLGPlayerFrame.h"
 #import "DLGPlayerVideoFrame.h"
 #import "DLGPlayerAudioFrame.h"
+#import "DLGPlayerVideoFrameView.h"
+#import "MetalPlayerView.h"
 
 @interface DLGPlayer ()
 
-@property (nonatomic, strong) DLGPlayerView *view;
+@property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
 @property (nonatomic, strong) DLGPlayerDecoder *decoder;
 @property (nonatomic, strong) DLGPlayerAudioManager *audio;
 
@@ -40,9 +42,10 @@
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
 @property (nonatomic, strong) dispatch_queue_t renderingQueue;
+@property (nonatomic, strong) dispatch_queue_t processingQueue;
 @end
 
-static dispatch_queue_t processingQueue;
+static dispatch_queue_t processingQueueStatic;
 
 @implementation DLGPlayer
 
@@ -91,14 +94,19 @@ static dispatch_queue_t processingQueue;
     _vFramesLock = dispatch_semaphore_create(1);
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     
-    if (!processingQueue) {
-        processingQueue = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
+    if (@available(iOS 9.0, *)) {
+        _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
+    } else if (!processingQueueStatic) {
+        processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
     }
 }
 
 - (void)initView {
-    DLGPlayerView *v = [[DLGPlayerView alloc] init];
-    self.view = v;
+    if (@available(iOS 9.0, *)) {
+        _view = [MetalPlayerView new];
+    } else {
+        _view = [DLGPlayerView new];
+    }
 }
 
 - (void)initDecoder {
@@ -126,10 +134,18 @@ static dispatch_queue_t processingQueue;
     self.opening = NO;
 }
 
+- (dispatch_queue_t)processingQueue {
+    if (@available(iOS 9.0, *)) {
+        return _processingQueue;
+    } else {
+        return processingQueueStatic;
+    }
+}
+
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(processingQueue, ^{
+    dispatch_async(self.processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.opening || strongSelf.closing) {
@@ -162,13 +178,19 @@ static dispatch_queue_t processingQueue;
                 return;
             }
             
-            [strongSelf.view setCurrentEAGLContext];
+            if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
+                DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
+                [view setCurrentEAGLContext];
+            }
             
             strongSelf.view.isYUV = [strongSelf.decoder isYUV];
             strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
             strongSelf.view.rotation = strongSelf.decoder.rotation;
             strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
-            strongSelf.view.contentMode = UIViewContentModeScaleAspectFit;
+            
+            if ([strongSelf.view isKindOfClass:[UIView class]]) {
+                ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleAspectFit;
+            }
             
             strongSelf.duration = strongSelf.decoder.duration;
             strongSelf.metadata = strongSelf.decoder.metadata;
@@ -196,7 +218,7 @@ static dispatch_queue_t processingQueue;
     
     [self pause];
     
-    dispatch_async(processingQueue, ^{
+    dispatch_async(self.processingQueue, ^{
         __strong typeof(self)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.closing) {
@@ -232,7 +254,7 @@ static dispatch_queue_t processingQueue;
 - (void)play {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(processingQueue, ^{
+    dispatch_async(self.processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
@@ -446,7 +468,7 @@ static dispatch_queue_t processingQueue;
     if (self.decoder.hasPicture && self.vframes.count > 0) {
         DLGPlayerVideoFrame *frame = self.vframes[0];
         frame.brightness = _brightness;
-        self.view.contentSize = CGSizeMake(frame.width, frame.height);
+//        self.view.contentSize = CGSizeMake(frame.width, frame.height);
         [self.vframes removeObjectAtIndex:0];
         [self renderView:frame];
     }
@@ -600,7 +622,7 @@ static dispatch_queue_t processingQueue;
 }
 
 - (UIView *)playerView {
-    return self.view;
+    return (UIView *) _view;
 }
 
 - (void)setPosition:(double)position {

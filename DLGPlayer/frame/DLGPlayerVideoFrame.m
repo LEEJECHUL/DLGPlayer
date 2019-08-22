@@ -19,7 +19,19 @@
     return self;
 }
 
-- (BOOL)prepareRender:(GLuint)program {
+- (BOOL)prepared {
+    return NO;
+}
+
+- (BOOL)prepareProgram:(GLuint)program {
+    return NO;
+}
+
+- (BOOL)prepareDevice:(id<MTLDevice>)device {
+    return NO;
+}
+
+- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder {
     return NO;
 }
 

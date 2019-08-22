@@ -18,12 +18,13 @@ class SecondViewController: UIViewController {
         didSet {
             playerViewController.map {
                 $0.delegate = self
+                $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
                 $0.isMute = false
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
-                $0.maxBufferDuration = 4
+                $0.maxBufferDuration = 3
             }
         }
     }
@@ -72,7 +73,7 @@ class SecondViewController: UIViewController {
         playerViewController?.open()
     }
     private func playRTMP() {
-        playerViewController?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
         playerViewController?.open()
     }
     

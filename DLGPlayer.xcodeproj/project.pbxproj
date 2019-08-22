@@ -17,11 +17,13 @@
 		235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292C21B810B50012243A /* DLGPlayerFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409BB21BA05B500533B9B /* DLGPlayerVideoRGBFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC293421B810B50012243A /* DLGPlayerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409C621BA177A00533B9B /* DLGSimplePlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 235409C421BA177A00533B9B /* DLGSimplePlayerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235409C721BA177A00533B9B /* DLGSimplePlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */; };
 		237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */; };
+		237F814E230B964600A6C3D6 /* MetalPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 237F814C230B964600A6C3D6 /* MetalPlayerView.h */; };
+		237F814F230B964600A6C3D6 /* MetalPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 237F814D230B964600A6C3D6 /* MetalPlayerView.m */; };
+		237F8151230BB9AD00A6C3D6 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 237F8150230BB9AD00A6C3D6 /* Shader.metal */; };
 		239BC97121C234CF00DEEC73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97021C234CF00DEEC73 /* AppDelegate.swift */; };
 		239BC97321C234CF00DEEC73 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239BC97221C234CF00DEEC73 /* RootViewController.swift */; };
 		239BC97621C234CF00DEEC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97421C234CF00DEEC73 /* Main.storyboard */; };
@@ -46,8 +48,10 @@
 		23DC294D21B810B50012243A /* DLGPlayerVideoFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */; };
 		23DC294E21B810B50012243A /* DLGPlayerVideoYUVFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */; };
 		23DC295021B810B50012243A /* DLGPlayerFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293121B810B50012243A /* DLGPlayerFrame.m */; };
-		23DC295121B810B50012243A /* DLGPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293321B810B50012243A /* DLGPlayerView.m */; };
 		23DC295521B810B50012243A /* DLGPlayerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293821B810B50012243A /* DLGPlayerUtils.m */; };
+		23F042C1230D0AC900800BDC /* DLGPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F042BF230D0AC900800BDC /* DLGPlayerView.m */; };
+		23F042C2230D0AC900800BDC /* DLGPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F042C0230D0AC900800BDC /* DLGPlayerView.h */; };
+		23F042C4230D109D00800BDC /* DLGPlayerVideoFrameView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F042C3230D109D00800BDC /* DLGPlayerVideoFrameView.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -69,6 +73,9 @@
 		235409C521BA177A00533B9B /* DLGSimplePlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGSimplePlayerViewController.m; sourceTree = "<group>"; };
 		237758B221CA5658000B6B7F /* DLGPlayerControlStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGPlayerControlStatus.h; sourceTree = "<group>"; };
 		237758B321CA5658000B6B7F /* DLGPlayerControlStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerControlStatus.m; sourceTree = "<group>"; };
+		237F814C230B964600A6C3D6 /* MetalPlayerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalPlayerView.h; sourceTree = "<group>"; };
+		237F814D230B964600A6C3D6 /* MetalPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalPlayerView.m; sourceTree = "<group>"; };
+		237F8150230BB9AD00A6C3D6 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 		239BC96E21C234CF00DEEC73 /* DLGPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DLGPlayerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		239BC97021C234CF00DEEC73 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		239BC97221C234CF00DEEC73 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
@@ -104,8 +111,6 @@
 		23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerVideoYUVFrame.m; sourceTree = "<group>"; };
 		23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerAudioFrame.h; sourceTree = "<group>"; };
 		23DC293121B810B50012243A /* DLGPlayerFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerFrame.m; sourceTree = "<group>"; };
-		23DC293321B810B50012243A /* DLGPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerView.m; sourceTree = "<group>"; };
-		23DC293421B810B50012243A /* DLGPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerView.h; sourceTree = "<group>"; };
 		23DC293621B810B50012243A /* DLGPlayerDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerDef.h; sourceTree = "<group>"; };
 		23DC293721B810B50012243A /* DLGPlayerUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerUtils.h; sourceTree = "<group>"; };
 		23DC293821B810B50012243A /* DLGPlayerUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerUtils.m; sourceTree = "<group>"; };
@@ -120,6 +125,9 @@
 		23DC296E21B8147A0012243A /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		23DC297021B814830012243A /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		23DC297221B8148B0012243A /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		23F042BF230D0AC900800BDC /* DLGPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLGPlayerView.m; sourceTree = "<group>"; };
+		23F042C0230D0AC900800BDC /* DLGPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerView.h; sourceTree = "<group>"; };
+		23F042C3230D109D00800BDC /* DLGPlayerVideoFrameView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DLGPlayerVideoFrameView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +223,7 @@
 				23DC292321B810B50012243A /* DLGPlayerRGBFragmentShader.glsl */,
 				23DC292521B810B50012243A /* DLGPlayerRotationVertexShader.glsl */,
 				23DC292621B810B50012243A /* DLGPlayerVertexShader.glsl */,
+				237F8150230BB9AD00A6C3D6 /* Shader.metal */,
 			);
 			path = resource;
 			sourceTree = "<group>";
@@ -222,16 +231,16 @@
 		23DC292721B810B50012243A /* frame */ = {
 			isa = PBXGroup;
 			children = (
-				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
-				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
-				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC292B21B810B50012243A /* DLGPlayerAudioFrame.m */,
 				23DC292C21B810B50012243A /* DLGPlayerFrame.h */,
-				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
-				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
-				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
-				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC293121B810B50012243A /* DLGPlayerFrame.m */,
+				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
+				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
+				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
+				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
+				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
 			);
 			path = frame;
 			sourceTree = "<group>";
@@ -239,8 +248,11 @@
 		23DC293221B810B50012243A /* view */ = {
 			isa = PBXGroup;
 			children = (
-				23DC293421B810B50012243A /* DLGPlayerView.h */,
-				23DC293321B810B50012243A /* DLGPlayerView.m */,
+				23F042C0230D0AC900800BDC /* DLGPlayerView.h */,
+				23F042BF230D0AC900800BDC /* DLGPlayerView.m */,
+				237F814C230B964600A6C3D6 /* MetalPlayerView.h */,
+				237F814D230B964600A6C3D6 /* MetalPlayerView.m */,
+				23F042C3230D109D00800BDC /* DLGPlayerVideoFrameView.h */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -280,15 +292,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23F042C4230D109D00800BDC /* DLGPlayerVideoFrameView.h in Headers */,
 				23DC293E21B810B50012243A /* DLGPlayer.h in Headers */,
 				237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */,
+				23F042C2230D0AC900800BDC /* DLGPlayerView.h in Headers */,
 				235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */,
 				235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */,
 				235409B921BA05B500533B9B /* DLGPlayerVideoFrame.h in Headers */,
 				235409B821BA05B500533B9B /* DLGPlayerVideoYUVFrame.h in Headers */,
 				235409B521BA05A400533B9B /* DLGPlayerAudioManager.h in Headers */,
 				235409B421BA05A100533B9B /* DLGPlayerDecoder.h in Headers */,
-				235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */,
+				237F814E230B964600A6C3D6 /* MetalPlayerView.h in Headers */,
 				235409B621BA05A900533B9B /* DLGPlayerDef.h in Headers */,
 				235409B721BA05A900533B9B /* DLGPlayerUtils.h in Headers */,
 				235409C621BA177A00533B9B /* DLGSimplePlayerViewController.h in Headers */,
@@ -352,7 +366,7 @@
 					};
 					23DC26CD21B80F5A0012243A = {
 						CreatedOnToolsVersion = 10.1;
-						LastSwiftMigration = 1010;
+						LastSwiftMigration = 1030;
 					};
 				};
 			};
@@ -440,6 +454,7 @@
 			files = (
 				23DC293A21B810B50012243A /* DLGPlayerDecoder.m in Sources */,
 				23DC293B21B810B50012243A /* DLGPlayerAudioManager.m in Sources */,
+				23F042C1230D0AC900800BDC /* DLGPlayerView.m in Sources */,
 				23DC294021B810B50012243A /* DLGPlayer.m in Sources */,
 				235409C721BA177A00533B9B /* DLGSimplePlayerViewController.m in Sources */,
 				23DC294D21B810B50012243A /* DLGPlayerVideoFrame.m in Sources */,
@@ -447,10 +462,11 @@
 				237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */,
 				23DC295021B810B50012243A /* DLGPlayerFrame.m in Sources */,
 				23DC294A21B810B50012243A /* DLGPlayerAudioFrame.m in Sources */,
+				237F8151230BB9AD00A6C3D6 /* Shader.metal in Sources */,
 				23DC294E21B810B50012243A /* DLGPlayerVideoYUVFrame.m in Sources */,
-				23DC295121B810B50012243A /* DLGPlayerView.m in Sources */,
 				23DC293F21B810B50012243A /* DLGPlayerViewController.m in Sources */,
 				23DC294921B810B50012243A /* DLGPlayerVideoRGBFrame.m in Sources */,
+				237F814F230B964600A6C3D6 /* MetalPlayerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
