@@ -133,8 +133,10 @@
     }
     
     _isYUV = isYUV;
-    
+#if TARGET_IPHONE_SIMULATOR
+#else
     [self setUpPipelineState];
+#endif
 }
 
 - (void)clear {
@@ -156,6 +158,10 @@
 }
 
 - (UIImage *)snapshot {
+#if TARGET_IPHONE_SIMULATOR
+    NSLog(@"[DLGPlayer] Metal will not work to make snapshot on simulator.");
+    return nil;
+#else
     const id<MTLTexture> texture = self.currentDrawable.texture;
     const NSInteger w = texture.width;
     const NSInteger h = texture.height;
@@ -165,6 +171,7 @@
     UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
     CGImageRelease(cgImg);
     return resultImg;
+#endif
 }
 
 @end
