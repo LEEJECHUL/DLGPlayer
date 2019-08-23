@@ -13,6 +13,7 @@
     GLuint _texture;
     GLint _format;
 }
+@property (nonatomic, strong) id<MTLTexture> mtlTexture;
 
 @end
 
@@ -40,8 +41,14 @@
         _texture = 0;
     }
 }
-
-- (BOOL)prepareRender:(GLuint)program {
+    
+#pragma mark - Overidden: DLGPlayerVideoFrame
+    
+- (BOOL)prepared {
+    return (_mtlTexture != nil) || (_texture != 0);
+}
+    
+- (BOOL)prepareProgram:(GLuint)program {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
     if (_texture == 0) {
@@ -77,10 +84,57 @@
     
     return YES;
 }
+    
+- (BOOL)prepareDevice:(id<MTLDevice>)device {
+    const NSInteger w = self.width;
+    const NSInteger h = self.height;
+    
+    if (self.data.length != w * h) return NO;
+    
+    [self createMTLTextures:device];
+    [self updateMTLTextures];
+    return YES;
+}
+    
+- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder {
+    if (!self.prepared) {
+        return NO;
+    }
+    
+    [encoder setTexture:_mtlTexture atIndex:0];
+    
+    return YES;
+}
 
+#pragma mark - Public Methods
+    
 - (void)setHasAlpha:(BOOL)hasAlpha {
     _hasAlpha = hasAlpha;
     _format = hasAlpha ? GL_RGBA : GL_RGB;
+}
+    
+#pragma mark - Private Methods (Metal)
+    
+- (void)createMTLTextures:(id<MTLDevice>)device {
+    if (self.prepared) {
+        return;
+    }
+    
+    const NSInteger w = self.width;
+    const NSInteger h = self.height;
+    
+    @autoreleasepool {
+        MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w height:h mipmapped:NO];
+        
+        _mtlTexture = [device newTextureWithDescriptor:descriptor];
+    }
+}
+    
+- (void)updateMTLTextures {
+    const NSInteger w = self.width;
+    const NSInteger h = self.height;
+    
+    [_mtlTexture replaceRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:0 withBytes:self.data.bytes bytesPerRow:w];
 }
 
 @end

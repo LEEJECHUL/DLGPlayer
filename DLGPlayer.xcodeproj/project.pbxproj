@@ -48,6 +48,10 @@
 		23DC295021B810B50012243A /* DLGPlayerFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293121B810B50012243A /* DLGPlayerFrame.m */; };
 		23DC295121B810B50012243A /* DLGPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293321B810B50012243A /* DLGPlayerView.m */; };
 		23DC295521B810B50012243A /* DLGPlayerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC293821B810B50012243A /* DLGPlayerUtils.m */; };
+		23E013A6230E7B5D00B9BB0E /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 23E013A5230E7B5B00B9BB0E /* Shader.metal */; };
+		23E013AA230E7B6B00B9BB0E /* DLGPlayerVideoFrameView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E013A7230E7B6B00B9BB0E /* DLGPlayerVideoFrameView.h */; };
+		23E013AB230E7B6B00B9BB0E /* MetalPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E013A8230E7B6B00B9BB0E /* MetalPlayerView.h */; };
+		23E013AC230E7B6B00B9BB0E /* MetalPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E013A9230E7B6B00B9BB0E /* MetalPlayerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -120,6 +124,10 @@
 		23DC296E21B8147A0012243A /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		23DC297021B814830012243A /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		23DC297221B8148B0012243A /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		23E013A5230E7B5B00B9BB0E /* Shader.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		23E013A7230E7B6B00B9BB0E /* DLGPlayerVideoFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerVideoFrameView.h; sourceTree = "<group>"; };
+		23E013A8230E7B6B00B9BB0E /* MetalPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetalPlayerView.h; sourceTree = "<group>"; };
+		23E013A9230E7B6B00B9BB0E /* MetalPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MetalPlayerView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +223,7 @@
 				23DC292321B810B50012243A /* DLGPlayerRGBFragmentShader.glsl */,
 				23DC292521B810B50012243A /* DLGPlayerRotationVertexShader.glsl */,
 				23DC292621B810B50012243A /* DLGPlayerVertexShader.glsl */,
+				23E013A5230E7B5B00B9BB0E /* Shader.metal */,
 			);
 			path = resource;
 			sourceTree = "<group>";
@@ -222,16 +231,16 @@
 		23DC292721B810B50012243A /* frame */ = {
 			isa = PBXGroup;
 			children = (
-				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
-				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
-				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC292B21B810B50012243A /* DLGPlayerAudioFrame.m */,
 				23DC292C21B810B50012243A /* DLGPlayerFrame.h */,
-				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
-				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
-				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
-				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC293121B810B50012243A /* DLGPlayerFrame.m */,
+				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
+				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
+				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
+				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
+				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
 			);
 			path = frame;
 			sourceTree = "<group>";
@@ -239,8 +248,11 @@
 		23DC293221B810B50012243A /* view */ = {
 			isa = PBXGroup;
 			children = (
+				23E013A7230E7B6B00B9BB0E /* DLGPlayerVideoFrameView.h */,
 				23DC293421B810B50012243A /* DLGPlayerView.h */,
 				23DC293321B810B50012243A /* DLGPlayerView.m */,
+				23E013A8230E7B6B00B9BB0E /* MetalPlayerView.h */,
+				23E013A9230E7B6B00B9BB0E /* MetalPlayerView.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -282,6 +294,7 @@
 			files = (
 				23DC293E21B810B50012243A /* DLGPlayer.h in Headers */,
 				237758B421CA5658000B6B7F /* DLGPlayerControlStatus.h in Headers */,
+				23E013AB230E7B6B00B9BB0E /* MetalPlayerView.h in Headers */,
 				235409BA21BA05B500533B9B /* DLGPlayerFrame.h in Headers */,
 				235409BC21BA05B500533B9B /* DLGPlayerAudioFrame.h in Headers */,
 				235409B921BA05B500533B9B /* DLGPlayerVideoFrame.h in Headers */,
@@ -291,6 +304,7 @@
 				235409BD21BA05BC00533B9B /* DLGPlayerView.h in Headers */,
 				235409B621BA05A900533B9B /* DLGPlayerDef.h in Headers */,
 				235409B721BA05A900533B9B /* DLGPlayerUtils.h in Headers */,
+				23E013AA230E7B6B00B9BB0E /* DLGPlayerVideoFrameView.h in Headers */,
 				235409C621BA177A00533B9B /* DLGSimplePlayerViewController.h in Headers */,
 				235409BB21BA05B500533B9B /* DLGPlayerVideoRGBFrame.h in Headers */,
 				23DC293921B810B50012243A /* DLGPlayerViewController.h in Headers */,
@@ -446,10 +460,12 @@
 				23DC295521B810B50012243A /* DLGPlayerUtils.m in Sources */,
 				237758B521CA5658000B6B7F /* DLGPlayerControlStatus.m in Sources */,
 				23DC295021B810B50012243A /* DLGPlayerFrame.m in Sources */,
+				23E013AC230E7B6B00B9BB0E /* MetalPlayerView.m in Sources */,
 				23DC294A21B810B50012243A /* DLGPlayerAudioFrame.m in Sources */,
 				23DC294E21B810B50012243A /* DLGPlayerVideoYUVFrame.m in Sources */,
 				23DC295121B810B50012243A /* DLGPlayerView.m in Sources */,
 				23DC293F21B810B50012243A /* DLGPlayerViewController.m in Sources */,
+				23E013A6230E7B5D00B9BB0E /* Shader.metal in Sources */,
 				23DC294921B810B50012243A /* DLGPlayerVideoRGBFrame.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
