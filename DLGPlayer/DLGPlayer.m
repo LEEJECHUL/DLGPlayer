@@ -19,6 +19,7 @@
 
 @interface DLGPlayer ()
 
+@property (nonatomic, readonly) BOOL isAvilableMetal;
 @property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
 @property (nonatomic, strong) DLGPlayerDecoder *decoder;
 @property (nonatomic, strong) DLGPlayerAudioManager *audio;
@@ -94,7 +95,7 @@ static dispatch_queue_t processingQueueStatic;
     _vFramesLock = dispatch_semaphore_create(1);
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     
-    if (@available(iOS 9.0, *)) {
+    if (self.isAvilableMetal) {
         _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     } else if (!processingQueueStatic) {
         processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
@@ -102,8 +103,10 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initView {
-    if (@available(iOS 9.0, *)) {
-        _view = [MetalPlayerView new];
+    if (self.isAvilableMetal) {
+        if (@available(iOS 9.0, *)) {
+            _view = [MetalPlayerView new];
+        }
     } else {
         _view = [DLGPlayerView new];
     }
@@ -135,7 +138,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (dispatch_queue_t)processingQueue {
-    if (@available(iOS 9.0, *)) {
+    if (self.isAvilableMetal) {
         return _processingQueue;
     } else {
         return processingQueueStatic;
@@ -154,23 +157,25 @@ static dispatch_queue_t processingQueueStatic;
         
         strongSelf.opening = YES;
         
-        NSError *error = nil;
-        if ([strongSelf.audio open:&error]) {
-            strongSelf.decoder.audioChannels = [weakSelf.audio channels];
-            strongSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [strongSelf handleError:error];
-            });
-        }
-        
-        if (![strongSelf.decoder open:url error:&error]) {
-            strongSelf.opening = NO;
+        @autoreleasepool {
+            NSError *error = nil;
+            if ([strongSelf.audio open:&error]) {
+                strongSelf.decoder.audioChannels = [weakSelf.audio channels];
+                strongSelf.decoder.audioSampleRate = [weakSelf.audio sampleRate];
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [strongSelf handleError:error];
+                });
+            }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [strongSelf handleError:error];
-            });
-            return;
+            if (![strongSelf.decoder open:url error:&error]) {
+                strongSelf.opening = NO;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [strongSelf handleError:error];
+                });
+                return;
+            }
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -231,22 +236,24 @@ static dispatch_queue_t processingQueueStatic;
         [strongSelf.decoder close];
         [strongSelf.view clear];
         
-        NSArray<NSError *> *errors = nil;
-        
-        if ([strongSelf.audio close:&errors]) {
-            [strongSelf clearVars];
+        @autoreleasepool {
+            NSArray<NSError *> *errors = nil;
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
-            });
-        } else {
-            [strongSelf clearVars];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                for (NSError *error in errors) {
-                    [strongSelf handleError:error];
-                }
-            });
+            if ([strongSelf.audio close:&errors]) {
+                [strongSelf clearVars];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
+                });
+            } else {
+                [strongSelf clearVars];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    for (NSError *error in errors) {
+                        [strongSelf handleError:error];
+                    }
+                });
+            }
         }
     });
 }
@@ -266,10 +273,12 @@ static dispatch_queue_t processingQueueStatic;
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf render];
             
-            NSError *error = nil;
-            
-            if (![strongSelf.audio play:&error]) {
-                [strongSelf handleError:error];
+            @autoreleasepool {
+                NSError *error = nil;
+                
+                if (![strongSelf.audio play:&error]) {
+                    [strongSelf handleError:error];
+                }
             }
         });
         
@@ -280,9 +289,11 @@ static dispatch_queue_t processingQueueStatic;
 - (void)pause {
     self.playing = NO;
     
-    NSError *error = nil;
-    if (![self.audio pause:&error]) {
-        [self handleError:error];
+    @autoreleasepool {
+        NSError *error = nil;
+        if (![self.audio pause:&error]) {
+            [self handleError:error];
+        }
     }
 }
 
@@ -468,7 +479,7 @@ static dispatch_queue_t processingQueueStatic;
     if (self.decoder.hasPicture && self.vframes.count > 0) {
         DLGPlayerVideoFrame *frame = self.vframes[0];
         frame.brightness = _brightness;
-//        self.view.contentSize = CGSizeMake(frame.width, frame.height);
+        _view.contentSize = CGSizeMake(frame.width, frame.height);
         [self.vframes removeObjectAtIndex:0];
         [self renderView:frame];
     }
@@ -632,6 +643,17 @@ static dispatch_queue_t processingQueueStatic;
 
 - (double)position {
     return self.mediaPosition;
+}
+
+- (BOOL)isAvilableMetal {
+#if TARGET_IPHONE_SIMULATOR
+    return NO;
+#else
+    if (@available(iOS 9.0, *)) {
+        return YES;
+    }
+    return NO;
+#endif
 }
 
 #pragma mark - Handle Error

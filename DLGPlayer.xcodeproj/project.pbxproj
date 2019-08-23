@@ -231,16 +231,16 @@
 		23DC292721B810B50012243A /* frame */ = {
 			isa = PBXGroup;
 			children = (
-				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
-				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
-				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC292B21B810B50012243A /* DLGPlayerAudioFrame.m */,
 				23DC292C21B810B50012243A /* DLGPlayerFrame.h */,
-				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
-				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
-				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
-				23DC293021B810B50012243A /* DLGPlayerAudioFrame.h */,
 				23DC293121B810B50012243A /* DLGPlayerFrame.m */,
+				23DC292921B810B50012243A /* DLGPlayerVideoFrame.h */,
+				23DC292E21B810B50012243A /* DLGPlayerVideoFrame.m */,
+				23DC292D21B810B50012243A /* DLGPlayerVideoRGBFrame.h */,
+				23DC292A21B810B50012243A /* DLGPlayerVideoRGBFrame.m */,
+				23DC292821B810B50012243A /* DLGPlayerVideoYUVFrame.h */,
+				23DC292F21B810B50012243A /* DLGPlayerVideoYUVFrame.m */,
 			);
 			path = frame;
 			sourceTree = "<group>";

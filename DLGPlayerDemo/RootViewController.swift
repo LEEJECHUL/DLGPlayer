@@ -55,16 +55,13 @@ class RootViewController: UIViewController {
         super.viewDidLoad()
         
 //        DLGPlayerUtils.setDebugEnabled(true)
-        
 //        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isFirstViewAppearance {
-            playRTMP1()
-            playRTMP2()
-        }
+        playRTMP1()
+        playRTMP2()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -77,6 +74,9 @@ class RootViewController: UIViewController {
         playerViewController1?.stop()
         playerViewController2?.stop()
         coverView?.isHidden = false
+    }
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        self.navigationController?.isNavigationBarHidden = UIDevice.current.orientation.isLandscape
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -101,11 +101,11 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController1?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
         playerViewController1?.open()
     }
     private func playRTMP2() {
-        playerViewController2?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController2?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
         playerViewController2?.open()
     }
     

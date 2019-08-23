@@ -67,19 +67,21 @@
         return;
     }
     
-    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-    id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
-    float brightness = _currentFrame.brightness;
-    
-    [commandEncoder setComputePipelineState:_pipelineState];
-    [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
-    [_currentFrame render:commandEncoder];
-    [commandEncoder setTexture:self.currentDrawable.texture atIndex:3];
-    [commandEncoder dispatchThreadgroups:_threadgroupsPerGrid threadsPerThreadgroup:_threadsPerThreadgroup];
-    [commandEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-    [commandBuffer commit];
+    @autoreleasepool {
+        id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+        id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
+        float brightness = _currentFrame.brightness;
+        
+        [commandEncoder setComputePipelineState:_pipelineState];
+        [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
+        [_currentFrame render:commandEncoder];
+        [commandEncoder setTexture:self.currentDrawable.texture atIndex:3];
+        [commandEncoder dispatchThreadgroups:_threadgroupsPerGrid threadsPerThreadgroup:_threadsPerThreadgroup];
+        [commandEncoder endEncoding];
+        
+        [commandBuffer presentDrawable:self.currentDrawable];
+        [commandBuffer commit];
+    }
 }
     
 - (void)setUpPipelineState {
@@ -100,6 +102,11 @@
 #endif
 
 - (void)initProperties {
+    self.framebufferOnly = NO;
+    self.autoResizeDrawable = NO;
+    self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    self.contentScaleFactor = UIScreen.mainScreen.scale;
+    self.clearColor = MTLClearColorMake(1, 1, 1, 1);
 #if TARGET_IPHONE_SIMULATOR
     NSLog(@"[DLGPlayer] Metal will not work on simulator.");
 #endif
@@ -107,8 +114,10 @@
     _commandQueue = [self.device newCommandQueue];
     
     if (@available(iOS 10.0, *)) {
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        _defaultLibrary = [self.device newDefaultLibraryWithBundle:bundle error:nil];
+        @autoreleasepool {
+            NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+            _defaultLibrary = [self.device newDefaultLibraryWithBundle:bundle error:nil];
+        }
     } else {
         _defaultLibrary = [self.device newDefaultLibrary];
     }
@@ -151,6 +160,7 @@
     }
     
     _currentFrame = frame;
+    self.drawableSize = CGSizeMake(frame.width, frame.height);
     
     if ([frame prepareDevice:self.device]) {
         // TODO: - Impl scale / flip / rotation.
