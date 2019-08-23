@@ -8,6 +8,7 @@
 
 #import "DLGPlayerFrame.h"
 #import <OpenGLES/ES2/gl.h>
+@import MetalKit;
 
 typedef enum : NSUInteger {
     kDLGPlayerVideoFrameTypeNone,
@@ -17,11 +18,14 @@ typedef enum : NSUInteger {
 
 @interface DLGPlayerVideoFrame : DLGPlayerFrame
 
+@property (nonatomic, readonly) BOOL prepared;
 @property (nonatomic) DLGPlayerVideoFrameType videoType;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) float brightness;
 
-- (BOOL)prepareRender:(GLuint)program;
+- (BOOL)prepareProgram:(GLuint)program;
+- (BOOL)prepareDevice:(id<MTLDevice>)device;
+- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder;
 
 @end

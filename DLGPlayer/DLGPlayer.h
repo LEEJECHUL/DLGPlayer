@@ -15,7 +15,6 @@
 #import "DLGPlayerVideoFrame.h"
 #import "DLGPlayerVideoRGBFrame.h"
 #import "DLGPlayerVideoYUVFrame.h"
-#import "DLGPlayerView.h"
 #import "DLGPlayerViewController.h"
 #import "DLGPlayerUtils.h"
 #import "DLGPlayerControlStatus.h"

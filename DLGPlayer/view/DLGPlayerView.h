@@ -7,19 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DLGPlayerVideoFrameView.h"
 
 @class DLGPlayerVideoFrame;
 
-@interface DLGPlayerView : UIView
-
-@property (nonatomic) CGSize contentSize;
-@property (nonatomic) CGFloat rotation;
-@property (nonatomic) BOOL isYUV;
-@property (nonatomic) BOOL keepLastFrame;
-
-- (void)render:(DLGPlayerVideoFrame *)frame;
-- (void)clear;
+@interface DLGPlayerView : UIView <DLGPlayerVideoFrameView>
 - (BOOL)setCurrentEAGLContext;
-- (UIImage *)snapshot;
-
 @end
