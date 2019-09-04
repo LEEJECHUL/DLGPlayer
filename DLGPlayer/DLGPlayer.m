@@ -20,6 +20,7 @@
 @interface DLGPlayer ()
 
 @property (nonatomic, readonly) BOOL isAvilableMetal;
+@property (nonatomic, readonly) BOOL isDeviceSupportMetal;
 @property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
 @property (nonatomic, strong) DLGPlayerDecoder *decoder;
 @property (nonatomic, strong) DLGPlayerAudioManager *audio;
@@ -65,6 +66,8 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initAll {
+    _isDeviceSupportMetal = MTLCreateSystemDefaultDevice() != nil;
+    
     [self initVars];
     [self initAudio];
     [self initDecoder];
@@ -650,7 +653,7 @@ static dispatch_queue_t processingQueueStatic;
     return NO;
 #else
     if (@available(iOS 9.0, *)) {
-        return YES;
+        return _isDeviceSupportMetal;
     }
     return NO;
 #endif
