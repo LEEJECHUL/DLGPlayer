@@ -13,6 +13,7 @@ class RootViewController: UIViewController {
     @IBOutlet private weak var coverView: UIView?
     @IBOutlet private weak var muteButton: UIButton!
     @IBOutlet private weak var playOrPauseButton: UIButton!
+    @IBOutlet private weak var segmentedControl: UISegmentedControl!
     
     private var isFirstViewAppearance = true
     private var playerViewController1: DLGSimplePlayerViewController? {
@@ -61,7 +62,7 @@ class RootViewController: UIViewController {
         super.viewWillAppear(animated)
         
         playRTMP1()
-        playRTMP2()
+//        playRTMP2()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -101,7 +102,7 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController1?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
         playerViewController1?.open()
     }
     private func playRTMP2() {
@@ -183,6 +184,18 @@ class RootViewController: UIViewController {
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController1?.player.brightness = sender.value
         playerViewController2?.player.brightness = sender.value
+    }
+    @IBAction private func segmentValueChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            playerViewController1?.speed = 1.0
+        case 1:
+            playerViewController1?.speed = 2.0
+        case 2:
+            playerViewController1?.speed = 4.0
+        default:
+            ()
+        }
     }
 }
 

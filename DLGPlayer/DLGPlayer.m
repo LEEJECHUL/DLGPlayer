@@ -94,6 +94,7 @@ static dispatch_queue_t processingQueueStatic;
     _requestSeek = NO;
     _renderBegan = NO;
     _requestSeekPosition = 0;
+    _speed = 1.0;
     _aFramesLock = dispatch_semaphore_create(1);
     _vFramesLock = dispatch_semaphore_create(1);
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -490,7 +491,7 @@ static dispatch_queue_t processingQueueStatic;
     // Check whether render is neccessary
     if (self.vframes.count <= 0 || !self.decoder.hasVideo || self.notifiedBufferStart) {
         __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0001 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [weakSelf render];
         });
         return;
@@ -519,8 +520,9 @@ static dispatch_queue_t processingQueueStatic;
     }
     
     double syncTime = [self syncTime];
-    NSTimeInterval t = MAX(frame.duration + syncTime, 0.01);
+    NSTimeInterval t = MAX(0.0001, (frame.duration / self.speed) + syncTime);
     
+//    NSLog(@"t: %f, duration: %f, time: %lld", t, frame.duration, (int64_t)(t * NSEC_PER_SEC));
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf render];
@@ -530,7 +532,7 @@ static dispatch_queue_t processingQueueStatic;
 - (void)renderView:(DLGPlayerVideoFrame *)frame {
     __weak typeof(self)weakSelf = self;
     
-    dispatch_sync(_renderingQueue, ^{
+    dispatch_sync(self.renderingQueue, ^{
         [weakSelf.view render:frame];
         
         if (!weakSelf.renderBegan && frame.width > 0 && frame.height > 0) {

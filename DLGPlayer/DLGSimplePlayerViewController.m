@@ -120,6 +120,13 @@ typedef enum : NSUInteger {
 - (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
     _player.allowsFrameDrop = isAllowsFrameDrop;
 }
+
+- (CGFloat)speed {
+    return _player.speed;
+}
+- (void)setSpeed:(CGFloat)speed {
+    _player.speed = speed;
+}
     
 #pragma mark - Init
 - (void)initAll {
