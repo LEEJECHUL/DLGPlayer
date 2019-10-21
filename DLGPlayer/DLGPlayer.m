@@ -197,7 +197,7 @@ static dispatch_queue_t processingQueueStatic;
             strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
             
             if ([strongSelf.view isKindOfClass:[UIView class]]) {
-                ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleAspectFit;
+                ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
             }
             
             strongSelf.duration = strongSelf.decoder.duration;
