@@ -73,7 +73,7 @@ class SecondViewController: UIViewController {
         playerViewController?.open()
     }
     private func playRTMP() {
-        playerViewController?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306"
         playerViewController?.open()
     }
     

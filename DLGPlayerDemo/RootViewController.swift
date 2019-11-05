@@ -20,9 +20,9 @@ class RootViewController: UIViewController {
         didSet {
             playerViewController1.map {
                 $0.delegate = self
-                $0.isAllowsFrameDrop = true
+//                $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
-//                $0.isMute = true
+                $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
@@ -46,14 +46,16 @@ class RootViewController: UIViewController {
     }
     
     deinit {
-        
-        
         print("deinit")
         
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        for i in 0..<segmentedControl.numberOfSegments {
+            segmentedControl.setWidth(50, forSegmentAt: i)
+        }
         
 //        DLGPlayerUtils.setDebugEnabled(true)
 //        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
@@ -102,11 +104,11 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306&speed=\(playerViewController1?.speed ?? 1)"
         playerViewController1?.open()
     }
     private func playRTMP2() {
-        playerViewController2?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController2?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306&speed=\(playerViewController1?.speed ?? 1)"
         playerViewController2?.open()
     }
     
@@ -186,16 +188,9 @@ class RootViewController: UIViewController {
         playerViewController2?.player.brightness = sender.value
     }
     @IBAction private func segmentValueChanged(_ sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            playerViewController1?.speed = 1.0
-        case 1:
-            playerViewController1?.speed = 2.0
-        case 2:
-            playerViewController1?.speed = 4.0
-        default:
-            ()
-        }
+        playerViewController1?.stop()
+        playerViewController1?.speed = Double(1 << sender.selectedSegmentIndex)
+        playRTMP1()
     }
 }
 

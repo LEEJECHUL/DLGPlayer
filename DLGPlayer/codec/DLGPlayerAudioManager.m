@@ -37,10 +37,11 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     UInt32 _channelsPerFrame;
     float *_audioData;
 }
-@property (atomic) AudioUnit audioUnit;
+@property (nonatomic) AudioUnit audioUnit;
 @end
 
 @implementation DLGPlayerAudioManager
+@synthesize mute = _mute;
 
 - (id)init {
     self = [super init];
@@ -51,7 +52,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)initVars {
-    _mute = NO;
+    self.mute = NO;
     _registeredKVO = NO;
     _opened = NO;
     _closing = NO;
@@ -81,19 +82,26 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 #pragma mark - Added by Steve Kim.
 
 - (void)setMute:(BOOL)mute {
-    _mute = mute;
-    
-    [[AVAudioSession sharedInstance] setCategory:self.category error:nil];
-    
-    if (_mute) {
-        [self pause];
-    } else {
-        [self play];
+    @synchronized (self) {
+        _mute = mute;
+        
+        [[AVAudioSession sharedInstance] setCategory:self.category error:nil];
+        
+        if (_mute) {
+            [self pause];
+        } else {
+            [self play];
+        }
+    }
+}
+- (BOOL)mute {
+    @synchronized (self) {
+        return _mute;
     }
 }
 
 - (AVAudioSessionCategory)category {
-    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
+    return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }
 
 /*
@@ -337,7 +345,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
-    if (_mute) {
+    if (self.mute) {
         return _playing;
     }
     

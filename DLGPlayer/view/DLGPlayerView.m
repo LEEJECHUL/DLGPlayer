@@ -51,6 +51,9 @@
 @end
 
 @implementation DLGPlayerView
+{
+    NSTimeInterval beforeTimeInterval;
+}
 
 @synthesize isYUV = _isYUV;
 @synthesize keepLastFrame = _keepLastFrame;

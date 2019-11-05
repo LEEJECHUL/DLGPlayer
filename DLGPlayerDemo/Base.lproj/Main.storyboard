@@ -113,7 +113,7 @@
                                 <segments>
                                     <segment title="1x"/>
                                     <segment title="2x"/>
-                                    <segment title="3x"/>
+                                    <segment title="4x"/>
                                 </segments>
                                 <connections>
                                     <action selector="segmentValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="7KJ-bH-LKb"/>

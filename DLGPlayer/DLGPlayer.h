@@ -23,19 +23,17 @@
 typedef void (^onPauseComplete)(void);
 
 @interface DLGPlayer : NSObject
-
 @property (readonly, strong) UIView *playerView;
-
+@property (nonatomic) BOOL allowsFrameDrop;
+@property (atomic) BOOL playing;
+@property (atomic) BOOL buffering;
+@property (atomic) BOOL opened;
+@property (nonatomic) float brightness;
 @property (nonatomic) double minBufferDuration;
 @property (nonatomic) double maxBufferDuration;
 @property (nonatomic) double position;
 @property (nonatomic) double duration;
-@property (nonatomic) BOOL allowsFrameDrop;
-@property (nonatomic) BOOL opened;
-@property (nonatomic) BOOL playing;
-@property (nonatomic) BOOL buffering;
-@property (nonatomic) float brightness;
-@property (nonatomic) CGFloat speed;
+@property (nonatomic) double speed;
 @property (nonatomic, strong) NSDictionary *metadata;
 @property (nonatomic, readonly) DLGPlayerAudioManager *audio;
 
@@ -44,5 +42,4 @@ typedef void (^onPauseComplete)(void);
 - (void)play;
 - (void)pause;
 - (UIImage *)snapshot;
-
 @end
