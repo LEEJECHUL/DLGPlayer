@@ -25,6 +25,7 @@ typedef void (^onPauseComplete)(void);
 @interface DLGPlayer : NSObject
 @property (readonly, strong) UIView *playerView;
 @property (nonatomic) BOOL allowsFrameDrop;
+@property (nonatomic) BOOL mute;
 @property (atomic) BOOL playing;
 @property (atomic) BOOL buffering;
 @property (atomic) BOOL opened;

@@ -90,11 +90,11 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)isMute {
-    return _player.audio.mute;
+    return _player.mute;
 }
 
 - (void)setIsMute:(BOOL)isMute {
-    _player.audio.mute = isMute;
+    _player.mute = isMute;
 }
 
 - (double)minBufferDuration {

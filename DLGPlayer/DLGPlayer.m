@@ -18,30 +18,28 @@
 #import "MetalPlayerView.h"
 
 @interface DLGPlayer ()
-
 @property (nonatomic, readonly) BOOL isAvilableMetal;
 @property (nonatomic, readonly) BOOL isDeviceSupportMetal;
-@property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
+@property (nonatomic) BOOL notifiedBufferStart;
+@property (nonatomic) BOOL requestSeek;
+@property (nonatomic) double requestSeekPosition;
+@property (nonatomic, strong) dispatch_queue_t processingQueue;
+@property (nonatomic, strong) dispatch_queue_t renderingQueue;
 @property (nonatomic, strong) DLGPlayerDecoder *decoder;
 @property (nonatomic, strong) DLGPlayerAudioManager *audio;
+@property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
 
-@property (atomic, strong) NSMutableArray *vframes;
-@property (atomic, strong) NSMutableArray *aframes;
-@property (nonatomic, strong) DLGPlayerAudioFrame *playingAudioFrame;
-@property (nonatomic) NSUInteger playingAudioFrameDataPosition;
+@property (atomic) BOOL closing;
+@property (atomic) BOOL opening;
+@property (atomic) BOOL renderBegan;
 @property (atomic) double bufferedDuration;
 @property (atomic) double mediaPosition;
 @property (atomic) double mediaSyncTime;
 @property (atomic) double mediaSyncPosition;
-
-@property (nonatomic) BOOL notifiedBufferStart;
-@property (nonatomic) BOOL requestSeek;
-@property (nonatomic) double requestSeekPosition;
-@property (atomic) BOOL closing;
-@property (atomic) BOOL opening;
-@property (atomic) BOOL renderBegan;
-@property (nonatomic, strong) dispatch_queue_t processingQueue;
-@property (nonatomic, strong) dispatch_queue_t renderingQueue;
+@property (atomic) NSUInteger playingAudioFrameDataPosition;
+@property (atomic, strong) DLGPlayerAudioFrame *playingAudioFrame;
+@property (atomic, strong) NSMutableArray *vframes;
+@property (atomic, strong) NSMutableArray *aframes;
 @end
 
 static dispatch_queue_t processingQueueStatic;
@@ -74,25 +72,26 @@ static dispatch_queue_t processingQueueStatic;
 - (void)initVars {
     _minBufferDuration = DLGPlayerMinBufferDuration;
     _maxBufferDuration = DLGPlayerMaxBufferDuration;
-    _bufferedDuration = 0;
-    _mediaPosition = 0;
     _mediaSyncTime = 0;
     _brightness = 1;
-    _vframes = [NSMutableArray arrayWithCapacity:128];
-    _aframes = [NSMutableArray arrayWithCapacity:128];
-    _playingAudioFrame = nil;
-    _playingAudioFrameDataPosition = 0;
     _allowsFrameDrop = NO;
-    _closing = NO;
-    _opening = NO;
-    _buffering = NO;
-    _playing = NO;
-    _opened = NO;
     _requestSeek = NO;
     _renderBegan = NO;
     _requestSeekPosition = 0;
     _speed = 1.0;
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
+    
+    self.buffering = NO;
+    self.closing = NO;
+    self.opening = NO;
+    self.playing = NO;
+    self.opened = NO;
+    self.bufferedDuration = 0;
+    self.mediaPosition = 0;
+    self.playingAudioFrameDataPosition = 0;
+    self.playingAudioFrame = nil;
+    self.vframes = [NSMutableArray arrayWithCapacity:128];
+    self.aframes = [NSMutableArray arrayWithCapacity:128];
     
     if (self.isAvilableMetal) {
         _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -308,12 +307,12 @@ static dispatch_queue_t processingQueueStatic;
 - (void)readFrame {
     self.buffering = YES;
     
-    NSMutableArray *tempVFrames = [NSMutableArray arrayWithCapacity:8];
-    NSMutableArray *tempAFrames = [NSMutableArray arrayWithCapacity:8];
-    double tempDuration = 0;
-    
-    while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
-        @autoreleasepool {
+    @autoreleasepool {
+        NSMutableArray *tempVFrames = [NSMutableArray arrayWithCapacity:8];
+        NSMutableArray *tempAFrames = [NSMutableArray arrayWithCapacity:8];
+        double tempDuration = 0;
+        
+        while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
             if (self.bufferedDuration + tempDuration > self.maxBufferDuration / self.speed) {
                 if (self.allowsFrameDrop) {
                     [self.vframes removeAllObjects];
@@ -372,24 +371,24 @@ static dispatch_queue_t processingQueueStatic;
                 }
             }
         }
-    }
-    
-    {
-        // add the rest video frames
-        while (tempVFrames.count > 0 || tempAFrames.count > 0) {
-            if (tempVFrames.count > 0) {
-                self.bufferedDuration += tempDuration;
-                tempDuration = 0;
-                [self.vframes addObjectsFromArray:tempVFrames];
-                [tempVFrames removeAllObjects];
-            }
-            if (tempAFrames.count > 0) {
-                if (!self.decoder.hasVideo) {
+        
+        {
+            // add the rest video frames
+            while (tempVFrames.count > 0 || tempAFrames.count > 0) {
+                if (tempVFrames.count > 0) {
                     self.bufferedDuration += tempDuration;
                     tempDuration = 0;
+                    [self.vframes addObjectsFromArray:tempVFrames];
+                    [tempVFrames removeAllObjects];
                 }
-                [self.aframes addObjectsFromArray:tempAFrames];
-                [tempAFrames removeAllObjects];
+                if (tempAFrames.count > 0) {
+                    if (!self.decoder.hasVideo) {
+                        self.bufferedDuration += tempDuration;
+                        tempDuration = 0;
+                    }
+                    [self.aframes addObjectsFromArray:tempAFrames];
+                    [tempAFrames removeAllObjects];
+                }
             }
         }
     }
@@ -601,6 +600,12 @@ static dispatch_queue_t processingQueueStatic;
     }
     return NO;
 #endif
+}
+
+- (void)setMute:(BOOL)mute {
+    dispatch_async(self.processingQueue, ^{
+        self.audio.mute = mute;
+    });
 }
 
 #pragma mark - Handle Error
