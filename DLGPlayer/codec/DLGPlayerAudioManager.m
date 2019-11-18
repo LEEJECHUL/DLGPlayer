@@ -81,25 +81,6 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 #pragma mark - Added by Steve Kim.
 
-- (void)setMute:(BOOL)mute {
-    @synchronized (self) {
-        _mute = mute;
-        
-        [[AVAudioSession sharedInstance] setCategory:self.category error:nil];
-        
-        if (_mute) {
-            [self pause];
-        } else {
-            [self play];
-        }
-    }
-}
-- (BOOL)mute {
-    @synchronized (self) {
-        return _mute;
-    }
-}
-
 - (AVAudioSessionCategory)category {
     return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }

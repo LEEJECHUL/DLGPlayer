@@ -481,7 +481,11 @@ static dispatch_queue_t processingQueueStatic;
     if (self.vframes.count <= 0 || !self.decoder.hasVideo || self.notifiedBufferStart) {
         __weak typeof(self)weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [weakSelf render];
+            __strong typeof(self)strongSelf = weakSelf;
+            
+            if (strongSelf) {
+                [strongSelf render];
+            }
         });
         return;
     }
@@ -512,7 +516,11 @@ static dispatch_queue_t processingQueueStatic;
     
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [weakSelf render];
+        __strong typeof(self)strongSelf = weakSelf;
+        
+        if (strongSelf) {
+            [strongSelf render];
+        }
     });
 }
 
@@ -652,9 +660,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)setMute:(BOOL)mute {
-    dispatch_async(self.processingQueue, ^{
-        self.audio.mute = mute;
-    });
+    self.audio.mute = mute;
 }
 
 #pragma mark - Handle Error
