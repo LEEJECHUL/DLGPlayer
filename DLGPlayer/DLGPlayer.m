@@ -267,15 +267,15 @@ static dispatch_queue_t processingQueueStatic;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self render];
-            
-            @autoreleasepool {
-                NSError *error = nil;
-                
-                if (![self.audio play:&error]) {
-                    [self handleError:error];
-                }
-            }
         });
+        
+        @autoreleasepool {
+            NSError *error = nil;
+            
+            if (![self.audio play:&error]) {
+                [self handleError:error];
+            }
+        }
         
         [self runFrameReader];
     });
@@ -506,9 +506,14 @@ static dispatch_queue_t processingQueueStatic;
     
     [self renderView:frame];
     
-    // Sync audio with video
-//    double syncTime = [self syncTime];
-    NSTimeInterval t = frame.duration;
+    NSTimeInterval t;
+    if (self.speed > 1) {
+        t = frame.duration;
+    } else {
+        // Sync audio with video
+        double syncTime = [self syncTime];
+        t = MAX(frame.duration + syncTime, 0.01);
+    }
     
     if (DLGPlayerUtils.debugEnabled) {
         NSLog(@"DLGPlayer render -> speed: %f, frames: %zd, bufferedDuration: %f, delay: %f", self.speed, self.vframes.count, self.bufferedDuration, t);

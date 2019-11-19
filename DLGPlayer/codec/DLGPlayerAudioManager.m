@@ -19,12 +19,12 @@
 #define PREFERRED_SAMPLE_RATE   44100
 #define PREFERRED_BUFFER_DURATION 0.023
 
-static OSStatus audioUnitRenderCallback(void *inRefCon,
-                                        AudioUnitRenderActionFlags *ioActionFlags,
-                                        const AudioTimeStamp *inTimeStamp,
-                                        UInt32 inBusNumber,
-                                        UInt32 inNumberFrames,
-                                        AudioBufferList *ioData);
+OSStatus audioUnitRenderCallback(void *inRefCon,
+                                 AudioUnitRenderActionFlags *ioActionFlags,
+                                 const AudioTimeStamp *inTimeStamp,
+                                 UInt32 inBusNumber,
+                                 UInt32 inNumberFrames,
+                                 AudioBufferList *ioData);
 
 @interface DLGPlayerAudioManager () {
     BOOL _registeredKVO;
@@ -470,12 +470,12 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 @end
 
-static OSStatus audioUnitRenderCallback(void *inRefCon,
-                                        AudioUnitRenderActionFlags *ioActionFlags,
-                                        const AudioTimeStamp *inTimeStamp,
-                                        UInt32 inBusNumber,
-                                        UInt32 inNumberFrames,
-                                        AudioBufferList *ioData) {
+OSStatus audioUnitRenderCallback(void *inRefCon,
+                                 AudioUnitRenderActionFlags *ioActionFlags,
+                                 const AudioTimeStamp *inTimeStamp,
+                                 UInt32 inBusNumber,
+                                 UInt32 inNumberFrames,
+                                 AudioBufferList *ioData) {
     DLGPlayerAudioManager *manager = (__bridge DLGPlayerAudioManager *)(inRefCon);
     return [manager render:ioData count:inNumberFrames];
 }
