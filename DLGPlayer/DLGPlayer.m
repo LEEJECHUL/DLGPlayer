@@ -660,6 +660,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)setMute:(BOOL)mute {
+    _mute = mute;
     self.audio.mute = mute;
 }
 
