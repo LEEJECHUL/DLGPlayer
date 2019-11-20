@@ -57,7 +57,7 @@ class RootViewController: UIViewController {
             segmentedControl.setWidth(50, forSegmentAt: i)
         }
         
-//        DLGPlayerUtils.setDebugEnabled(true)
+        DLGPlayerUtils.setDebugEnabled(true)
 //        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {

@@ -342,10 +342,6 @@ static dispatch_queue_t processingQueueStatic;
             
             NSArray *fs = [self.decoder readFrames];
             
-            if (DLGPlayerUtils.debugEnabled) {
-                NSLog(@"DLGPlayer readFrames -> readed: %zd, vframes: %zd", fs.count, self.vframes.count);
-            }
-            
             if (fs == nil) { break; }
             if (fs.count == 0) { continue; }
             
@@ -426,7 +422,7 @@ static dispatch_queue_t processingQueueStatic;
 
 - (void)seekPositionInFrameReader {
     [self.decoder seek:self.requestSeekPosition];
-   
+    
     {
         dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_FOREVER);
         [self.vframes removeAllObjects];
@@ -515,10 +511,6 @@ static dispatch_queue_t processingQueueStatic;
         t = MAX(frame.duration + syncTime, 0.01);
     }
     
-    if (DLGPlayerUtils.debugEnabled) {
-        NSLog(@"DLGPlayer render -> speed: %f, frames: %zd, bufferedDuration: %f, delay: %f", self.speed, self.vframes.count, self.bufferedDuration, t);
-    }
-    
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         __strong typeof(self)strongSelf = weakSelf;
@@ -568,7 +560,9 @@ static dispatch_queue_t processingQueueStatic;
  * For audioUnitRenderCallback, (DLGPlayerAudioManagerFrameReaderBlock)readFrameBlock
  */
 - (void)readAudioFrame:(float *)data frames:(UInt32)frames channels:(UInt32)channels {
-    if (!self.playing) return;
+    if (!self.playing) {
+        return;
+    }
     
     while(frames > 0) {
         @autoreleasepool {
@@ -582,9 +576,11 @@ static dispatch_queue_t processingQueueStatic;
                     long timeout = dispatch_semaphore_wait(self.aFramesLock, DISPATCH_TIME_NOW);
                     if (timeout == 0) {
                         DLGPlayerAudioFrame *frame = self.aframes[0];
+                        
                         if (self.decoder.hasVideo) {
                             const double dt = self.mediaPosition - frame.position;
-                            if (dt < -0.1) { // audio is faster than video, silence
+                            
+                            if (dt < -0.1 && self.vframes.count > 0) { // audio is faster than video, silence
                                 memset(data, 0, frames * channels * sizeof(float));
                                 dispatch_semaphore_signal(self.aFramesLock);
                                 break;
