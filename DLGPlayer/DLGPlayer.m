@@ -366,24 +366,29 @@ static dispatch_queue_t processingQueueStatic;
                 }
             }
             {
-                for (DLGPlayerFrame *f in fs) {
-                    if (f.type == kDLGPlayerFrameTypeAudio) {
-                        [tempAFrames addObject:f];
-                        if (!self.decoder.hasVideo) tempDuration += f.duration;
+                if (!self.mute) {
+                    if (DLGPlayerUtils.debugEnabled) {
+                        NSLog(@"DLGPlayer skip audio frames cause mute is enabled.");
                     }
-                }
-                
-                long timeout = dispatch_semaphore_wait(self.aFramesLock, t);
-                if (timeout == 0) {
-                    if (tempAFrames.count > 0) {
-                        if (!self.decoder.hasVideo) {
-                            self.bufferedDuration += tempDuration;
-                            tempDuration = 0;
+                    for (DLGPlayerFrame *f in fs) {
+                        if (f.type == kDLGPlayerFrameTypeAudio) {
+                            [tempAFrames addObject:f];
+                            if (!self.decoder.hasVideo) tempDuration += f.duration;
                         }
-                        [self.aframes addObjectsFromArray:tempAFrames];
-                        [tempAFrames removeAllObjects];
                     }
-                    dispatch_semaphore_signal(self.aFramesLock);
+                    
+                    long timeout = dispatch_semaphore_wait(self.aFramesLock, t);
+                    if (timeout == 0) {
+                        if (tempAFrames.count > 0) {
+                            if (!self.decoder.hasVideo) {
+                                self.bufferedDuration += tempDuration;
+                                tempDuration = 0;
+                            }
+                            [self.aframes addObjectsFromArray:tempAFrames];
+                            [tempAFrames removeAllObjects];
+                        }
+                        dispatch_semaphore_signal(self.aFramesLock);
+                    }
                 }
             }
         }
