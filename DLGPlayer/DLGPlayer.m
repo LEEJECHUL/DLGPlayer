@@ -366,10 +366,11 @@ static dispatch_queue_t processingQueueStatic;
                 }
             }
             {
-                if (!self.mute) {
+                if (self.mute) {
                     if (DLGPlayerUtils.debugEnabled) {
                         NSLog(@"DLGPlayer skip audio frames cause mute is enabled.");
                     }
+                } else {
                     for (DLGPlayerFrame *f in fs) {
                         if (f.type == kDLGPlayerFrameTypeAudio) {
                             [tempAFrames addObject:f];
@@ -649,7 +650,7 @@ static dispatch_queue_t processingQueueStatic;
     return self.mediaPosition;
 }
 
-- (void)setSpeed:(CGFloat)speed {
+- (void)setSpeed:(double)speed {
     _speed = speed;
     self.decoder.speed = speed;
 }
