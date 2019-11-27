@@ -13,13 +13,14 @@ class RootViewController: UIViewController {
     @IBOutlet private weak var coverView: UIView?
     @IBOutlet private weak var muteButton: UIButton!
     @IBOutlet private weak var playOrPauseButton: UIButton!
+    @IBOutlet private weak var segmentedControl: UISegmentedControl!
     
     private var isFirstViewAppearance = true
     private var playerViewController1: DLGSimplePlayerViewController? {
         didSet {
             playerViewController1.map {
                 $0.delegate = self
-                $0.isAllowsFrameDrop = true
+//                $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
 //                $0.isMute = true
                 $0.preventFromScreenLock = true
@@ -45,8 +46,6 @@ class RootViewController: UIViewController {
     }
     
     deinit {
-        
-        
         print("deinit")
         
     }
@@ -54,14 +53,18 @@ class RootViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        DLGPlayerUtils.setDebugEnabled(true)
+        for i in 0..<segmentedControl.numberOfSegments {
+            segmentedControl.setWidth(50, forSegmentAt: i)
+        }
+        
+        DLGPlayerUtils.setDebugEnabled(true)
 //        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         playRTMP1()
-        playRTMP2()
+//        playRTMP2()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -101,11 +104,11 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306&speed=\(playerViewController1?.speed ?? 1)"
         playerViewController1?.open()
     }
     private func playRTMP2() {
-        playerViewController2?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890"
+        playerViewController2?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306&speed=\(playerViewController1?.speed ?? 1)"
         playerViewController2?.open()
     }
     
@@ -183,6 +186,11 @@ class RootViewController: UIViewController {
     @IBAction private func valueChanged(_ sender: UISlider) {
         playerViewController1?.player.brightness = sender.value
         playerViewController2?.player.brightness = sender.value
+    }
+    @IBAction private func segmentValueChanged(_ sender: UISegmentedControl) {
+        playerViewController1?.stop()
+        playerViewController1?.speed = Double(1 << sender.selectedSegmentIndex)
+        playRTMP1()
     }
 }
 

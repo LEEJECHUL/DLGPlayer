@@ -12,9 +12,10 @@
 
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message;
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message andRawError:(NSError *)rawError;
++ (BOOL)debugEnabled;
++ (BOOL)isMetalSupport;
 + (NSString *)localizedString:(NSString *)name;
 + (NSString *)durationStringFromSeconds:(int)seconds;
-+ (BOOL)debugEnabled;
 + (void)setDebugEnabled:(BOOL)enabled;
 
 @end

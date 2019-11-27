@@ -10,14 +10,15 @@
 
 @interface DLGPlayerDecoder : NSObject
 
-@property (nonatomic) BOOL isYUV;
-@property (nonatomic) BOOL hasVideo;
 @property (nonatomic) BOOL hasAudio;
+@property (nonatomic) BOOL hasVideo;
 @property (nonatomic) BOOL hasPicture;
 @property (nonatomic) BOOL isEOF;
+@property (nonatomic) BOOL isYUV;
 
 @property (nonatomic) double rotation;
-@property (nonatomic) double duration;
+@property (atomic) double duration;
+@property (atomic) double speed;
 @property (nonatomic, strong) NSDictionary *metadata;
 
 @property (nonatomic) UInt32 audioChannels;

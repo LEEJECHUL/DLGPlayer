@@ -90,11 +90,11 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)isMute {
-    return _player.audio.mute;
+    return _player.mute;
 }
 
 - (void)setIsMute:(BOOL)isMute {
-    _player.audio.mute = isMute;
+    _player.mute = isMute;
 }
 
 - (double)minBufferDuration {
@@ -119,6 +119,13 @@ typedef enum : NSUInteger {
 
 - (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
     _player.allowsFrameDrop = isAllowsFrameDrop;
+}
+
+- (double)speed {
+    return _player.speed;
+}
+- (void)setSpeed:(double)speed {
+    _player.speed = speed;
 }
     
 #pragma mark - Init
