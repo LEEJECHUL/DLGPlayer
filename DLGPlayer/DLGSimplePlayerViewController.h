@@ -15,7 +15,7 @@
 @protocol DLGSimplePlayerViewControllerDelegate <NSObject>
 - (void)didBeginRenderInViewController:(DLGSimplePlayerViewController * _Nonnull)viewController;
 - (void)viewController:(DLGSimplePlayerViewController * _Nonnull)viewController didChangeStatus:(DLGPlayerStatus)status;
-- (void)viewController:(DLGSimplePlayerViewController * _Nonnull)viewController didReceiveError:(NSError *)error;
+- (void)viewController:(DLGSimplePlayerViewController * _Nonnull)viewController didReceiveError:(NSError * _Nonnull)error;
 @end
 
 @interface DLGSimplePlayerViewController : UIViewController
@@ -29,6 +29,7 @@
 @property (nonatomic) BOOL restorePlayAfterAppEnterForeground;
 @property (nonatomic) double minBufferDuration;
 @property (nonatomic) double maxBufferDuration;
+@property (nonatomic) double speed;
 @property (nullable, atomic, copy) NSString *url;
 @property (nonnull, nonatomic, readonly) DLGPlayerControlStatus *controlStatus;
 @property (nonatomic, readonly) DLGPlayerStatus status;

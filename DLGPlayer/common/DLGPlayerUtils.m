@@ -8,8 +8,11 @@
 
 #import "DLGPlayerUtils.h"
 #import "DLGPlayerDef.h"
+@import MetalKit;
 
 static BOOL debugEnabled = NO;
+static BOOL isMetalSupport = NO;
+static BOOL isMetalSupportChecked = NO;
 
 @implementation DLGPlayerUtils
 
@@ -34,6 +37,10 @@ static BOOL debugEnabled = NO;
     return YES;
 }
 
++ (BOOL)debugEnabled {
+    return debugEnabled;
+}
+
 + (NSString *)localizedString:(NSString *)name {
     return [[NSBundle bundleForClass:[self class]] localizedStringForKey:name value:nil table:DLGPlayerLocalizedStringTable];
 }
@@ -53,8 +60,17 @@ static BOOL debugEnabled = NO;
     return ms;
 }
 
-+ (BOOL)debugEnabled {
-    return debugEnabled;
++ (BOOL)isMetalSupport {
+    if (@available(iOS 9.0, *)) {
+        if (isMetalSupportChecked) {
+            return isMetalSupport;
+        }
+        
+        isMetalSupport = MTLCreateSystemDefaultDevice() != nil;
+        isMetalSupportChecked = YES;
+        return isMetalSupport;
+    }
+    return NO;
 }
 
 + (void)setDebugEnabled:(BOOL)enabled {
