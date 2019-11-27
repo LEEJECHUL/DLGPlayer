@@ -18,7 +18,6 @@
 #import "MetalPlayerView.h"
 
 @interface DLGPlayer ()
-@property (nonatomic, readonly) BOOL isAvilableMetal;
 @property (nonatomic, readonly) BOOL isDeviceSupportMetal;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
@@ -97,7 +96,7 @@ static dispatch_queue_t processingQueueStatic;
     _vframes = [NSMutableArray arrayWithCapacity:128];
     _aframes = [NSMutableArray arrayWithCapacity:128];
     
-    if (self.isAvilableMetal) {
+    if ([DLGPlayerUtils isMetalSupport]) {
         _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     } else if (!processingQueueStatic) {
         processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
@@ -105,10 +104,8 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initView {
-    if (self.isAvilableMetal) {
-        if (@available(iOS 9.0, *)) {
-            _view = [MetalPlayerView new];
-        }
+    if (@available(iOS 9.0, *)) {
+        _view = [DLGPlayerUtils isMetalSupport] ? [MetalPlayerView new] : [DLGPlayerView new];
     } else {
         _view = [DLGPlayerView new];
     }
@@ -141,11 +138,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (dispatch_queue_t)processingQueue {
-    if (self.isAvilableMetal) {
-        return _processingQueue;
-    } else {
-        return processingQueueStatic;
-    }
+    return [DLGPlayerUtils isMetalSupport] ? _processingQueue : processingQueueStatic;
 }
 
 - (void)open:(NSString *)url {
@@ -653,17 +646,6 @@ static dispatch_queue_t processingQueueStatic;
 - (void)setSpeed:(double)speed {
     _speed = speed;
     self.decoder.speed = speed;
-}
-
-- (BOOL)isAvilableMetal {
-#if TARGET_IPHONE_SIMULATOR
-    return NO;
-#else
-    if (@available(iOS 9.0, *)) {
-        return _isDeviceSupportMetal;
-    }
-    return NO;
-#endif
 }
 
 - (void)setMute:(BOOL)mute {
