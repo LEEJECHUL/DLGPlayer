@@ -67,19 +67,24 @@
         return;
     }
     
-    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-    id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
-    float brightness = _currentFrame.brightness;
-    
-    [commandEncoder setComputePipelineState:_pipelineState];
-    [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
-    [_currentFrame render:commandEncoder];
-    [commandEncoder setTexture:self.currentDrawable.texture atIndex:3];
-    [commandEncoder dispatchThreadgroups:_threadgroupsPerGrid threadsPerThreadgroup:_threadsPerThreadgroup];
-    [commandEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-    [commandBuffer commit];
+    @autoreleasepool {
+        id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+        id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
+        
+        if (commandEncoder) {
+            float brightness = _currentFrame.brightness;
+            
+            [commandEncoder setComputePipelineState:_pipelineState];
+            [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
+            [_currentFrame render:commandEncoder];
+            [commandEncoder setTexture:self.currentDrawable.texture atIndex:3];
+            [commandEncoder dispatchThreadgroups:_threadgroupsPerGrid threadsPerThreadgroup:_threadsPerThreadgroup];
+            [commandEncoder endEncoding];
+            
+            [commandBuffer presentDrawable:self.currentDrawable];
+            [commandBuffer commit];
+        }
+    }
 }
     
 - (void)setUpPipelineState {
