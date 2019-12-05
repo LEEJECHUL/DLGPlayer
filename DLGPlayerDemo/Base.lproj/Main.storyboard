@@ -19,39 +19,55 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="w3g-ki-h4K"/>
+                        <segue destination="nHG-oP-g5S" kind="relationship" relationship="rootViewController" id="9ef-wr-Quk"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="flH-GR-u9z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-698" y="54"/>
+            <point key="canvasLocation" x="-1438" y="-131"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="pUm-rg-dV1">
+            <objects>
+                <viewController id="nHG-oP-g5S" customClass="ViewController" customModule="DLGPlayerDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="GZE-4n-0BP">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="T7h-CE-jqP"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="c1K-Er-9SC"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0sX-pC-ndf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-422" y="-131"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="RootViewController" customModule="DLGPlayerDemo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RootViewController" id="BYZ-38-t0r" customClass="RootViewController" customModule="DLGPlayerDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vzq-x9-dpP">
-                                <rect key="frame" x="0.0" y="233" width="414" height="233"/>
+                                <rect key="frame" x="0.0" y="189" width="414" height="233"/>
                                 <color key="backgroundColor" red="0.23529411759999999" green="0.49803921569999998" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Brightness" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DGi-pI-aHT">
-                                <rect key="frame" x="20" y="84" width="82" height="21"/>
+                                <rect key="frame" x="20" y="40" width="82" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.23529411759999999" green="0.49803921569999998" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="0Hq-Tr-LTU">
-                                <rect key="frame" x="18" y="113" width="378" height="31"/>
+                                <rect key="frame" x="18" y="69" width="378" height="31"/>
                                 <connections>
                                     <action selector="valueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="mLw-1P-oHi"/>
                                 </connections>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llk-G2-h40">
-                                <rect key="frame" x="20" y="183" width="70" height="30"/>
+                                <rect key="frame" x="20" y="139" width="70" height="30"/>
                                 <state key="normal" title="Sound Off"/>
                                 <state key="selected" title="Sound On"/>
                                 <connections>
@@ -59,7 +75,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uiH-fC-hAT">
-                                <rect key="frame" x="106" y="183" width="101" height="30"/>
+                                <rect key="frame" x="106" y="139" width="101" height="30"/>
                                 <state key="normal" title="Capture Image"/>
                                 <state key="selected" title="Sound On"/>
                                 <connections>
@@ -67,7 +83,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U7U-Qy-3pL">
-                                <rect key="frame" x="364" y="183" width="30" height="30"/>
+                                <rect key="frame" x="364" y="139" width="30" height="30"/>
                                 <state key="normal" title="Play"/>
                                 <state key="selected" title="Pause"/>
                                 <connections>
@@ -75,7 +91,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qy7-pk-JEK">
-                                <rect key="frame" x="295" y="183" width="53" height="30"/>
+                                <rect key="frame" x="295" y="139" width="53" height="30"/>
                                 <state key="normal" title="Refresh"/>
                                 <state key="selected" title="Pause"/>
                                 <connections>
@@ -83,7 +99,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x6T-MI-esJ">
-                                <rect key="frame" x="362" y="145" width="32" height="30"/>
+                                <rect key="frame" x="362" y="101" width="32" height="30"/>
                                 <state key="normal" title="Stop"/>
                                 <state key="selected" title="Pause"/>
                                 <connections>
@@ -91,7 +107,7 @@
                                 </connections>
                             </button>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E2A-Jz-ZOg">
-                                <rect key="frame" x="0.0" y="233" width="414" height="233"/>
+                                <rect key="frame" x="0.0" y="189" width="414" height="233"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="E2A-Jz-ZOg" secondAttribute="height" multiplier="16:9" id="AzD-Nh-QSQ"/>
                                 </constraints>
@@ -100,7 +116,7 @@
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AN4-N4-FjB">
-                                <rect key="frame" x="0.0" y="474.00000000000006" width="414" height="232.66666666666669"/>
+                                <rect key="frame" x="0.0" y="430.00000000000006" width="414" height="232.66666666666669"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="AN4-N4-FjB" secondAttribute="height" multiplier="16:9" id="E54-gp-e1w"/>
                                 </constraints>
@@ -109,7 +125,7 @@
                                 </connections>
                             </containerView>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="KOG-rD-3pj">
-                                <rect key="frame" x="305" y="84" width="89" height="29"/>
+                                <rect key="frame" x="305" y="40" width="89" height="29"/>
                                 <segments>
                                     <segment title="1x"/>
                                     <segment title="2x"/>

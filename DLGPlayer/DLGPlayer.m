@@ -167,6 +167,10 @@ static dispatch_queue_t processingQueueStatic;
             if (![strongSelf.decoder open:url error:&error]) {
                 strongSelf.opening = NO;
                 
+                NSArray<NSError *> *errors = nil;
+                
+                [self.audio close:&errors];
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [strongSelf handleError:error];
                 });
@@ -251,26 +255,30 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)play {
+    __weak typeof(self)weakSelf = self;
+    
     dispatch_async(self.processingQueue, ^{
-        if (!self.opened || self.playing || self.closing) {
+        __strong typeof(self)strongSelf = weakSelf;
+        
+        if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
             return;
         }
         
-        self.playing = YES;
+        strongSelf.playing = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self render];
+            [strongSelf render];
         });
         
         @autoreleasepool {
             NSError *error = nil;
             
-            if (![self.audio play:&error]) {
-                [self handleError:error];
+            if (![strongSelf.audio play:&error]) {
+                [strongSelf handleError:error];
             }
         }
         
-        [self runFrameReader];
+        [strongSelf runFrameReader];
     });
 }
 

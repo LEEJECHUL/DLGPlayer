@@ -23,10 +23,10 @@
 
 #define DLGPlayerIOTimeout 30
 
-static NSTimeInterval g_dIOStartTime = 0;
-static bool g_bPrepareClose = FALSE;
+NSTimeInterval g_dIOStartTime = 0;
+bool g_bPrepareClose = FALSE;
 
-static int interruptCallback(void *context) {
+int interruptCallback(void *context) {
     NSTimeInterval t = [NSDate timeIntervalSinceReferenceDate];
     NSTimeInterval dt = t - g_dIOStartTime;
     if (g_bPrepareClose || dt > DLGPlayerIOTimeout) return 1;
@@ -578,9 +578,10 @@ static int interruptCallback(void *context) {
             const float sampleRate = _audioSampleRate;
             const UInt32 channels = _audioChannels;
             
+            void **_swrbuf = *swrbuf;
             void *data = NULL;
             NSInteger samplesPerChannel = 0;
-            if (swrctx != NULL && swrbuf != NULL) {
+            if (swrctx != NULL && _swrbuf != NULL) {
                 float sampleRatio = sampleRate / context->sample_rate;
                 float channelRatio = channels / context->channels;
                 float ratio = MAX(1, sampleRatio) * MAX(1, channelRatio) * 2;
@@ -590,12 +591,12 @@ static int interruptCallback(void *context) {
                                                          samples,
                                                          AV_SAMPLE_FMT_S16,
                                                          1);
-                if (*swrbuf == NULL || *swrbufsize < bufsize) {
+                if (*_swrbuf == NULL || *swrbufsize < bufsize) {
                     *swrbufsize = bufsize;
-                    *swrbuf = realloc(*swrbuf, bufsize);
+                    *_swrbuf = malloc(bufsize);
                 }
                 
-                Byte *o[2] = { *swrbuf, 0 };
+                Byte *o[2] = { *_swrbuf, 0 };
                 samplesPerChannel = swr_convert(swrctx, o, samples, (const uint8_t **)frame->data, frame->nb_samples);
                 if (samplesPerChannel < 0) {
                     if (DLGPlayerUtils.debugEnabled) {
@@ -604,7 +605,7 @@ static int interruptCallback(void *context) {
                     return nil;
                 }
                 
-                data = *swrbuf;
+                data = *_swrbuf;
             } else {
                 if (context->sample_fmt != AV_SAMPLE_FMT_S16) {
                     if (DLGPlayerUtils.debugEnabled) {

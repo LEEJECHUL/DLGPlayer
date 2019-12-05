@@ -58,7 +58,6 @@ class RootViewController: UIViewController {
         }
         
         DLGPlayerUtils.setDebugEnabled(true)
-//        navigationItem.leftBarButtonItem = .init(title: "close", style: .plain, target: self, action: #selector(leftBarButtonItemClicked))
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -104,7 +103,7 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYMJ?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=1571796156306&speed=\(playerViewController1?.speed ?? 1)"
+        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYOV?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
         playerViewController1?.open()
     }
     private func playRTMP2() {
