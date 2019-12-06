@@ -121,8 +121,16 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)clearVars {
-    [self.vframes removeAllObjects];
-    [self.aframes removeAllObjects];
+    {
+        dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_FOREVER);
+        [self.vframes removeAllObjects];
+        dispatch_semaphore_signal(self.vFramesLock);
+    }
+    {
+        dispatch_semaphore_wait(self.aFramesLock, DISPATCH_TIME_FOREVER);
+        [self.aframes removeAllObjects];
+        dispatch_semaphore_signal(self.aFramesLock);
+    }
     
     self.playingAudioFrame = nil;
     self.playingAudioFrameDataPosition = 0;
