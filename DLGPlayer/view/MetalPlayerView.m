@@ -69,6 +69,11 @@
     
     @autoreleasepool {
         id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+        
+        if (!commandBuffer) {
+            return
+        }
+        
         id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
         
         if (commandEncoder) {
@@ -175,7 +180,7 @@
     NSLog(@"[DLGPlayer] Metal will not work to make snapshot on simulator.");
     return nil;
 #else
-    if (!self.currentDrawable || !self.currentDrawable.texture) {
+    if (!self.isRenderingAvailable) {
         return nil;
     }
     
