@@ -175,6 +175,10 @@
     NSLog(@"[DLGPlayer] Metal will not work to make snapshot on simulator.");
     return nil;
 #else
+    if (!self.currentDrawable || !self.currentDrawable.texture) {
+        return nil;
+    }
+    
     const id<MTLTexture> texture = self.currentDrawable.texture;
     const NSInteger w = texture.width;
     const NSInteger h = texture.height;
