@@ -484,8 +484,12 @@ static dispatch_queue_t processingQueueStatic;
         DLGPlayerVideoFrame *frame = self.vframes[0];
         frame.brightness = _brightness;
         _view.contentSize = CGSizeMake(frame.width, frame.height);
-        [self.vframes removeObjectAtIndex:0];
-        [self renderView:frame];
+        
+        if (dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_NOW) == 0) {
+            [self.vframes removeObjectAtIndex:0];
+            dispatch_semaphore_signal(self.vFramesLock);
+            [self renderView:frame];
+        }
     }
     
     // Check whether render is neccessary
@@ -504,8 +508,7 @@ static dispatch_queue_t processingQueueStatic;
     // Render video
     DLGPlayerVideoFrame *frame = nil;
     {
-        long timeout = dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_NOW);
-        if (timeout == 0) {
+        if (dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_NOW) == 0) {
             frame = self.vframes[0];
             frame.brightness = _brightness;
             self.mediaPosition = frame.position;
