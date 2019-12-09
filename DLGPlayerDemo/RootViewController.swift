@@ -20,7 +20,7 @@ class RootViewController: UIViewController {
         didSet {
             playerViewController1.map {
                 $0.delegate = self
-//                $0.isAllowsFrameDrop = true
+                $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
 //                $0.isMute = true
                 $0.preventFromScreenLock = true
@@ -103,7 +103,7 @@ class RootViewController: UIViewController {
         playerViewController2?.open()
     }
     private func playRTMP1() {
-        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACYOV?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+        playerViewController1?.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAACQLV?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
         playerViewController1?.open()
     }
     private func playRTMP2() {

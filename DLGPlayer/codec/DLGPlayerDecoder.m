@@ -578,10 +578,9 @@ int interruptCallback(void *context) {
             const float sampleRate = _audioSampleRate;
             const UInt32 channels = _audioChannels;
             
-            void **_swrbuf = *swrbuf;
             void *data = NULL;
             NSInteger samplesPerChannel = 0;
-            if (swrctx != NULL && _swrbuf != NULL) {
+            if (swrctx != NULL && swrbuf != NULL) {
                 float sampleRatio = sampleRate / context->sample_rate;
                 float channelRatio = channels / context->channels;
                 float ratio = MAX(1, sampleRatio) * MAX(1, channelRatio) * 2;
@@ -591,12 +590,12 @@ int interruptCallback(void *context) {
                                                          samples,
                                                          AV_SAMPLE_FMT_S16,
                                                          1);
-                if (*_swrbuf == NULL || *swrbufsize < bufsize) {
+                if (*swrbuf == NULL || *swrbufsize < bufsize) {
                     *swrbufsize = bufsize;
-                    *_swrbuf = malloc(bufsize);
+                    *swrbuf = realloc(*swrbuf, bufsize);
                 }
                 
-                Byte *o[2] = { *_swrbuf, 0 };
+                Byte *o[2] = { *swrbuf, 0 };
                 samplesPerChannel = swr_convert(swrctx, o, samples, (const uint8_t **)frame->data, frame->nb_samples);
                 if (samplesPerChannel < 0) {
                     if (DLGPlayerUtils.debugEnabled) {
@@ -605,7 +604,7 @@ int interruptCallback(void *context) {
                     return nil;
                 }
                 
-                data = *_swrbuf;
+                data = *swrbuf;
             } else {
                 if (context->sample_fmt != AV_SAMPLE_FMT_S16) {
                     if (DLGPlayerUtils.debugEnabled) {

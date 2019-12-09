@@ -177,7 +177,7 @@ static dispatch_queue_t processingQueueStatic;
                 
                 NSArray<NSError *> *errors = nil;
                 
-                [self.audio close:&errors];
+                [strongSelf.audio close:&errors];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [strongSelf handleError:error];
@@ -326,29 +326,8 @@ static dispatch_queue_t processingQueueStatic;
         NSMutableArray *tempAFrames = [NSMutableArray arrayWithCapacity:8];
         dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
         
-        while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
-            if (self.bufferedDuration + tempDuration > self.maxBufferDuration / self.speed) {
-                if (self.allowsFrameDrop) {
-                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
-                        [self.vframes removeAllObjects];
-                        dispatch_semaphore_signal(self.vFramesLock);
-                    }
-                    
-                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
-                        [self.aframes removeAllObjects];
-                        dispatch_semaphore_signal(self.aFramesLock);
-                    }
-                    
-                    self.bufferedDuration = 0;
-                    
-                    if (DLGPlayerUtils.debugEnabled) {
-                        NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
-                    }
-                } else {
-                    continue;
-                }
-            }
-            
+        while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek &&
+               (self.bufferedDuration + tempDuration < self.maxBufferDuration / self.speed)) {
             NSArray *fs = [self.decoder readFrames];
             
             if (fs == nil) { break; }

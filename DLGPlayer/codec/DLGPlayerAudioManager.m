@@ -52,7 +52,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)initVars {
-    self.mute = NO;
+    _mute = NO;
     _registeredKVO = NO;
     _opened = NO;
     _closing = NO;
@@ -84,7 +84,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 #pragma mark - Added by Steve Kim.
 
 - (AVAudioSessionCategory)category {
-    return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
+    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }
 
 /*
@@ -126,13 +126,13 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             return NO;
         }
         
-//        if (session.currentRoute.outputs.count < 1) {
-//            [DLGPlayerUtils createError:error
-//                             withDomain:DLGPlayerErrorDomainAudioManager
-//                                andCode:DLGPlayerErrorCodeNoAudioOuput
-//                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_OUTPUT"]];
-//            return NO;
-//        }
+        if (session.currentRoute.outputs.count < 1) {
+            [DLGPlayerUtils createError:error
+                             withDomain:DLGPlayerErrorDomainAudioManager
+                                andCode:DLGPlayerErrorCodeNoAudioOuput
+                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_OUTPUT"]];
+            return NO;
+        }
 
         if (session.outputNumberOfChannels < 1) {
             [DLGPlayerUtils createError:error
@@ -183,7 +183,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         descr.componentFlagsMask = 0;
         
         AudioComponent component = AudioComponentFindNext(NULL, &descr);
-        OSStatus status = AudioComponentInstanceNew(component, &(self->_audioUnit));
+        OSStatus status = AudioComponentInstanceNew(component, &_audioUnit);
         if (status != noErr) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
             [DLGPlayerUtils createError:error
@@ -196,7 +196,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         
         AudioStreamBasicDescription streamDescr = {0};
         UInt32 size = sizeof(AudioStreamBasicDescription);
-        status = AudioUnitGetProperty(self->_audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
+        status = AudioUnitGetProperty(_audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
         if (status != noErr) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
             [DLGPlayerUtils createError:error
@@ -208,7 +208,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         }
         
         streamDescr.mSampleRate = sampleRate;
-        status = AudioUnitSetProperty(self->_audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
+        status = AudioUnitSetProperty(_audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
         if (status != noErr && DLGPlayerUtils.debugEnabled) {
             NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
         }
@@ -220,7 +220,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         renderCallbackStruct.inputProc = renderCallback;
         renderCallbackStruct.inputProcRefCon = (__bridge void *)(self);
 
-        status = AudioUnitSetProperty(self->_audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(renderCallbackStruct));
+        status = AudioUnitSetProperty(_audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(renderCallbackStruct));
         if (status != noErr) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
             [DLGPlayerUtils createError:error
@@ -231,7 +231,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             return NO;
         }
 
-        status = AudioUnitInitialize(self->_audioUnit);
+        status = AudioUnitInitialize(_audioUnit);
         if (status != noErr) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
             [DLGPlayerUtils createError:error
@@ -267,7 +267,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             [self pause];
             [self unregisterNotifications];
             
-            OSStatus status = AudioUnitUninitialize(self->_audioUnit);
+            OSStatus status = AudioUnitUninitialize(_audioUnit);
             if (status != noErr) {
                 closed = NO;
                 if (errs != nil) {
@@ -282,7 +282,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
                 }
             }
             
-            status = AudioComponentInstanceDispose(self->_audioUnit);
+            status = AudioComponentInstanceDispose(_audioUnit);
             if (status != noErr) {
                 closed = NO;
                 if (errs != nil) {
@@ -330,12 +330,12 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
-    if (self.mute) {
+    if (_mute) {
         return _playing;
     }
     
-    if (_opened && !_audioUnit) {
-        OSStatus status = AudioOutputUnitStart(self->_audioUnit);
+    if (_opened && _audioUnit) {
+        OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
         if (!_playing) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -354,8 +354,8 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)pause:(NSError **)error {
-    if (_playing && !_audioUnit) {
-        OSStatus status = AudioOutputUnitStop(self->_audioUnit);
+    if (_playing && _audioUnit) {
+        OSStatus status = AudioOutputUnitStop(_audioUnit);
         _playing = !(status == noErr);
         if (_playing) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -376,7 +376,9 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         memset(buf.mData, 0, buf.mDataByteSize);
     }
     
-    if (!_playing || _frameReaderBlock == nil) return noErr;
+    if (!_playing || _frameReaderBlock == nil) {
+        return noErr;
+    }
     
     _frameReaderBlock(_audioData, inNumberFrames, _channelsPerFrame);
     
