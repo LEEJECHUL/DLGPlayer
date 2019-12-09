@@ -63,7 +63,7 @@
 #pragma mark - Private Methods
 
 - (void)executeMetalShader {
-    if (!self.isRenderingAvailable) {
+    if (!self.isRenderingAvailable || !_pipelineState) {
         return;
     }
     
@@ -71,7 +71,7 @@
         id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
         
         if (!commandBuffer) {
-            return
+            return;
         }
         
         id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
