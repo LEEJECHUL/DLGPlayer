@@ -37,6 +37,7 @@
 @property (atomic) BOOL closing;
 @property (atomic) BOOL opening;
 @property (atomic) BOOL renderBegan;
+@property (atomic) BOOL frameDropped;
 @property (atomic) double bufferedDuration;
 @property (atomic) double mediaPosition;
 @property (atomic) double mediaSyncTime;
@@ -71,6 +72,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initVars {
+    _frameDropDuration = DLGPlayerFrameDropDuration;
     _minBufferDuration = DLGPlayerMinBufferDuration;
     _maxBufferDuration = DLGPlayerMaxBufferDuration;
     _mediaSyncTime = 0;
@@ -87,6 +89,7 @@ static dispatch_queue_t processingQueueStatic;
     self.opening = NO;
     self.playing = NO;
     self.opened = NO;
+    self.frameDropped = NO;
     self.bufferedDuration = 0;
     self.mediaPosition = 0;
     self.playingAudioFrameDataPosition = 0;
@@ -143,6 +146,7 @@ static dispatch_queue_t processingQueueStatic;
     self.mediaSyncTime = 0;
     self.closing = NO;
     self.opening = NO;
+    self.frameDropped = NO;
 }
 
 - (dispatch_queue_t)processingQueue {
@@ -327,34 +331,6 @@ static dispatch_queue_t processingQueueStatic;
         dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
         
         while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
-            if (self.bufferedDuration + tempDuration >= self.maxBufferDuration / self.speed) {
-                if (self.allowsFrameDrop) {
-                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
-                        if (self.decoder.hasVideo) {
-                            self.bufferedDuration = 0;
-                        }
-                        
-                        [self.vframes removeAllObjects];
-                        dispatch_semaphore_signal(self.vFramesLock);
-                    }
-                    
-                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
-                        if (!self.decoder.hasVideo) {
-                            self.bufferedDuration = 0;
-                        }
-                        
-                        [self.aframes removeAllObjects];
-                        dispatch_semaphore_signal(self.aFramesLock);
-                    }
-                    
-                    if (DLGPlayerUtils.debugEnabled) {
-                        NSLog(@"DLGPlayer drop frames beacuse buffer duration is over than max duration.");
-                    }
-                } else {
-                    continue;
-                }
-            }
-            
             NSArray *fs = [self.decoder readFrames];
             
             if (fs == nil) { break; }
@@ -406,6 +382,38 @@ static dispatch_queue_t processingQueueStatic;
                         dispatch_semaphore_signal(self.aFramesLock);
                     }
                 }
+            }
+            
+            // Drop frames
+            if (self.allowsFrameDrop && !self.frameDropped) {
+                if (self.bufferedDuration > self.frameDropDuration / self.speed) {
+                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
+                        if (self.decoder.hasVideo) {
+                            self.bufferedDuration = 0;
+                        }
+                        
+                        [self.vframes removeAllObjects];
+                        dispatch_semaphore_signal(self.vFramesLock);
+                    }
+                    
+                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
+                        if (!self.decoder.hasVideo) {
+                            self.bufferedDuration = 0;
+                        }
+                        
+                        [self.aframes removeAllObjects];
+                        dispatch_semaphore_signal(self.aFramesLock);
+                    }
+                    
+                    self.frameDropped = YES;
+                    
+                    if (DLGPlayerUtils.debugEnabled) {
+                        NSLog(@"DLGPlayer occurred drop frames beacuse buffer duration is over than frame drop duration.");
+                    }
+                    break;
+                }
+            } else if (self.bufferedDuration >= self.maxBufferDuration / self.speed) {
+                break;
             }
         }
         

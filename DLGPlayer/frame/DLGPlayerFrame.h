@@ -17,8 +17,8 @@ typedef enum : NSUInteger {
 @interface DLGPlayerFrame : NSObject
 
 @property (nonatomic) DLGPlayerFrameType type;
-@property (nonatomic) NSData *data;
 @property (nonatomic) double position;
 @property (nonatomic) double duration;
+@property (nonatomic) NSData *data;
 
 @end

@@ -115,15 +115,6 @@
                                     <segue destination="PA6-Ws-KJb" kind="embed" id="0US-Qd-tC5"/>
                                 </connections>
                             </containerView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AN4-N4-FjB">
-                                <rect key="frame" x="0.0" y="430.00000000000006" width="414" height="232.66666666666669"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="AN4-N4-FjB" secondAttribute="height" multiplier="16:9" id="E54-gp-e1w"/>
-                                </constraints>
-                                <connections>
-                                    <segue destination="PA6-Ws-KJb" kind="embed" id="FFx-4Q-7bZ"/>
-                                </connections>
-                            </containerView>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="KOG-rD-3pj">
                                 <rect key="frame" x="305" y="40" width="89" height="29"/>
                                 <segments>
@@ -154,16 +145,12 @@
                             <constraint firstItem="Llk-G2-h40" firstAttribute="leading" secondItem="0Hq-Tr-LTU" secondAttribute="leading" id="HVc-5s-Sag"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="top" secondItem="E2A-Jz-ZOg" secondAttribute="top" id="NDg-9f-aXA"/>
                             <constraint firstItem="Llk-G2-h40" firstAttribute="top" secondItem="0Hq-Tr-LTU" secondAttribute="bottom" constant="40" id="Nbo-Iu-Zas"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AN4-N4-FjB" secondAttribute="trailing" id="Ru5-EL-mnE"/>
-                            <constraint firstItem="AN4-N4-FjB" firstAttribute="width" secondItem="AN4-N4-FjB" secondAttribute="height" multiplier="16:9" id="TX4-rn-zqL"/>
                             <constraint firstItem="KOG-rD-3pj" firstAttribute="top" secondItem="DGi-pI-aHT" secondAttribute="top" id="WSe-ON-TsX"/>
                             <constraint firstItem="U7U-Qy-3pL" firstAttribute="leading" secondItem="Qy7-pk-JEK" secondAttribute="trailing" constant="16" id="XzF-Jo-xFu"/>
                             <constraint firstItem="Vzq-x9-dpP" firstAttribute="leading" secondItem="E2A-Jz-ZOg" secondAttribute="leading" id="Yj2-et-Rqq"/>
                             <constraint firstItem="DGi-pI-aHT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ZJD-7q-YwT"/>
                             <constraint firstItem="U7U-Qy-3pL" firstAttribute="centerY" secondItem="uiH-fC-hAT" secondAttribute="centerY" id="axd-zQ-KdV"/>
-                            <constraint firstItem="AN4-N4-FjB" firstAttribute="leading" secondItem="E2A-Jz-ZOg" secondAttribute="leading" id="cqJ-7h-w1o"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="U7U-Qy-3pL" secondAttribute="trailing" constant="20" id="gDr-si-HS6"/>
-                            <constraint firstItem="AN4-N4-FjB" firstAttribute="top" secondItem="E2A-Jz-ZOg" secondAttribute="bottom" constant="8" id="gIO-MG-RMh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Kvf-8W-DwS" secondAttribute="bottom" constant="20" id="kll-mF-JKa"/>
                             <constraint firstItem="E2A-Jz-ZOg" firstAttribute="top" secondItem="Qy7-pk-JEK" secondAttribute="bottom" constant="20" id="omR-MW-RCX"/>
                             <constraint firstItem="x6T-MI-esJ" firstAttribute="trailing" secondItem="U7U-Qy-3pL" secondAttribute="trailing" id="rBC-ev-SjV"/>
@@ -185,9 +172,6 @@
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
-                            <mask key="subviews">
-                                <exclude reference="AN4-N4-FjB"/>
-                            </mask>
                             <mask key="constraints">
                                 <exclude reference="omR-MW-RCX"/>
                                 <include reference="xql-81-2Iq"/>
@@ -210,7 +194,7 @@
             <objects>
                 <viewController id="PA6-Ws-KJb" customClass="DLGSimplePlayerViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lcJ-cC-Kh9">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="232.66666666666669"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="233"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="H5l-zL-GJD"/>
@@ -218,7 +202,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="O6d-P6-MmL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="670" y="705"/>
+            <point key="canvasLocation" x="177" y="750"/>
         </scene>
         <!--Second View Controller-->
         <scene sceneID="drK-V3-U3k">
@@ -338,7 +322,4 @@
             <point key="canvasLocation" x="1534" y="705"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="FFx-4Q-7bZ"/>
-    </inferredMetricsTieBreakers>
 </document>
