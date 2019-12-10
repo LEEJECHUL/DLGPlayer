@@ -331,6 +331,35 @@ static dispatch_queue_t processingQueueStatic;
         dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
         
         while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
+            
+            // Drop frames
+            if (self.allowsFrameDrop && !self.frameDropped) {
+                if (self.bufferedDuration > self.frameDropDuration / self.speed) {
+                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
+                        for (DLGPlayerFrame *f in self.vframes) {
+                            f.dropFrame = YES;
+                        }
+                        dispatch_semaphore_signal(self.vFramesLock);
+                    }
+                    
+                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
+                        for (DLGPlayerFrame *f in self.aframes) {
+                            f.dropFrame = YES;
+                        }
+                        dispatch_semaphore_signal(self.aFramesLock);
+                    }
+                    
+                    self.frameDropped = YES;
+                    
+                    if (DLGPlayerUtils.debugEnabled) {
+                        NSLog(@"DLGPlayer occurred drop frames beacuse buffer duration is over than frame drop duration.");
+                    }
+                    break;
+                }
+            } else if (self.bufferedDuration >= self.maxBufferDuration / self.speed) {
+                break;
+            }
+            
             NSArray *fs = [self.decoder readFrames];
             
             if (fs == nil) { break; }
@@ -382,38 +411,6 @@ static dispatch_queue_t processingQueueStatic;
                         dispatch_semaphore_signal(self.aFramesLock);
                     }
                 }
-            }
-            
-            // Drop frames
-            if (self.allowsFrameDrop && !self.frameDropped) {
-                if (self.bufferedDuration > self.frameDropDuration / self.speed) {
-                    if (dispatch_semaphore_wait(self.vFramesLock, t) == 0) {
-                        if (self.decoder.hasVideo) {
-                            self.bufferedDuration = 0;
-                        }
-                        
-                        [self.vframes removeAllObjects];
-                        dispatch_semaphore_signal(self.vFramesLock);
-                    }
-                    
-                    if (dispatch_semaphore_wait(self.aFramesLock, t) == 0) {
-                        if (!self.decoder.hasVideo) {
-                            self.bufferedDuration = 0;
-                        }
-                        
-                        [self.aframes removeAllObjects];
-                        dispatch_semaphore_signal(self.aFramesLock);
-                    }
-                    
-                    self.frameDropped = YES;
-                    
-                    if (DLGPlayerUtils.debugEnabled) {
-                        NSLog(@"DLGPlayer occurred drop frames beacuse buffer duration is over than frame drop duration.");
-                    }
-                    break;
-                }
-            } else if (self.bufferedDuration >= self.maxBufferDuration / self.speed) {
-                break;
             }
         }
         
@@ -524,10 +521,10 @@ static dispatch_queue_t processingQueueStatic;
     {
         if (dispatch_semaphore_wait(self.vFramesLock, DISPATCH_TIME_NOW) == 0) {
             frame = self.vframes[0];
+            [self.vframes removeObjectAtIndex:0];
             frame.brightness = _brightness;
             self.mediaPosition = frame.position;
             self.bufferedDuration -= frame.duration;
-            [self.vframes removeObjectAtIndex:0];
             dispatch_semaphore_signal(self.vFramesLock);
         }
     }
@@ -538,9 +535,7 @@ static dispatch_queue_t processingQueueStatic;
     if (self.speed > 1) {
         t = frame.duration;
     } else {
-        // Sync audio with video
-        double syncTime = [self syncTime];
-        t = MAX(frame.duration + syncTime, 0.01);
+        t = frame.dropFrame ? 0.01 : MAX(frame.duration + [self syncTime], 0.01);
     }
     
     __weak typeof(self)weakSelf = self;
