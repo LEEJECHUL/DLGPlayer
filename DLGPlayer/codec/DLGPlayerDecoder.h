@@ -17,8 +17,8 @@
 @property (nonatomic) BOOL isYUV;
 
 @property (nonatomic) double rotation;
-@property (atomic) double duration;
-@property (atomic) double speed;
+@property (nonatomic) double duration;
+@property (nonatomic) double speed;
 @property (nonatomic, strong) NSDictionary *metadata;
 
 @property (nonatomic) UInt32 audioChannels;

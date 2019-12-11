@@ -43,6 +43,7 @@ int interruptCallback(void *context) {
     AVCodecContext *m_pVideoCodecContext;
     struct SwsContext *m_pVideoSwsContext;
     int m_nPictureStream;
+    int64_t ptsPrevVideo;
     
     // Audio
     int m_nAudioStream;
@@ -51,6 +52,7 @@ int interruptCallback(void *context) {
     SwrContext *m_pAudioSwrContext;
     void *m_pAudioSwrBuffer;
     int m_nAudioSwrBufferSize;
+    int64_t ptsPrevAudio;
 }
 
 @end
@@ -195,6 +197,9 @@ int interruptCallback(void *context) {
     m_pAudioCodecContext = acodectx;
     m_pAudioSwrContext = aswrctx;
     
+    ptsPrevAudio = 0;
+    ptsPrevVideo = 0;
+    
     self.isYUV = isYUV;
     self.hasVideo = vstream >= 0;
     self.hasAudio = astream >= 0;
@@ -204,7 +209,7 @@ int interruptCallback(void *context) {
     self.rotation = rotation;
     int64_t duration = fmtctx->duration;
     self.duration = (duration == AV_NOPTS_VALUE ? -1 : ((double)duration / AV_TIME_BASE));
-    self.duration /= self.speed;
+    self.duration /= _speed;
     self.metadata = [self findMetadata:fmtctx];
     
     g_bPrepareClose = FALSE;
@@ -335,6 +340,7 @@ int interruptCallback(void *context) {
 
 - (void)closeVideoStream {
     m_nVideoStream = -1;
+    ptsPrevVideo = 0;
     if (m_pVideoFrame != NULL) av_frame_free(&m_pVideoFrame);
     if (m_pVideoCodecContext != NULL) avcodec_free_context(&m_pVideoCodecContext);
     if (m_pVideoSwsContext != NULL) { sws_freeContext(m_pVideoSwsContext); m_pVideoSwsContext = NULL; }
@@ -342,6 +348,7 @@ int interruptCallback(void *context) {
 
 - (void)closeAudioStream {
     m_nAudioStream = -1;
+    ptsPrevAudio = 0;
     if (m_pAudioFrame != NULL) av_frame_free(&m_pAudioFrame);
     if (m_pAudioCodecContext != NULL) avcodec_free_context(&m_pAudioCodecContext);
     if (m_pAudioSwrContext != NULL) swr_free(&m_pAudioSwrContext);
@@ -537,15 +544,19 @@ int interruptCallback(void *context) {
             f.height = height;
             f.position = frame->best_effort_timestamp * _videoTimebase;
             
-            double duration = frame->pkt_duration / self.speed;
+            double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevVideo;
+            
             if (duration > 0) {
-                f.duration = duration * _videoTimebase;
-                f.duration += frame->repeat_pict * _videoTimebase * 0.5;
+                f.duration = duration * _videoTimebase / _speed;
+                f.duration += (frame->repeat_pict * _videoTimebase * 0.5) / _speed;
             } else {
-                f.duration = 1 / _videoFPS;
+                f.duration = 1 / _videoFPS / _speed;
             }
             
             [frames addObject:f];
+            
+            ptsPrevVideo = frame->pts;
+            
         } while(ret == 0);
         
         return frames;
@@ -628,11 +639,17 @@ int interruptCallback(void *context) {
             DLGPlayerAudioFrame *f = [[DLGPlayerAudioFrame alloc] init];
             f.data = mdata;
             f.position = frame->best_effort_timestamp * _audioTimebase;
-            f.duration = (frame->pkt_duration / self.speed) * _audioTimebase;
             
-            if (f.duration == 0) {
-                f.duration = f.data.length / (sizeof(float) * channels * sampleRate);
+            
+            double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevAudio;
+            
+            if (duration > 0) {
+                f.duration = duration * _audioTimebase / _speed;
+            } else {
+                f.duration = f.data.length / (sizeof(float) * channels * sampleRate) / _speed;
             }
+            
+            ptsPrevAudio = frame->pts;
             
             [frames addObject:f];
         } while(ret == 0);
