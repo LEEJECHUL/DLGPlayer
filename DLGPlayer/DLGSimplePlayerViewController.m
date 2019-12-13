@@ -85,7 +85,9 @@ typedef enum : NSUInteger {
     [_controlStatus setStatus:_status];
     
     if ([_delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
-        [_delegate viewController:self didChangeStatus:status];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate viewController:self didChangeStatus:status];
+        });
     }
 }
 
@@ -259,15 +261,7 @@ typedef enum : NSUInteger {
     NSError *error = userInfo[DLGPlayerNotificationErrorKey];
     
     if ([error.domain isEqualToString:DLGPlayerErrorDomainDecoder]) {
-        __weak typeof(self)weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-            if (!strongSelf) {
-                return;
-            }
-            
-            strongSelf.status = DLGPlayerStatusNone;
-        });
+        self.status = DLGPlayerStatusNone;
         
         if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"Player decoder error: %@", error);
@@ -278,11 +272,13 @@ typedef enum : NSUInteger {
         }
     }
     
-    if ([_delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
-        [_delegate viewController:self didReceiveError:error];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:notif.userInfo];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
+            [self.delegate viewController:self didReceiveError:error];
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:notif.userInfo];
+    });
 }
     
 @end
