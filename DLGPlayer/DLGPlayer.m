@@ -172,6 +172,9 @@ static dispatch_queue_t processingQueueStatic;
                 strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!strongSelf) {
+                        return;
+                    }
                     [strongSelf handleError:error];
                 });
             }
@@ -184,6 +187,9 @@ static dispatch_queue_t processingQueueStatic;
                 [strongSelf.audio close:&errors];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!strongSelf) {
+                        return;
+                    }
                     [strongSelf handleError:error];
                 });
                 return;
@@ -191,7 +197,7 @@ static dispatch_queue_t processingQueueStatic;
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (!strongSelf.opening || strongSelf.closing) {
+            if (!strongSelf || !strongSelf.opening || strongSelf.closing) {
                 return;
             }
             
