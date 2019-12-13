@@ -63,7 +63,7 @@ class RootViewController: UIViewController {
         coverView?.isHidden = false
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        self.navigationController?.isNavigationBarHidden = UIDevice.current.orientation.isLandscape
+        navigationController?.isNavigationBarHidden = UIDevice.current.orientation.isLandscape
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {

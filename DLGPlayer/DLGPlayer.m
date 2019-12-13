@@ -18,7 +18,6 @@
 #import "MetalPlayerView.h"
 
 @interface DLGPlayer ()
-@property (nonatomic, readonly) BOOL isDeviceSupportMetal;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL requestSeek;
 @property (nonatomic) NSUInteger playingAudioFrameDataPosition;
@@ -63,8 +62,6 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initAll {
-    _isDeviceSupportMetal = MTLCreateSystemDefaultDevice() != nil;
-    
     [self initVars];
     [self initAudio];
     [self initDecoder];
