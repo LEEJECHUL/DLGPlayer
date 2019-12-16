@@ -22,7 +22,7 @@ class RootViewController: UIViewController {
                 $0.delegate = self
                 $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
-                $0.isMute = true
+//                $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
@@ -84,8 +84,10 @@ class RootViewController: UIViewController {
         let now = Date().timeIntervalSince1970
         let time = Date(timeIntervalSince1970: now - 60 * 60 * 24).timeIntervalSince1970
         
-        playerViewController1?.speed = 2
-        playerViewController1?.url = "rtmps://media007.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=\(time)&speed=2"
+//        playerViewController1?.speed = 2
+//        playerViewController1?.url = "rtmps://media007.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=\(time)&speed=2"
+        
+        playerViewController1?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACQLV?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
         playerViewController1?.open()
     }
     
