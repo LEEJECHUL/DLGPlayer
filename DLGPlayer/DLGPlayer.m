@@ -43,6 +43,7 @@
 @property (atomic) double mediaSyncPosition;
 @end
 
+static dispatch_queue_t audioProcessingQueue;
 static dispatch_queue_t processingQueueStatic;
 
 @implementation DLGPlayer
@@ -101,6 +102,8 @@ static dispatch_queue_t processingQueueStatic;
     } else if (!processingQueueStatic) {
         processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
     }
+    
+    audioProcessingQueue = dispatch_queue_create("DLGPlayer.audioProcessingQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)initView {
@@ -162,7 +165,11 @@ static dispatch_queue_t processingQueueStatic;
         
         strongSelf.opening = YES;
         
-        @autoreleasepool {
+        dispatch_async(audioProcessingQueue, ^{
+            if (!strongSelf) {
+                return;
+            }
+            
             NSError *error = nil;
             if ([strongSelf.audio open:&error]) {
                 strongSelf.decoder.audioChannels = [strongSelf.audio channels];
@@ -170,15 +177,14 @@ static dispatch_queue_t processingQueueStatic;
             } else {
                 [strongSelf handleError:error];
             }
+        });
+        
+        NSError *error = nil;
+        if (![strongSelf.decoder open:url error:&error]) {
+            strongSelf.opening = NO;
             
-            if (![strongSelf.decoder open:url error:&error]) {
-                strongSelf.opening = NO;
-                
-                NSArray<NSError *> *errors = nil;
-                [strongSelf.audio close:&errors];
-                [strongSelf handleError:error];
-                return;
-            }
+            [strongSelf handleError:error];
+            return;
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -238,20 +244,26 @@ static dispatch_queue_t processingQueueStatic;
         [strongSelf.decoder close];
         [strongSelf.view clear];
         
-        @autoreleasepool {
-            NSArray<NSError *> *errors = nil;
+        dispatch_async(audioProcessingQueue, ^{
+            if (!strongSelf) {
+                return;
+            }
             
-            if ([strongSelf.audio close:&errors]) {
-                [strongSelf clearVars];
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
-            } else {
-                [strongSelf clearVars];
+            @autoreleasepool {
+                NSArray<NSError *> *errors = nil;
                 
-                for (NSError *error in errors) {
-                    [strongSelf handleError:error];
+                if ([strongSelf.audio close:&errors]) {
+                    [strongSelf clearVars];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
+                } else {
+                    [strongSelf clearVars];
+                    
+                    for (NSError *error in errors) {
+                        [strongSelf handleError:error];
+                    }
                 }
             }
-        }
+        });
     });
 }
 
@@ -273,13 +285,20 @@ static dispatch_queue_t processingQueueStatic;
             }
         });
         
-        @autoreleasepool {
-            NSError *error = nil;
-            
-            if (![strongSelf.audio play:&error]) {
-                [strongSelf handleError:error];
+        
+        dispatch_async(audioProcessingQueue, ^{
+            if (!strongSelf) {
+                return;
             }
-        }
+            
+            @autoreleasepool {
+                NSError *error = nil;
+                
+                if (![strongSelf.audio play:&error]) {
+                    [strongSelf handleError:error];
+                }
+            }
+        });
         
         [strongSelf runFrameReader];
     });
@@ -288,12 +307,22 @@ static dispatch_queue_t processingQueueStatic;
 - (void)pause {
     self.playing = NO;
     
-    @autoreleasepool {
-        NSError *error = nil;
-        if (![self.audio pause:&error]) {
-            [self handleError:error];
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(audioProcessingQueue, ^{
+        __strong typeof(self)strongSelf = weakSelf;
+        
+        if (!strongSelf) {
+            return;
         }
-    }
+        
+        @autoreleasepool {
+            NSError *error = nil;
+            if (![self.audio pause:&error]) {
+                [self handleError:error];
+            }
+        }
+    });
 }
 
 - (UIImage *)snapshot {

@@ -90,10 +90,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
 - (BOOL)open:(NSError **)error {
-    if (self.mute) {
-        return NO;
-    }
-    
     @autoreleasepool {
         AVAudioSession *session = [AVAudioSession sharedInstance];
         NSError *rawError = nil;
@@ -254,7 +250,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
-    if (_closing || self.mute) {
+    if (_closing) {
         return NO;
     }
     

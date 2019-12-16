@@ -16,13 +16,13 @@ class RootViewController: UIViewController {
     @IBOutlet private weak var segmentedControl: UISegmentedControl!
     
     private var isFirstViewAppearance = true
-    private var playerViewController1: DLGSimplePlayerViewController? {
+    private var playerViewController: DLGSimplePlayerViewController? {
         didSet {
-            playerViewController1.map {
+            playerViewController.map {
                 $0.delegate = self
                 $0.isAllowsFrameDrop = true
                 $0.isAutoplay = true
-                $0.isMute = true
+//                $0.isMute = true
                 $0.preventFromScreenLock = true
                 $0.restorePlayAfterAppEnterForeground = true
                 $0.minBufferDuration = 0
@@ -59,7 +59,7 @@ class RootViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        playerViewController1?.stop()
+        playerViewController?.stop()
         coverView?.isHidden = false
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -68,7 +68,7 @@ class RootViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
         case let vc as DLGSimplePlayerViewController:
-            playerViewController1 = vc
+            playerViewController = vc
         default:
             ()
         }
@@ -77,16 +77,17 @@ class RootViewController: UIViewController {
     // MARK: - Play Test
     
     private func playDownload1() {
-        playerViewController1?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
-        playerViewController1?.open()
+        playerViewController?.url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        playerViewController?.open()
     }
     private func playRTMP1() {
         let now = Date().timeIntervalSince1970
         let time = Date(timeIntervalSince1970: now - 60 * 60 * 24).timeIntervalSince1970
         
-        playerViewController1?.speed = 2
-        playerViewController1?.url = "rtmps://media007.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=\(time)&speed=2"
-        playerViewController1?.open()
+//        playerViewController?.speed = 2
+        playerViewController?.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACQLV?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+//        playerViewController?.url = "rtmps://media007.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=\(time)&speed=2"
+        playerViewController?.open()
     }
     
     // MARK: - Hard Test
@@ -112,16 +113,16 @@ class RootViewController: UIViewController {
             "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAACPUS?token=1234567890" :
         "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
         
-        playerViewController1?.stop()
+        playerViewController?.stop()
         
-        playerViewController1?.url = url
-        playerViewController1?.open()
+        playerViewController?.url = url
+        playerViewController?.open()
     }
     
     // MARK: - Private Selectors
     
     @IBAction private func captureButtonClicked() {
-        playerViewController1?.player.snapshot()
+        playerViewController?.player.snapshot()
             .map { UIImageView(image: $0) }
             .map { [weak self] in
                 self?.view.addSubview($0)
@@ -130,34 +131,34 @@ class RootViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        playerViewController1?.isMute = !sender.isSelected
+        playerViewController?.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         
         if sender.isSelected {
-            if playerViewController1?.status == .paused {
-                playerViewController1?.play()
+            if playerViewController?.status == .paused {
+                playerViewController?.play()
             } else {
                 playRTMP1()
             }
         } else {
-            playerViewController1?.pause()
+            playerViewController?.pause()
         }
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
-        playerViewController1?.stop()
+        playerViewController?.stop()
         playRTMP1()
     }
     @IBAction private func stopButtonClicked() {
-        playerViewController1?.stop()
+        playerViewController?.stop()
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
-        playerViewController1?.player.brightness = sender.value
+        playerViewController?.player.brightness = sender.value
     }
     @IBAction private func segmentValueChanged(_ sender: UISegmentedControl) {
-        playerViewController1?.stop()
-        playerViewController1?.speed = Double(1 << sender.selectedSegmentIndex)
+        playerViewController?.stop()
+        playerViewController?.speed = Double(1 << sender.selectedSegmentIndex)
         playRTMP1()
     }
 }
