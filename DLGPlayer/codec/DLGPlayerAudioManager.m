@@ -84,6 +84,16 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }
 
+- (void)setMute:(BOOL)mute {
+    _mute = mute;
+    
+    if (mute) {
+        [self pause];
+    } else {
+        [self play];
+    }
+}
+
 /*
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
@@ -239,7 +249,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
-    if (_closing) {
+    if (_closing || !_opened || !_audioUnit) {
         return NO;
     }
     
@@ -251,44 +261,42 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         
         BOOL closed = YES;
         
-        if (_opened && _audioUnit) {
-            [self pause];
-            [self unregisterNotifications];
-            
-            OSStatus status = AudioUnitUninitialize(_audioUnit);
-            if (status != noErr) {
-                closed = NO;
-                if (errs != nil) {
-                    NSError *error = nil;
-                    NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-                    [DLGPlayerUtils createError:&error
-                                     withDomain:DLGPlayerErrorDomainAudioManager
-                                        andCode:DLGPlayerErrorCodeCannotUninitAudioUnit
-                                     andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_UNINIT_AUDIO_UNIT"]
-                                    andRawError:rawError];
-                    [errs addObject:error];
-                }
+        [self pause];
+        [self unregisterNotifications];
+        
+        OSStatus status = AudioUnitUninitialize(_audioUnit);
+        if (status != noErr) {
+            closed = NO;
+            if (errs != nil) {
+                NSError *error = nil;
+                NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+                [DLGPlayerUtils createError:&error
+                                 withDomain:DLGPlayerErrorDomainAudioManager
+                                    andCode:DLGPlayerErrorCodeCannotUninitAudioUnit
+                                 andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_UNINIT_AUDIO_UNIT"]
+                                andRawError:rawError];
+                [errs addObject:error];
             }
-            
-            status = AudioComponentInstanceDispose(_audioUnit);
-            if (status != noErr) {
-                closed = NO;
-                if (errs != nil) {
-                    NSError *error = nil;
-                    NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-                    [DLGPlayerUtils createError:&error
-                                     withDomain:DLGPlayerErrorDomainAudioManager
-                                        andCode:DLGPlayerErrorCodeCannotDisposeAudioUnit
-                                     andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_DISPOSE_AUDIO_UNIT"]
-                                    andRawError:rawError];
-                    [errs addObject:error];
-                }
+        }
+        
+        status = AudioComponentInstanceDispose(_audioUnit);
+        if (status != noErr) {
+            closed = NO;
+            if (errs != nil) {
+                NSError *error = nil;
+                NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+                [DLGPlayerUtils createError:&error
+                                 withDomain:DLGPlayerErrorDomainAudioManager
+                                    andCode:DLGPlayerErrorCodeCannotDisposeAudioUnit
+                                 andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_DISPOSE_AUDIO_UNIT"]
+                                andRawError:rawError];
+                [errs addObject:error];
             }
-            
-            if (closed) {
-                _opened = NO;
-                _audioUnit = NULL;
-            }
+        }
+        
+        if (closed) {
+            _opened = NO;
+            _audioUnit = NULL;
         }
         
         _closing = NO;
@@ -302,14 +310,15 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
-    if (self.mute) {
+    if (!_opened || !_audioUnit || self.mute) {
         return _playing;
     }
     
-    if (_opened && _audioUnit) {
-        OSStatus status = AudioOutputUnitStart(_audioUnit);
-        _playing = (status == noErr);
-        if (!_playing) {
+    OSStatus status = AudioOutputUnitStart(_audioUnit);
+    _playing = (status == noErr);
+    
+    if (!_playing) {
+        @autoreleasepool {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
             [DLGPlayerUtils createError:error
                              withDomain:DLGPlayerErrorDomainAudioManager
