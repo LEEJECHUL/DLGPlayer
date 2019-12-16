@@ -19,7 +19,7 @@
 #define PREFERRED_SAMPLE_RATE   44100
 #define PREFERRED_BUFFER_DURATION 0.023
 
-static OSStatus audioUnitRenderCallback(void *inRefCon,
+OSStatus audioUnitRenderCallback(void *inRefCon,
                                  AudioUnitRenderActionFlags *ioActionFlags,
                                  const AudioTimeStamp *inTimeStamp,
                                  UInt32 inBusNumber,
@@ -297,7 +297,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
             NSError *error = nil;
             AVAudioSession *session = [AVAudioSession sharedInstance];
             
-            if (![session setActive:NO error:&error]) {
+            if (![session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error]) {
                 closed = NO;
                 if (errs != nil) {
                     NSError *error = nil;
@@ -480,7 +480,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 @end
 
-static OSStatus audioUnitRenderCallback(void *inRefCon,
+OSStatus audioUnitRenderCallback(void *inRefCon,
                                  AudioUnitRenderActionFlags *ioActionFlags,
                                  const AudioTimeStamp *inTimeStamp,
                                  UInt32 inBusNumber,
