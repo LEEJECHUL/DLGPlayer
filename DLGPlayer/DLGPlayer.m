@@ -322,7 +322,6 @@ static dispatch_queue_t processingQueueStatic;
         dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
         
         while (self.playing && !self.closing && !self.decoder.isEOF && !self.requestSeek) {
-            
             // Drop frames
             if (self.allowsFrameDrop && !self.frameDropped) {
                 if (self.bufferedDuration > self.frameDropDuration / self.speed) {
@@ -345,10 +344,10 @@ static dispatch_queue_t processingQueueStatic;
                     if (DLGPlayerUtils.debugEnabled) {
                         NSLog(@"DLGPlayer occurred drop frames beacuse buffer duration is over than frame drop duration.");
                     }
-                    break;
+                    continue;
                 }
-            } else if (self.bufferedDuration >= self.maxBufferDuration / self.speed) {
-                break;
+            } else if (self.bufferedDuration > self.maxBufferDuration / self.speed) {
+                continue;
             }
             
             NSArray *fs = [self.decoder readFrames];
