@@ -254,7 +254,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
-    if (_closing) {
+    if (_closing || self.mute) {
         return NO;
     }
     
