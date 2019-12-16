@@ -19,7 +19,7 @@
 #define PREFERRED_SAMPLE_RATE   44100
 #define PREFERRED_BUFFER_DURATION 0.023
 
-OSStatus audioUnitRenderCallback(void *inRefCon,
+static OSStatus audioUnitRenderCallback(void *inRefCon,
                                  AudioUnitRenderActionFlags *ioActionFlags,
                                  const AudioTimeStamp *inTimeStamp,
                                  UInt32 inBusNumber,
@@ -71,8 +71,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         NSLog(@"DLGPlayerAudioManager dealloc");
     }
     [self unregisterNotifications];
-    
-    _audioUnit = NULL;
     
     if (_audioData) {
         free(_audioData);
@@ -250,7 +248,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
-    if (_closing) {
+    if (_closing || !_opened) {
         return NO;
     }
     
@@ -315,6 +313,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             
             if (closed) {
                 _opened = NO;
+                _audioUnit = NULL;
             }
         }
         
@@ -481,7 +480,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 
 @end
 
-OSStatus audioUnitRenderCallback(void *inRefCon,
+static OSStatus audioUnitRenderCallback(void *inRefCon,
                                  AudioUnitRenderActionFlags *ioActionFlags,
                                  const AudioTimeStamp *inTimeStamp,
                                  UInt32 inBusNumber,
