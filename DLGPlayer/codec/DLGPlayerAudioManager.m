@@ -41,7 +41,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 @end
 
 @implementation DLGPlayerAudioManager
-@synthesize mute = _mute;
 
 - (id)init {
     self = [super init];
@@ -52,7 +51,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)initVars {
-    _mute = NO;
+    self.mute = NO;
     _registeredKVO = NO;
     _opened = NO;
     _closing = NO;
@@ -84,13 +83,17 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 #pragma mark - Added by Steve Kim.
 
 - (AVAudioSessionCategory)category {
-    return _mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
+    return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
 }
 
 /*
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
 - (BOOL)open:(NSError **)error {
+    if (self.mute) {
+        return NO;
+    }
+    
     @autoreleasepool {
         AVAudioSession *session = [AVAudioSession sharedInstance];
         NSError *rawError = nil;
@@ -251,13 +254,13 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)close:(NSArray<NSError *> **)errors {
+    if (_closing) {
+        return NO;
+    }
+    
+    _closing = YES;
+    
     @autoreleasepool {
-        if (_closing) {
-            return NO;
-        }
-        
-        _closing = YES;
-        
         NSMutableArray<NSError *> *errs = nil;
         if (errors != nil) errs = [NSMutableArray array];
         
@@ -330,7 +333,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
-    if (_mute) {
+    if (self.mute) {
         return _playing;
     }
     
