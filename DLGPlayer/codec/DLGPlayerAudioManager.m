@@ -124,6 +124,15 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             }
         }
         
+        if (![session setActive:YES error:&rawError]) {
+            [DLGPlayerUtils createError:error
+                             withDomain:DLGPlayerErrorDomainAudioManager
+                                andCode:DLGPlayerErrorCodeCannotSetAudioActive
+                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_ACTIVE"]
+                            andRawError:rawError];
+            return NO;
+        }
+        
         if (session.currentRoute.outputs.count < 1) {
             [DLGPlayerUtils createError:error
                              withDomain:DLGPlayerErrorDomainAudioManager
@@ -292,6 +301,23 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
                                 andRawError:rawError];
                 [errs addObject:error];
             }
+        }
+        
+        NSError *error = nil;
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+
+        if (![session setActive:NO error:&error]) {
+           closed = NO;
+           if (errs != nil) {
+               NSError *error = nil;
+               NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+               [DLGPlayerUtils createError:&error
+                                withDomain:DLGPlayerErrorDomainAudioManager
+                                   andCode:DLGPlayerErrorCodeCannotDeactivateAudio
+                                andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_DEACTIVATE_AUDIO"]
+                               andRawError:rawError];
+               [errs addObject:error];
+           }
         }
         
         if (closed) {
