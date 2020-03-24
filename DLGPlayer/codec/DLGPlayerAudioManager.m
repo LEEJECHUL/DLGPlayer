@@ -36,8 +36,8 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     UInt32 _bitsPerChannel;
     UInt32 _channelsPerFrame;
     float *_audioData;
+    AudioUnit _audioUnit;
 }
-@property (nonatomic) AudioUnit audioUnit;
 @end
 
 @implementation DLGPlayerAudioManager
@@ -163,6 +163,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     [self registerNotifications];
+    
     _sampleRate = sampleRate;
     _volume = volume;
     _opened = YES;
@@ -191,8 +192,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
-    self.audioUnit = audioUnit;
-    
     AudioStreamBasicDescription streamDescr = {0};
     UInt32 size = sizeof(AudioStreamBasicDescription);
     status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
@@ -208,7 +207,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     
     streamDescr.mSampleRate = sampleRate;
     status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
-    if (status != noErr && DLGPlayerUtils.debugEnabled) {
+    if (DLGPlayerUtils.debugEnabled && status != noErr) {
         NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
     }
     
@@ -218,7 +217,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     AURenderCallbackStruct renderCallbackStruct;
     renderCallbackStruct.inputProc = renderCallback;
     renderCallbackStruct.inputProcRefCon = (__bridge void *)(self);
-
+    
     status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
     if (status != noErr) {
         NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -241,7 +240,10 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         return NO;
     }
     
+    _audioUnit = audioUnit;
+    
     return YES;
+
 }
 
 - (BOOL)close {
@@ -260,11 +262,11 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     
     BOOL closed = YES;
     
-    if (_opened && self.audioUnit) {
+    if (_opened) {
         [self pause];
         [self unregisterNotifications];
         
-        OSStatus status = AudioUnitUninitialize(self.audioUnit);
+        OSStatus status = AudioUnitUninitialize(_audioUnit);
         if (status != noErr) {
             closed = NO;
             if (errs != nil) {
@@ -279,7 +281,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             }
         }
         
-        status = AudioComponentInstanceDispose(self.audioUnit);
+        status = AudioComponentInstanceDispose(_audioUnit);
         if (status != noErr) {
             closed = NO;
             if (errs != nil) {
@@ -330,8 +332,8 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         return _playing;
     }
     
-    if (_opened && self.audioUnit != NULL) {
-        OSStatus status = AudioOutputUnitStart(self.audioUnit);
+    if (_opened) {
+        OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
         if (!_playing) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -350,8 +352,12 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)pause:(NSError **)error {
-    if (_playing && self.audioUnit != NULL) {
-        OSStatus status = AudioOutputUnitStop(self.audioUnit);
+    if (self.mute) {
+        return _playing;
+    }
+    
+    if (_playing) {
+        OSStatus status = AudioOutputUnitStop(_audioUnit);
         _playing = !(status == noErr);
         if (_playing) {
             NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
