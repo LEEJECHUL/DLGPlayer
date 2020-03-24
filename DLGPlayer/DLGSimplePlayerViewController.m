@@ -21,7 +21,7 @@ typedef enum : NSUInteger {
     BOOL restorePlay;
 }
 
-@property (nonatomic, readwrite) DLGPlayer *player;
+@property (nonatomic, strong) DLGPlayer *player;
 @property (nonatomic, readwrite) DLGPlayerStatus status;
 @end
 
@@ -77,7 +77,7 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)isPlaying {
-    return _player.playing;
+    return self.player.playing;
 }
     
 - (void)setStatus:(DLGPlayerStatus)status {
@@ -92,83 +92,83 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)isMute {
-    return _player.mute;
+    return self.player.mute;
 }
 
 - (void)setIsMute:(BOOL)isMute {
-    _player.mute = isMute;
+    self.player.mute = isMute;
 }
 
 - (double)minBufferDuration {
-    return _player.minBufferDuration;
+    return self.player.minBufferDuration;
 }
 
 - (void)setMinBufferDuration:(double)minBufferDuration {
-    _player.minBufferDuration = minBufferDuration;
+    self.player.minBufferDuration = minBufferDuration;
 }
 
 - (double)maxBufferDuration {
-    return _player.maxBufferDuration;
+    return self.player.maxBufferDuration;
 }
 
 - (void)setMaxBufferDuration:(double)maxBufferDuration {
-    _player.maxBufferDuration = maxBufferDuration;
+    self.player.maxBufferDuration = maxBufferDuration;
 }
 
 - (BOOL)isAllowsFrameDrop {
-    return _player.allowsFrameDrop;
+    return self.player.allowsFrameDrop;
 }
 
 - (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
-    _player.allowsFrameDrop = isAllowsFrameDrop;
+    self.player.allowsFrameDrop = isAllowsFrameDrop;
 }
 
 - (double)speed {
-    return _player.speed;
+    return self.player.speed;
 }
 - (void)setSpeed:(double)speed {
-    _player.speed = speed;
+    self.player.speed = speed;
 }
     
 #pragma mark - Init
 - (void)initAll {
-    _player = [[DLGPlayer alloc] init];
+    self.player = [[DLGPlayer alloc] init];
     _status = DLGPlayerStatusNone;
     _controlStatus = [[DLGPlayerControlStatus alloc] initWithStatus:_status];
 }
     
 - (void)open {
     self.status = DLGPlayerStatusOpening;
-    [_player open:_url];
+    [self.player open:_url];
 }
     
 - (void)play {
     [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
-    [_player play];
+    [self.player play];
     self.status = DLGPlayerStatusPlaying;
 }
     
 - (void)replay {
-    _player.position = 0;
+    self.player.position = 0;
     [self play];
 }
     
 - (void)pause {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
-    [_player pause];
+    [self.player pause];
     self.status = DLGPlayerStatusPaused;
 }
 
 - (void)stop {
     self.status = DLGPlayerStatusClosing;
     [UIApplication sharedApplication].idleTimerDisabled = NO;
-    [_player close];
+    [self.player close];
 }
     
     
 #pragma mark - UI
 - (void)addPlayerView {
-    UIView *v = _player.playerView;
+    UIView *v = self.player.playerView;
     v.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:v];
@@ -194,12 +194,12 @@ typedef enum : NSUInteger {
                name:UIApplicationDidEnterBackgroundNotification object:nil];
     [nc addObserver:self selector:@selector(notifyAppWillEnterForeground:)
                name:UIApplicationWillEnterForegroundNotification object:nil];
-    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerRenderBegan:) name:DLGPlayerNotificationRenderBegan object:_player];
-    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerRenderBegan:) name:DLGPlayerNotificationRenderBegan object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:self.player];
 }
 
 - (void)unregisterNotification {
@@ -207,7 +207,7 @@ typedef enum : NSUInteger {
 }
 
 - (void)notifyAppDidEnterBackground:(NSNotification *)notif {
-    if (_player.playing) {
+    if (self.player.playing) {
         [self pause];
         if (_restorePlayAfterAppEnterForeground) restorePlay = YES;
     }
