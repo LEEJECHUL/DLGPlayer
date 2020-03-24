@@ -259,7 +259,7 @@ static dispatch_queue_t processingQueueStatic;
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
-        __strong typeof(self)strongSelf = weakSelf;
+        __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
             return;
