@@ -97,7 +97,7 @@ static dispatch_queue_t processingQueueStatic;
     _aframes = [NSMutableArray arrayWithCapacity:128];
     
     if ([DLGPlayerUtils isMetalSupport]) {
-        _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
+        self.processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     } else if (!processingQueueStatic) {
         processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
     }
@@ -147,14 +147,14 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (dispatch_queue_t)processingQueue {
-    return [DLGPlayerUtils isMetalSupport] ? _processingQueue : processingQueueStatic;
+    return [DLGPlayerUtils isMetalSupport] ? self.processingQueue : processingQueueStatic;
 }
 
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
-        __strong typeof(self)strongSelf = weakSelf;
+        __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.opening || strongSelf.closing) {
             return;
@@ -497,7 +497,7 @@ static dispatch_queue_t processingQueueStatic;
     if (self.vframes.count <= 0 || !self.decoder.hasVideo || self.notifiedBufferStart) {
         __weak typeof(self)weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            __strong typeof(self)strongSelf = weakSelf;
+            __strong typeof(weakSelf)strongSelf = weakSelf;
             
             if (strongSelf) {
                 [strongSelf render];
@@ -530,7 +530,7 @@ static dispatch_queue_t processingQueueStatic;
     
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(self)strongSelf = weakSelf;
+        __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (strongSelf) {
             [strongSelf render];
