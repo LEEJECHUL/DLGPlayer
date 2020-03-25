@@ -150,7 +150,7 @@
     }
     
     threadsPerThreadgroup = MTLSizeMake(16, 16, 1);
-    threadgroupsPerGrid = MTLSizeMake(2048 / threadsPerThreadgroup.width, 1536 / threadsPerThreadgroup.height, 1);
+    threadgroupsPerGrid = MTLSizeMake(3840 / threadsPerThreadgroup.width, 2160 / threadsPerThreadgroup.height, 1);
 }
 
 #pragma mark - Public Methods (DLGPlayerVideoFrame)

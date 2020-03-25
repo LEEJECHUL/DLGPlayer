@@ -85,7 +85,7 @@ class RootViewController: UIViewController {
         let time = Date(timeIntervalSince1970: now - 60 * 60 * 24).timeIntervalSince1970
         
 //        playerViewController?.speed = 2
-        playerViewController?.url = "rtmps://media009.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10002"
+        playerViewController?.url = "rtmps://mediajp005.toastcam.com:10080/flvplayback/AAAENYZ?token=b6e503e4-f47c-4238-baca-51cbdfc10003"
 //        playerViewController?.url = "rtmps://media007.toastcam.com:10080/flvplayback/AAAADSE?token=b6e503e4-f47c-4238-baca-51cbdfc10001&time=\(time)&speed=2"
         playerViewController?.open()
     }
