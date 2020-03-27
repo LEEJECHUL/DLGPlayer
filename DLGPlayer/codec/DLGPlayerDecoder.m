@@ -489,7 +489,7 @@ int interruptCallback(void *context) {
     int ret = avcodec_send_packet(context, packet);
     if (ret != 0) {
         if (DLGPlayerUtils.debugEnabled) {
-            NSLog(@"avcodec_send_packet: %d", ret);
+            NSLog(@"avcodec_send_packet: %d, size: %d", ret);
         }
         return nil;
     }
