@@ -222,18 +222,18 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)close {
-    [self pause];
-    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
+        
         if (!strongSelf || strongSelf.closing) {
             return;
         }
         
         strongSelf.closing = YES;
-        
+
+        [strongSelf pause];
         [strongSelf.decoder prepareClose];
         [strongSelf.decoder close];
         [strongSelf.view clear];

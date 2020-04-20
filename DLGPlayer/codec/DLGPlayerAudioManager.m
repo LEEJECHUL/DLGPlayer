@@ -263,7 +263,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     BOOL closed = YES;
     
     if (_opened) {
-        [self pause];
         [self unregisterNotifications];
         
         OSStatus status = AudioUnitUninitialize(_audioUnit);
@@ -352,10 +351,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)pause:(NSError **)error {
-    if (self.mute) {
-        return _playing;
-    }
-    
     if (_playing) {
         OSStatus status = AudioOutputUnitStop(_audioUnit);
         _playing = !(status == noErr);
@@ -372,13 +367,15 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (OSStatus)render:(AudioBufferList *)ioData count:(UInt32)inNumberFrames {
+    if (!_playing || _frameReaderBlock == nil) {
+        return noErr;
+    }
+    
     UInt32 num = ioData->mNumberBuffers;
     for (UInt32 i = 0; i < num; ++i) {
         AudioBuffer buf = ioData->mBuffers[i];
         memset(buf.mData, 0, buf.mDataByteSize);
     }
-    
-    if (!_playing || _frameReaderBlock == nil) return noErr;
     
     _frameReaderBlock(_audioData, inNumberFrames, _channelsPerFrame);
     
