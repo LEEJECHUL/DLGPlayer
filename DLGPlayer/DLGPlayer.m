@@ -43,9 +43,14 @@
 @property (atomic) double mediaSyncPosition;
 @end
 
+static dispatch_queue_t audioProcessingQueue;
 static dispatch_queue_t processingQueueStatic;
 
 @implementation DLGPlayer
+{
+@private
+    dispatch_block_t processingBlock;
+}
 
 - (id)init {
     self = [super init];
@@ -69,6 +74,7 @@ static dispatch_queue_t processingQueueStatic;
 }
 
 - (void)initVars {
+    processingBlock = NULL;
     _frameDropDuration = DLGPlayerFrameDropDuration;
     _minBufferDuration = DLGPlayerMinBufferDuration;
     _maxBufferDuration = DLGPlayerMaxBufferDuration;
@@ -95,6 +101,10 @@ static dispatch_queue_t processingQueueStatic;
     _vFramesLock = dispatch_semaphore_create(1);
     _vframes = [NSMutableArray arrayWithCapacity:128];
     _aframes = [NSMutableArray arrayWithCapacity:128];
+    
+    if (!audioProcessingQueue) {
+        audioProcessingQueue = dispatch_queue_create("DLGPlayer.audioProcessingQueue", DISPATCH_QUEUE_SERIAL);
+    }
     
     if ([DLGPlayerUtils isMetalSupport]) {
         _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -150,10 +160,23 @@ static dispatch_queue_t processingQueueStatic;
     return [DLGPlayerUtils isMetalSupport] ? _processingQueue : processingQueueStatic;
 }
 
+- (void)cancelProcessing {
+    if (processingBlock) {
+        dispatch_block_cancel(processingBlock);
+        processingBlock = NULL;
+    }
+}
+
 - (void)open:(NSString *)url {
+    if (self.opening || self.closing) {
+        return;
+    }
+    
+    [self cancelProcessing];
+    
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(self.processingQueue, ^{
+    processingBlock = dispatch_block_create(0, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.opening || strongSelf.closing) {
@@ -162,20 +185,31 @@ static dispatch_queue_t processingQueueStatic;
         
         strongSelf.opening = YES;
         
+        if (!strongSelf.mute) {
+            dispatch_async(audioProcessingQueue, ^{
+                if ([strongSelf.audio open:nil]) {
+                    strongSelf.decoder.audioChannels = [strongSelf.audio channels];
+                    strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+
+                    __weak typeof(strongSelf)ws = strongSelf;
+                    strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+                        [ws readAudioFrame:data frames:frames channels:channels];
+                    };
+                }
+            });
+        }
+        
         @autoreleasepool {
             NSError *error = nil;
-            if ([strongSelf.audio open:&error]) {
-                strongSelf.decoder.audioChannels = [strongSelf.audio channels];
-                strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
-            } else {
-                [strongSelf handleError:error];
-            }
-            
             if (![strongSelf.decoder open:url error:&error]) {
                 strongSelf.opening = NO;
+
+                if (!strongSelf.mute) {
+                    dispatch_async(audioProcessingQueue, ^{
+                        [strongSelf.audio close:nil];
+                    });
+                }
                 
-                NSArray<NSError *> *errors = nil;
-                [strongSelf.audio close:&errors];
                 [strongSelf handleError:error];
                 return;
             }
@@ -200,31 +234,34 @@ static dispatch_queue_t processingQueueStatic;
                 ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
             }
             
-            strongSelf.duration = self.decoder.duration;
-            strongSelf.metadata = self.decoder.metadata;
+            strongSelf.duration = strongSelf.decoder.duration;
+            strongSelf.metadata = strongSelf.decoder.metadata;
             strongSelf.opening = NO;
             strongSelf.buffering = NO;
             strongSelf.playing = NO;
             strongSelf.bufferedDuration = 0;
             strongSelf.mediaPosition = 0;
             strongSelf.mediaSyncTime = 0;
-            
-            __weak typeof(strongSelf)ws = strongSelf;
-            strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-                [ws readAudioFrame:data frames:frames channels:channels];
-            };
-            
             strongSelf.opened = YES;
             
             [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
         });
     });
+    
+    dispatch_async(self.processingQueue, processingBlock);
 }
 
 - (void)close {
+    if (self.closing) {
+        return;
+    }
+    
+    [self cancelProcessing];
+    [self pauseInternally];
+    
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(self.processingQueue, ^{
+    processingBlock = dispatch_block_create(0, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || strongSelf.closing) {
@@ -233,32 +270,29 @@ static dispatch_queue_t processingQueueStatic;
         
         strongSelf.closing = YES;
 
-        [strongSelf pause];
+        if (!strongSelf.mute) {
+            dispatch_async(audioProcessingQueue, ^{
+                [strongSelf.audio close:nil];
+            });
+        }
+
         [strongSelf.decoder prepareClose];
         [strongSelf.decoder close];
         [strongSelf.view clear];
-        
-        @autoreleasepool {
-            NSArray<NSError *> *errors = nil;
-            
-            if ([strongSelf.audio close:&errors]) {
-                [strongSelf clearVars];
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
-            } else {
-                [strongSelf clearVars];
-                
-                for (NSError *error in errors) {
-                    [strongSelf handleError:error];
-                }
-            }
-        }
+        [strongSelf clearVars];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
     });
+    
+    dispatch_async(self.processingQueue, processingBlock);
 }
 
 - (void)play {
+    [self cancelProcessing];
+    
     __weak typeof(self)weakSelf = self;
     
-    dispatch_async(self.processingQueue, ^{
+    processingBlock = dispatch_block_create(0, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
@@ -272,28 +306,53 @@ static dispatch_queue_t processingQueueStatic;
                 [strongSelf render];
             }
         });
-        
-        @autoreleasepool {
-            NSError *error = nil;
-            
-            if (![strongSelf.audio play:&error]) {
-                [strongSelf handleError:error];
-            }
+
+        if (!strongSelf.mute) {
+            dispatch_async(audioProcessingQueue, ^{
+                [strongSelf.audio play:nil];
+            });
         }
         
         [strongSelf runFrameReader];
     });
+    
+    dispatch_async(self.processingQueue, processingBlock);
 }
 
 - (void)pause {
-    self.playing = NO;
+    [self cancelProcessing];
     
-    @autoreleasepool {
-        NSError *error = nil;
-        if (![self.audio pause:&error]) {
-            [self handleError:error];
+    __weak typeof(self)weakSelf = self;
+    
+    processingBlock = dispatch_block_create(0, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf) {
+            return;
         }
+
+        [strongSelf pauseInternally];
+    });
+    
+    dispatch_async(self.processingQueue, processingBlock);
+}
+
+- (void)pauseInternally {
+    self.playing = NO;
+
+    if (self.mute) {
+        return;
     }
+    
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(audioProcessingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf) {
+            [strongSelf.audio pause:nil];
+        }
+    });
 }
 
 - (UIImage *)snapshot {
@@ -668,7 +727,6 @@ static dispatch_queue_t processingQueueStatic;
 
 - (void)setMute:(BOOL)mute {
     _mute = mute;
-    self.audio.mute = mute;
 }
 
 #pragma mark - Handle Error

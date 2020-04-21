@@ -41,7 +41,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 @end
 
 @implementation DLGPlayerAudioManager
-@synthesize mute = _mute;
 
 - (id)init {
     self = [super init];
@@ -52,7 +51,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)initVars {
-    self.mute = NO;
     _registeredKVO = NO;
     _opened = NO;
     _closing = NO;
@@ -79,12 +77,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     }
 }
 
-#pragma mark - Added by Steve Kim.
-
-- (AVAudioSessionCategory)category {
-    return self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
-}
-
 /*
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
@@ -92,7 +84,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     AVAudioSession *session = [AVAudioSession sharedInstance];
     NSError *rawError = nil;
     
-    if (![session setCategory:self.category error:&rawError]) {
+    if (![session setCategory:AVAudioSessionCategorySoloAmbient error:&rawError]) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
                             andCode:DLGPlayerErrorCodeCannotSetAudioCategory
@@ -263,6 +255,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     BOOL closed = YES;
     
     if (_opened) {
+        [self pause];
         [self unregisterNotifications];
         
         OSStatus status = AudioUnitUninitialize(_audioUnit);
@@ -327,10 +320,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (BOOL)play:(NSError **)error {
-    if (self.mute) {
-        return _playing;
-    }
-    
     if (_opened) {
         OSStatus status = AudioOutputUnitStart(_audioUnit);
         _playing = (status == noErr);
@@ -367,15 +356,13 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (OSStatus)render:(AudioBufferList *)ioData count:(UInt32)inNumberFrames {
-    if (!_playing || _frameReaderBlock == nil) {
-        return noErr;
-    }
-    
     UInt32 num = ioData->mNumberBuffers;
     for (UInt32 i = 0; i < num; ++i) {
         AudioBuffer buf = ioData->mBuffers[i];
         memset(buf.mData, 0, buf.mDataByteSize);
     }
+    
+    if (!_playing || _frameReaderBlock == nil) return noErr;
     
     _frameReaderBlock(_audioData, inNumberFrames, _channelsPerFrame);
     
