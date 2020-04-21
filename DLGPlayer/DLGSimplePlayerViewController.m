@@ -27,6 +27,10 @@ typedef enum : NSUInteger {
 
 @implementation DLGSimplePlayerViewController
 
+- (void)dealloc {
+    NSLog(@"DLGSimplePlayerViewController dealloc");
+}
+
 #pragma mark - Constructors
 - (instancetype)init {
     self = [super init];
