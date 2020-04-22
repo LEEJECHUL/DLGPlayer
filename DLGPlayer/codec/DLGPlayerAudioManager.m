@@ -255,7 +255,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     _closing = YES;
-
+    
     @autoreleasepool {
         NSMutableArray<NSError *> *errs = nil;
         if (errors != nil) errs = [NSMutableArray array];
