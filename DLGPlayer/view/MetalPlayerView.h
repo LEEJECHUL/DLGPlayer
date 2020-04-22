@@ -8,12 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "DLGPlayerVideoFrameView.h"
-@import MetalKit;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(9.0))
-@interface MetalPlayerView : MTKView <DLGPlayerVideoFrameView>
+@interface MetalPlayerView : UIView <DLGPlayerVideoFrameView>
 @end
 
 NS_ASSUME_NONNULL_END

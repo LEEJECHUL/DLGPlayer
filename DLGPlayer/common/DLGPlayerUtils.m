@@ -61,15 +61,17 @@ static BOOL isMetalSupportChecked = NO;
 }
 
 + (BOOL)isMetalSupport {
-    if (@available(iOS 9.0, *)) {
-        if (isMetalSupportChecked) {
+    #if !TARGET_IPHONE_SIMULATOR
+        if (@available(iOS 9.0, *)) {
+            if (isMetalSupportChecked) {
+                return isMetalSupport;
+            }
+            
+            isMetalSupport = MTLCreateSystemDefaultDevice() != nil;
+            isMetalSupportChecked = YES;
             return isMetalSupport;
         }
-        
-        isMetalSupport = MTLCreateSystemDefaultDevice() != nil;
-        isMetalSupportChecked = YES;
-        return isMetalSupport;
-    }
+    #endif
     return NO;
 }
 

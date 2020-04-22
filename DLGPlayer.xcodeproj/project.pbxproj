@@ -29,6 +29,7 @@
 		239BC97B21C234D000DEEC73 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 239BC97921C234D000DEEC73 /* LaunchScreen.storyboard */; };
 		239BC99121C2362100DEEC73 /* DLGPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23DC26CE21B80F5A0012243A /* DLGPlayer.framework */; };
 		239BC99321C2457600DEEC73 /* DLGPlayer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 23DC26CE21B80F5A0012243A /* DLGPlayer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		239F11B12398F48000CF88D6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239F11B02398F48000CF88D6 /* ViewController.swift */; };
 		23DC293921B810B50012243A /* DLGPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC291421B810B40012243A /* DLGPlayerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23DC293A21B810B50012243A /* DLGPlayerDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC291621B810B40012243A /* DLGPlayerDecoder.m */; };
 		23DC293B21B810B50012243A /* DLGPlayerAudioManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC291721B810B40012243A /* DLGPlayerAudioManager.m */; };
@@ -80,6 +81,7 @@
 		239BC97721C234D000DEEC73 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		239BC97A21C234D000DEEC73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		239BC97C21C234D000DEEC73 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		239F11B02398F48000CF88D6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		23DC26CE21B80F5A0012243A /* DLGPlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DLGPlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23DC26D221B80F5A0012243A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		23DC291421B810B40012243A /* DLGPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLGPlayerViewController.h; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 				239BC97721C234D000DEEC73 /* Assets.xcassets */,
 				239BC97921C234D000DEEC73 /* LaunchScreen.storyboard */,
 				239BC97421C234CF00DEEC73 /* Main.storyboard */,
+				239F11B02398F48000CF88D6 /* ViewController.swift */,
 			);
 			path = DLGPlayerDemo;
 			sourceTree = "<group>";
@@ -444,6 +447,7 @@
 			files = (
 				23241CAE22A0B45400871C58 /* SecondViewController.swift in Sources */,
 				239BC97321C234CF00DEEC73 /* RootViewController.swift in Sources */,
+				239F11B12398F48000CF88D6 /* ViewController.swift in Sources */,
 				239BC97121C234CF00DEEC73 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -506,6 +510,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = F5NU2PA3PK;
 				ENABLE_BITCODE = NO;
@@ -516,8 +521,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = example.DLGPlayerDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = pisces.lib.DLGPlayerDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OBJC_BRIDGING_HEADER = "${PRODUCT_NAME}/DLGPlayerDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -530,6 +536,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = F5NU2PA3PK;
 				ENABLE_BITCODE = NO;
@@ -540,8 +547,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = example.DLGPlayerDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = pisces.lib.DLGPlayerDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "${PRODUCT_NAME}/DLGPlayerDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";

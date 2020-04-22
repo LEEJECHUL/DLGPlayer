@@ -481,7 +481,8 @@ typedef enum : NSUInteger {
                          strongSelf.vBottomBar.alpha = 1.0f;
                      }
                      completion:^(BOOL finished) {
-                         animatingHUD = NO;
+                         __strong typeof(weakSelf)strongSelf = weakSelf;
+                         strongSelf->animatingHUD = NO;
                      }];
     [self startTimerForHideHUD];
 }
@@ -503,7 +504,7 @@ typedef enum : NSUInteger {
                          strongSelf.vTopBar.hidden = YES;
                          strongSelf.vBottomBar.hidden = YES;
 
-                         animatingHUD = NO;
+                         strongSelf->animatingHUD = NO;
                      }];
     [self stopTimerForHideHUD];
 }

@@ -30,6 +30,7 @@ typedef void (^onPauseComplete)(void);
 @property (atomic) BOOL buffering;
 @property (atomic) BOOL opened;
 @property (nonatomic) float brightness;
+@property (nonatomic) double frameDropDuration;
 @property (nonatomic) double minBufferDuration;
 @property (nonatomic) double maxBufferDuration;
 @property (nonatomic) double position;

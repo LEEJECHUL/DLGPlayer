@@ -6,21 +6,27 @@
 //  Copyright © 2019 KWANG HYOUN KIM. All rights reserved.
 //
 
+@import MetalKit;
 #import "MetalPlayerView.h"
+#import "DLGPlayerUtils.h"
 #import "DLGPlayerVideoFrame.h"
 #import "DLGPlayerVideoYUVFrame.h"
 
-@interface MetalPlayerView ()
+@interface MetalPlayerView () <MTKViewDelegate>
 @property (nonatomic, readonly) BOOL isRenderingAvailable;
-@property (nonatomic) MTLSize threadsPerThreadgroup;
-@property (nonatomic) MTLSize threadgroupsPerGrid;
-@property (nonatomic, strong) id<MTLLibrary> defaultLibrary;
-@property (nonatomic, strong) id<MTLCommandQueue> commandQueue;
-@property (nonatomic, strong) id<MTLComputePipelineState> pipelineState;
-@property (nonatomic, strong) DLGPlayerVideoFrame *currentFrame;
 @end
 
 @implementation MetalPlayerView
+{
+@private
+    MTLSize threadsPerThreadgroup;
+    MTLSize threadgroupsPerGrid;
+    id<MTLLibrary> defaultLibrary;
+    id<MTLCommandQueue> commandQueue;
+    id<MTLComputePipelineState> pipelineState;
+    MTKView *metalView;
+    DLGPlayerVideoFrame *currentFrame;
+}
 
 @synthesize isYUV = _isYUV;
 @synthesize keepLastFrame = _keepLastFrame;
@@ -29,12 +35,11 @@
 
 #pragma mark - Constructors
 
-- (id)init {
-    self = [super init];
-    if (self) {
-        [self initProperties];
+- (void)dealloc {
+    if (DLGPlayerUtils.debugEnabled) {
+        NSLog(@"MetalPlayerView dealloc");
     }
-    return self;
+    [self clear];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -45,88 +50,110 @@
     return self;
 }
 
-#if TARGET_IPHONE_SIMULATOR
-#else
-
-#pragma mark - Overridden: MTKView
-
-- (void)drawRect:(CGRect)rect {
-    [self executeMetalShader];
-}
-
 #pragma mark - Private Properties
 
 - (BOOL)isRenderingAvailable {
-    return self.currentDrawable != nil && _currentFrame != nil && _currentFrame.prepared;
+    return metalView.currentDrawable != nil && currentFrame != nil && currentFrame.prepared;
 }
 
-#pragma mark - Private Methods
+#pragma mark - Overridden: UIView
 
-- (void)executeMetalShader {
-    if (!self.isRenderingAvailable) {
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    metalView.frame = self.bounds;
+}
+
+#if TARGET_IPHONE_SIMULATOR
+#else
+
+#pragma mark - Private Methods
+    
+- (void)setUpPipelineState {
+    @autoreleasepool {
+        NSString *name = _isYUV ? @"YUVColorConversion" : @"RGBColorConversion";
+        id<MTLFunction> kernelFunction = [defaultLibrary newFunctionWithName:name];
+        
+        if (!kernelFunction && DLGPlayerUtils.debugEnabled) {
+            NSLog(@"Error creating compute shader");
+            return;
+        }
+        
+        pipelineState = [metalView.device newComputePipelineStateWithFunction:kernelFunction error:nil];
+        
+        if (!pipelineState && DLGPlayerUtils.debugEnabled) {
+            NSLog(@"Error creating the pipeline state");
+        }
+    }
+}
+
+#pragma mark - Private Methods (MTKViewDelegate)
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {}
+
+- (void)drawInMTKView:(nonnull MTKView *)view {
+    if (!self.isRenderingAvailable || !pipelineState) {
         return;
     }
     
     @autoreleasepool {
-        id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+        id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+        
+        if (!commandBuffer) {
+            return;
+        }
+        
         id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
-        float brightness = _currentFrame.brightness;
         
-        [commandEncoder setComputePipelineState:_pipelineState];
-        [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
-        [_currentFrame render:commandEncoder];
-        [commandEncoder setTexture:self.currentDrawable.texture atIndex:3];
-        [commandEncoder dispatchThreadgroups:_threadgroupsPerGrid threadsPerThreadgroup:_threadsPerThreadgroup];
-        [commandEncoder endEncoding];
-        
-        [commandBuffer presentDrawable:self.currentDrawable];
-        [commandBuffer commit];
+        if (commandEncoder) {
+            float brightness = currentFrame.brightness;
+            
+            [commandEncoder setComputePipelineState:pipelineState];
+            [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
+            [currentFrame render:commandEncoder];
+            [commandEncoder setTexture:metalView.currentDrawable.texture atIndex:3];
+            [commandEncoder dispatchThreadgroups:threadgroupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
+            [commandEncoder endEncoding];
+            
+            [commandBuffer presentDrawable:metalView.currentDrawable];
+            [commandBuffer commit];
+        }
     }
 }
-    
-- (void)setUpPipelineState {
-    NSString *name = _isYUV ? @"YUVColorConversion" : @"RGBColorConversion";
-    id<MTLFunction> kernelFunction = [_defaultLibrary newFunctionWithName:name];
-    
-    if (!kernelFunction) {
-        NSLog(@"Error creating compute shader");
-        return;
-    }
-    
-    _pipelineState = [self.device newComputePipelineStateWithFunction:kernelFunction error:nil];
-    
-    if (!_pipelineState) {
-        NSLog(@"Error creating the pipeline state");
-    }
-}
+
 #endif
 
 - (void)initProperties {
-    self.framebufferOnly = NO;
-    self.autoResizeDrawable = NO;
-    self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    self.contentScaleFactor = UIScreen.mainScreen.scale;
-    self.clearColor = MTLClearColorMake(1, 1, 1, 1);
+    metalView = [MTKView new];
+    metalView.autoResizeDrawable = NO;
+    metalView.framebufferOnly = NO;
+    metalView.contentScaleFactor = UIScreen.mainScreen.scale;
+    metalView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalView.clearColor = MTLClearColorMake(1, 1, 1, 1);
+    metalView.device = MTLCreateSystemDefaultDevice();
+    metalView.delegate = self;
+    
+    [self addSubview:metalView];
+    
 #if TARGET_IPHONE_SIMULATOR
     NSLog(@"[DLGPlayer] Metal will not work on simulator.");
 #endif
-    self.device = MTLCreateSystemDefaultDevice();
-    _commandQueue = [self.device newCommandQueue];
+    commandQueue = [metalView.device newCommandQueue];
     
     if (@available(iOS 10.0, *)) {
         @autoreleasepool {
             NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-            _defaultLibrary = [self.device newDefaultLibraryWithBundle:bundle error:nil];
+            defaultLibrary = [metalView.device newDefaultLibraryWithBundle:bundle error:nil];
         }
     } else {
-        _defaultLibrary = [self.device newDefaultLibrary];
+        defaultLibrary = [metalView.device newDefaultLibrary];
     }
     
-    _threadsPerThreadgroup = MTLSizeMake(16, 16, 1);
-    _threadgroupsPerGrid = MTLSizeMake(2048 / _threadsPerThreadgroup.width, 1536 / _threadsPerThreadgroup.height, 1);
+    threadsPerThreadgroup = MTLSizeMake(16, 16, 1);
+    threadgroupsPerGrid = MTLSizeMake(3840 / threadsPerThreadgroup.width, 2160 / threadsPerThreadgroup.height, 1);
 }
 
-#pragma mark - Implement: DLGPlayerVideoFrame
+#pragma mark - Public Methods (DLGPlayerVideoFrame)
 
 - (void)setContentSize:(CGSize)contentSize {
     _contentSize = contentSize;
@@ -150,8 +177,10 @@
 
 - (void)clear {
     if (!_keepLastFrame) {
-        _currentFrame = nil;
+        currentFrame = nil;
     }
+    
+    [metalView releaseDrawables];
 }
 
 - (void)render:(DLGPlayerVideoFrame *)frame {
@@ -159,10 +188,10 @@
         return;
     }
     
-    _currentFrame = frame;
-    self.drawableSize = CGSizeMake(frame.width, frame.height);
+    currentFrame = frame;
+    metalView.drawableSize = CGSizeMake(frame.width, frame.height);
     
-    if ([frame prepareDevice:self.device]) {
+    if ([frame prepareDevice:metalView.device]) {
         // TODO: - Impl scale / flip / rotation.
     }
 }
@@ -172,10 +201,14 @@
     NSLog(@"[DLGPlayer] Metal will not work to make snapshot on simulator.");
     return nil;
 #else
-    const id<MTLTexture> texture = self.currentDrawable.texture;
+    if (!self.isRenderingAvailable) {
+        return nil;
+    }
+    
+    const id<MTLTexture> texture = metalView.currentDrawable.texture;
     const NSInteger w = texture.width;
     const NSInteger h = texture.height;
-    CIContext *context = [CIContext contextWithMTLDevice:self.device];
+    CIContext *context = [CIContext contextWithMTLDevice:metalView.device];
     CIImage *outputImage = [[CIImage alloc] initWithMTLTexture:texture options:@{kCIImageColorSpace: (__bridge_transfer id) CGColorSpaceCreateDeviceRGB()}];
     CGImageRef cgImg = [context createCGImage:outputImage fromRect:CGRectMake(0, 0, w, h)];
     UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
