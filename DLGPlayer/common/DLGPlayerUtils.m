@@ -18,23 +18,27 @@ static BOOL isMetalSupportChecked = NO;
 
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message {
     if (error == nil) return NO;
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    if (message != nil) userInfo[NSLocalizedDescriptionKey] = message;
-    *error = [NSError errorWithDomain:domain
-                                 code:code
-                             userInfo:userInfo];
-    return YES;
+    @autoreleasepool {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+        if (message != nil) userInfo[NSLocalizedDescriptionKey] = message;
+        *error = [NSError errorWithDomain:domain
+                                     code:code
+                                 userInfo:userInfo];
+        return YES;
+    }
 }
 
 + (BOOL)createError:(NSError **)error withDomain:(NSString *)domain andCode:(NSInteger)code andMessage:(NSString *)message andRawError:(NSError *)rawError {
     if (error == nil) return NO;
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    if (message != nil) userInfo[NSLocalizedDescriptionKey] = message;
-    if (rawError != nil) userInfo[NSLocalizedFailureReasonErrorKey] = rawError;
-    *error = [NSError errorWithDomain:domain
-                                 code:code
-                             userInfo:userInfo];
-    return YES;
+    @autoreleasepool {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+        if (message != nil) userInfo[NSLocalizedDescriptionKey] = message;
+        if (rawError != nil) userInfo[NSLocalizedFailureReasonErrorKey] = rawError;
+        *error = [NSError errorWithDomain:domain
+                                     code:code
+                                 userInfo:userInfo];
+        return YES;
+    }
 }
 
 + (BOOL)debugEnabled {

@@ -119,8 +119,8 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
             return NO;
         }
         
-        NSInteger outputsCount = session.currentRoute.outputs.count;
-        if (outputsCount == 0) {
+        AVAudioSessionRouteDescription *currentRoute = session.currentRoute;
+        if (currentRoute.outputs.count == 0) {
             [DLGPlayerUtils createError:error
                              withDomain:DLGPlayerErrorDomainAudioManager
                                 andCode:DLGPlayerErrorCodeNoAudioOuput
@@ -315,6 +315,7 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
             
             if (closed) {
                 _opened = NO;
+                _audioUnit = NULL;
             }
         }
         
