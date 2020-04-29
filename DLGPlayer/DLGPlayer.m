@@ -97,10 +97,15 @@ static dispatch_queue_t processingQueueStatic;
     _vframes = [NSMutableArray arrayWithCapacity:128];
     _aframes = [NSMutableArray arrayWithCapacity:128];
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
-    _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     
     if (!audioProcessingQueue) {
         audioProcessingQueue = dispatch_queue_create("DLGPlayer.audioProcessingQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    
+    if ([DLGPlayerUtils isMetalSupport]) {
+        _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
+    } else if (!processingQueueStatic) {
+        processingQueueStatic = dispatch_queue_create("DLGPlayer.processingQueue", DISPATCH_QUEUE_SERIAL);
     }
 }
 
@@ -145,6 +150,10 @@ static dispatch_queue_t processingQueueStatic;
     self.closing = NO;
     self.opening = NO;
     self.frameDropped = NO;
+}
+
+- (dispatch_queue_t)processingQueue {
+    return [DLGPlayerUtils isMetalSupport] ? _processingQueue : processingQueueStatic;
 }
 
 - (void)open:(NSString *)url {
