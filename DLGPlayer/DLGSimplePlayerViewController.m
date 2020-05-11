@@ -88,11 +88,15 @@ typedef enum : NSUInteger {
     _status = status;
     [_controlStatus setStatus:_status];
     
-    if ([_delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate viewController:self didChangeStatus:status];
-        });
-    }
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf && [strongSelf.delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
+            [strongSelf.delegate viewController:strongSelf didChangeStatus:status];
+        }
+    });
 }
 
 - (BOOL)isMute {
@@ -147,7 +151,7 @@ typedef enum : NSUInteger {
 }
     
 - (void)play {
-    [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
+    [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
     [self.player play];
     self.status = DLGPlayerStatusPlaying;
 }
@@ -198,6 +202,8 @@ typedef enum : NSUInteger {
                name:UIApplicationDidEnterBackgroundNotification object:nil];
     [nc addObserver:self selector:@selector(notifyAppWillEnterForeground:)
                name:UIApplicationWillEnterForegroundNotification object:nil];
+    [nc addObserver:self selector:@selector(notifyPlayerAudioOpened:) name:DLGPlayerNotificationAudioOpened object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerAudioClosed:) name:DLGPlayerNotificationAudioClosed object:self.player];
     [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:self.player];
     [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:self.player];
     [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:self.player];
@@ -243,6 +249,14 @@ typedef enum : NSUInteger {
     
     if (_isAutoplay) [self play];
 }
+
+- (void)notifyPlayerAudioOpened:(NSNotification *)notif {
+    self.status = DLGPlayerStatusAudioOpened;
+}
+
+- (void)notifyPlayerAudioClosed:(NSNotification *)notif {
+    self.status = DLGPlayerStatusAudioClosed;
+}
     
 - (void)notifyPlayerBufferStateChanged:(NSNotification *)notif {
     NSDictionary *userInfo = notif.userInfo;
@@ -276,12 +290,15 @@ typedef enum : NSUInteger {
         }
     }
     
+    __weak typeof(self)weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
-            [self.delegate viewController:self didReceiveError:error];
-        }
+        __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:notif.userInfo];
+        if (strongSelf && [strongSelf.delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
+            [strongSelf.delegate viewController:strongSelf didReceiveError:error];
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:strongSelf userInfo:notif.userInfo];
+        }
     });
 }
     

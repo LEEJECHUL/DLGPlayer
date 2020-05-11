@@ -161,14 +161,22 @@ static dispatch_queue_t processingQueueStatic;
         return;
     }
     
+    __weak typeof(self)weakSelf = self;
+    
     dispatch_async(audioProcessingQueue, ^{
-        if ([self.audio open:nil]) {
-            self.decoder.audioChannels = [self.audio channels];
-            self.decoder.audioSampleRate = [self.audio sampleRate];
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf || strongSelf.opening || strongSelf.closing) {
+            return;
+        }
+        
+        if ([strongSelf.audio open:nil]) {
+            strongSelf.decoder.audioChannels = [strongSelf.audio channels];
+            strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:strongSelf];
         }
     });
-    
-    __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
@@ -183,11 +191,6 @@ static dispatch_queue_t processingQueueStatic;
             NSError *error = nil;
             if (![strongSelf.decoder open:url error:&error]) {
                 strongSelf.opening = NO;
-
-                dispatch_async(audioProcessingQueue, ^{
-                    [strongSelf.audio close:nil];
-                });
-                
                 [strongSelf handleError:error];
                 return;
             }
@@ -240,12 +243,20 @@ static dispatch_queue_t processingQueueStatic;
     
     [self pause];
     
-    dispatch_async(audioProcessingQueue, ^{
-        [self.audio close:nil];
-    });
-
     __weak typeof(self)weakSelf = self;
     
+    dispatch_async(audioProcessingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf || strongSelf.closing || !strongSelf.opened) {
+            return;
+        }
+        
+        if ([strongSelf.audio close:nil]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioClosed object:strongSelf];
+        }
+    });
+
     dispatch_async(self.processingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         

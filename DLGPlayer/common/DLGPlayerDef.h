@@ -40,6 +40,8 @@
 #define DLGPlayerErrorCodeCannotStopAudioUnit               -19
 
 #pragma mark - Notification
+#define DLGPlayerNotificationAudioOpened            @"DLGPlayerNotificationAudioOpened"
+#define DLGPlayerNotificationAudioClosed            @"DLGPlayerNotificationAudioClosed"
 #define DLGPlayerNotificationOpened                 @"DLGPlayerNotificationOpened"
 #define DLGPlayerNotificationClosed                 @"DLGPlayerNotificationClosed"
 #define DLGPlayerNotificationEOF                    @"DLGPlayerNotificationEOF"
@@ -56,12 +58,14 @@
 typedef NS_ENUM(NSUInteger, DLGPlayerStatus) {
     DLGPlayerStatusNone,
     DLGPlayerStatusOpening,
+    DLGPlayerStatusAudioOpened,
     DLGPlayerStatusOpened,
     DLGPlayerStatusPlaying,
     DLGPlayerStatusBuffering,
     DLGPlayerStatusPaused,
     DLGPlayerStatusEOF,
     DLGPlayerStatusClosing,
+    DLGPlayerStatusAudioClosed,
     DLGPlayerStatusClosed
 };
 
