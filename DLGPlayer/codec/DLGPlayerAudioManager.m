@@ -83,166 +83,162 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
 - (BOOL)open:(NSError **)error {
-    @autoreleasepool {
-        NSError *rawError = nil;
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-        AVAudioSessionCategory category = self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
-        
-        if (![session setCategory:category error:&rawError]) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotSetAudioCategory
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_CATEGORY"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        if (![session setPreferredIOBufferDuration:_bufferDuration error:&rawError]) {
-            if (DLGPlayerUtils.debugEnabled) {
-                NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", _bufferDuration, rawError);
-            }
-        }
-        
-        double prefferedSampleRate = PREFERRED_SAMPLE_RATE;
-        if (![session setPreferredSampleRate:prefferedSampleRate error:&rawError]) {
-            if (DLGPlayerUtils.debugEnabled) {
-                NSLog(@"setPreferredSampleRate: %.4f, error: %@", prefferedSampleRate, rawError);
-            }
-        }
-        
-        if (![session setActive:YES error:&rawError]) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotSetAudioActive
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_ACTIVE"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        AVAudioSessionRouteDescription *currentRoute = session.currentRoute;
-        if (currentRoute.outputs.count == 0) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeNoAudioOuput
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_OUTPUT"]];
-            return NO;
-        }
-        
-        NSInteger channels = session.outputNumberOfChannels;
-        if (channels <= 0) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeNoAudioChannel
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_CHANNEL"]];
-            return NO;
-        }
-        
-        double sampleRate = session.sampleRate;
-        if (sampleRate <= 0) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeNoAudioSampleRate
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_SAMPLE_RATE"]];
-            return NO;
-        }
-        
-        float volume = session.outputVolume;
-        if (volume < 0) {
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeNoAudioVolume
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_VOLUME"]];
-            return NO;
-        }
-        
-        if (![self initAudioUnitWithSampleRate:sampleRate andRenderCallback:audioUnitRenderCallback error:error]) {
-            return NO;
-        }
+    NSError *rawError = nil;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    AVAudioSessionCategory category = self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategorySoloAmbient;
     
-        [self registerNotifications];
-        
-        _sampleRate = sampleRate;
-        _volume = volume;
-        _opened = YES;
-        
-        return YES;
+    if (![session setCategory:category error:&rawError]) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotSetAudioCategory
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_CATEGORY"]
+                        andRawError:rawError];
+        return NO;
     }
+    
+    if (![session setPreferredIOBufferDuration:_bufferDuration error:&rawError]) {
+        if (DLGPlayerUtils.debugEnabled) {
+            NSLog(@"setPreferredIOBufferDuration: %.4f, error: %@", _bufferDuration, rawError);
+        }
+    }
+    
+    double prefferedSampleRate = PREFERRED_SAMPLE_RATE;
+    if (![session setPreferredSampleRate:prefferedSampleRate error:&rawError]) {
+        if (DLGPlayerUtils.debugEnabled) {
+            NSLog(@"setPreferredSampleRate: %.4f, error: %@", prefferedSampleRate, rawError);
+        }
+    }
+    
+    if (![session setActive:YES error:&rawError]) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotSetAudioActive
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_ACTIVE"]
+                        andRawError:rawError];
+        return NO;
+    }
+    
+    AVAudioSessionRouteDescription *currentRoute = session.currentRoute;
+    if (currentRoute.outputs.count == 0) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeNoAudioOuput
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_OUTPUT"]];
+        return NO;
+    }
+    
+    NSInteger channels = session.outputNumberOfChannels;
+    if (channels <= 0) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeNoAudioChannel
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_CHANNEL"]];
+        return NO;
+    }
+    
+    double sampleRate = session.sampleRate;
+    if (sampleRate <= 0) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeNoAudioSampleRate
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_SAMPLE_RATE"]];
+        return NO;
+    }
+    
+    float volume = session.outputVolume;
+    if (volume < 0) {
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeNoAudioVolume
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_NO_AUDIO_VOLUME"]];
+        return NO;
+    }
+    
+    if (![self initAudioUnitWithSampleRate:sampleRate andRenderCallback:audioUnitRenderCallback error:error]) {
+        return NO;
+    }
+
+    [self registerNotifications];
+    
+    _sampleRate = sampleRate;
+    _volume = volume;
+    _opened = YES;
+    
+    return YES;
 }
 
 - (BOOL)initAudioUnitWithSampleRate:(double)sampleRate andRenderCallback:(AURenderCallback)renderCallback error:(NSError **)error {
-    @autoreleasepool {
-        AudioComponentDescription descr = {0};
-        descr.componentType = kAudioUnitType_Output;
-        descr.componentSubType = kAudioUnitSubType_RemoteIO;
-        descr.componentManufacturer = kAudioUnitManufacturer_Apple;
-        descr.componentFlags = 0;
-        descr.componentFlagsMask = 0;
-        
-        AudioUnit audioUnit = NULL;
-        AudioComponent component = AudioComponentFindNext(NULL, &descr);
-        OSStatus status = AudioComponentInstanceNew(component, &audioUnit);
-        if (status != noErr) {
-            NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotCreateAudioComponent
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_CREATE_AUDIO_UNIT"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        AudioStreamBasicDescription streamDescr = {0};
-        UInt32 size = sizeof(AudioStreamBasicDescription);
-        status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
-        if (status != noErr) {
-            NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotGetAudioStreamDescription
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_GET_AUDIO_STREAM_DESCRIPTION"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        streamDescr.mSampleRate = sampleRate;
-        status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
-        if (DLGPlayerUtils.debugEnabled && status != noErr) {
-            NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
-        }
-        
-        _bitsPerChannel = streamDescr.mBitsPerChannel;
-        _channelsPerFrame = streamDescr.mChannelsPerFrame;
-        
-        AURenderCallbackStruct renderCallbackStruct;
-        renderCallbackStruct.inputProc = renderCallback;
-        renderCallbackStruct.inputProcRefCon = (__bridge void *)(self);
-        
-        status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-        if (status != noErr) {
-            NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotSetAudioRenderCallback
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_RENDER_CALLBACK"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        status = AudioUnitInitialize(audioUnit);
-        if (status != noErr) {
-            NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotInitAudioUnit
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_INIT_AUDIO_UNIT"]
-                            andRawError:rawError];
-            return NO;
-        }
-        
-        _audioUnit = audioUnit;
-        
-        return YES;
+    AudioComponentDescription descr = {0};
+    descr.componentType = kAudioUnitType_Output;
+    descr.componentSubType = kAudioUnitSubType_RemoteIO;
+    descr.componentManufacturer = kAudioUnitManufacturer_Apple;
+    descr.componentFlags = 0;
+    descr.componentFlagsMask = 0;
+    
+    AudioUnit audioUnit = NULL;
+    AudioComponent component = AudioComponentFindNext(NULL, &descr);
+    OSStatus status = AudioComponentInstanceNew(component, &audioUnit);
+    if (status != noErr) {
+        NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotCreateAudioComponent
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_CREATE_AUDIO_UNIT"]
+                        andRawError:rawError];
+        return NO;
     }
+    
+    AudioStreamBasicDescription streamDescr = {0};
+    UInt32 size = sizeof(AudioStreamBasicDescription);
+    status = AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, &size);
+    if (status != noErr) {
+        NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotGetAudioStreamDescription
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_GET_AUDIO_STREAM_DESCRIPTION"]
+                        andRawError:rawError];
+        return NO;
+    }
+    
+    streamDescr.mSampleRate = sampleRate;
+    status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamDescr, size);
+    if (DLGPlayerUtils.debugEnabled && status != noErr) {
+        NSLog(@"FAILED to set audio sample rate: %f, error: %d", sampleRate, (int)status);
+    }
+    
+    _bitsPerChannel = streamDescr.mBitsPerChannel;
+    _channelsPerFrame = streamDescr.mChannelsPerFrame;
+    
+    AURenderCallbackStruct renderCallbackStruct;
+    renderCallbackStruct.inputProc = renderCallback;
+    renderCallbackStruct.inputProcRefCon = (__bridge void *)(self);
+    
+    status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
+    if (status != noErr) {
+        NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotSetAudioRenderCallback
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_SET_AUDIO_RENDER_CALLBACK"]
+                        andRawError:rawError];
+        return NO;
+    }
+    
+    status = AudioUnitInitialize(audioUnit);
+    if (status != noErr) {
+        NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        [DLGPlayerUtils createError:error
+                         withDomain:DLGPlayerErrorDomainAudioManager
+                            andCode:DLGPlayerErrorCodeCannotInitAudioUnit
+                         andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_INIT_AUDIO_UNIT"]
+                        andRawError:rawError];
+        return NO;
+    }
+    
+    _audioUnit = audioUnit;
+    
+    return YES;
 }
 
 - (BOOL)close {
@@ -255,21 +251,21 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     _closing = YES;
+
+    NSMutableArray<NSError *> *errs = nil;
+    if (errors != nil) errs = [NSMutableArray array];
     
-    @autoreleasepool {
-        NSMutableArray<NSError *> *errs = nil;
-        if (errors != nil) errs = [NSMutableArray array];
+    BOOL closed = YES;
+    
+    if (_opened) {
+        [self pause];
+        [self unregisterNotifications];
         
-        BOOL closed = YES;
-        
-        if (_opened) {
-            [self pause];
-            [self unregisterNotifications];
-            
-            OSStatus status = AudioUnitUninitialize(_audioUnit);
-            if (status != noErr) {
-                closed = NO;
-                if (errs != nil) {
+        OSStatus status = AudioUnitUninitialize(_audioUnit);
+        if (status != noErr) {
+            closed = NO;
+            if (errs != nil) {
+                @autoreleasepool {
                     NSError *error = nil;
                     NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
                     [DLGPlayerUtils createError:&error
@@ -280,11 +276,13 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
                     [errs addObject:error];
                 }
             }
-            
-            status = AudioComponentInstanceDispose(_audioUnit);
-            if (status != noErr) {
-                closed = NO;
-                if (errs != nil) {
+        }
+        
+        status = AudioComponentInstanceDispose(_audioUnit);
+        if (status != noErr) {
+            closed = NO;
+            if (errs != nil) {
+                @autoreleasepool {
                     NSError *error = nil;
                     NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
                     [DLGPlayerUtils createError:&error
@@ -295,13 +293,15 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
                     [errs addObject:error];
                 }
             }
-            
-            AVAudioSession *session = [AVAudioSession sharedInstance];
-            NSError *error = nil;
+        }
         
-            if (![session setActive:NO error:&error]) {
-                closed = NO;
-                if (errs != nil) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        NSError *error = nil;
+    
+        if (![session setActive:NO error:&error]) {
+            closed = NO;
+            if (errs != nil) {
+                @autoreleasepool {
                     NSError *error = nil;
                     NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
                     [DLGPlayerUtils createError:&error
@@ -312,17 +312,17 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
                     [errs addObject:error];
                 }
             }
-            
-            if (closed) {
-                _opened = NO;
-                _audioUnit = NULL;
-            }
         }
         
-        _closing = NO;
-        
-        return closed;
+        if (closed) {
+            _opened = NO;
+            _audioUnit = NULL;
+        }
     }
+    
+    _closing = NO;
+    
+    return closed;
 }
 
 - (BOOL)play {
@@ -422,38 +422,34 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 
 #pragma mark - Notifications
 - (void)registerNotifications {
-    @autoreleasepool {
-        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-        [nc addObserver:self
-               selector:@selector(notifyAudioSessionRouteChanged:)
-                   name:AVAudioSessionRouteChangeNotification
-                 object:nil];
-        [nc addObserver:self
-               selector:@selector(notifyAudioSessionInterruptionNotification:)
-                   name:AVAudioSessionInterruptionNotification
-                 object:nil];
-        
-        if (!_registeredKVO) {
-                AVAudioSession *session = [AVAudioSession sharedInstance];
-                [session addObserver:self
-                          forKeyPath:@"outputVolume"
-                             options:0
-                             context:nil];
-            _registeredKVO = YES;
-        }
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self
+           selector:@selector(notifyAudioSessionRouteChanged:)
+               name:AVAudioSessionRouteChangeNotification
+             object:nil];
+    [nc addObserver:self
+           selector:@selector(notifyAudioSessionInterruptionNotification:)
+               name:AVAudioSessionInterruptionNotification
+             object:nil];
+    
+    if (!_registeredKVO) {
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+            [session addObserver:self
+                      forKeyPath:@"outputVolume"
+                         options:0
+                         context:nil];
+        _registeredKVO = YES;
     }
 }
 
 - (void)unregisterNotifications {
-    @autoreleasepool {
-        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-        [nc removeObserver:self];
-        if (_registeredKVO) {
-            AVAudioSession *session = [AVAudioSession sharedInstance];
-            [session removeObserver:self forKeyPath:@"outputVolume"];
-        }
-        _registeredKVO = NO;
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self];
+    if (_registeredKVO) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session removeObserver:self forKeyPath:@"outputVolume"];
     }
+    _registeredKVO = NO;
 }
 
 - (void)notifyAudioSessionRouteChanged:(NSNotification *)notif {
@@ -478,11 +474,9 @@ static OSStatus audioUnitRenderCallback(void *inRefCon,
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    @autoreleasepool {
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-        if (object == session && [keyPath isEqualToString:@"outputVolume"]) {
-            self.volume = session.outputVolume;
-        }
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    if (object == session && [keyPath isEqualToString:@"outputVolume"]) {
+        self.volume = session.outputVolume;
     }
 }
 
