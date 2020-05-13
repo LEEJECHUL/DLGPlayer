@@ -299,7 +299,9 @@ static dispatch_queue_t processingQueueStatic;
     dispatch_async(audioProcessingQueue, ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        [strongSelf.audio pause];
+        if (strongSelf) {
+            [strongSelf.audio pause];
+        }
     });
 }
 
