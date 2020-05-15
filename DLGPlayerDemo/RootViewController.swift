@@ -20,8 +20,8 @@ final class RootViewController: UIViewController {
     private var isFirstViewAppearance = true
     
     deinit {
-        print("deinit")
-        
+        print("RootViewController deinit")
+        navigationItem.rightBarButtonItem = nil
     }
 
     private func createPlayers() {
@@ -129,7 +129,29 @@ final class RootViewController: UIViewController {
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
     }
+    
+    private var isPlaying = true
     @IBAction private func stopButtonClicked() {
+        guard let vc = players.first else {
+            return
+        }
+        
+        if isPlaying {
+            vc.stop()
+        } else {
+            vc.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            vc.open()
+        }
+        
+        isPlaying = !isPlaying
+        
+        if #available(iOS 10.0, *) {
+            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                self?.stopButtonClicked()
+            }
+        } else {
+            // Fallback on earlier versions
+        }
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
     }

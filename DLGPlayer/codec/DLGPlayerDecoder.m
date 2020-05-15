@@ -372,69 +372,67 @@ int interruptCallback(void *context) {
         return nil;
     }
     
-    @autoreleasepool {
-        AVFormatContext *fmtctx = m_pFormatContext;
-        const int vstream = m_nVideoStream;
-        AVFrame *vframe = m_pVideoFrame;
-        AVFrame *vswsframe = m_pVideoSwsFrame;
-        AVCodecContext *vcodectx = m_pVideoCodecContext;
-        struct SwsContext *swsctx = m_pVideoSwsContext;
-        const int picstream = m_nPictureStream;
-        const int astream = m_nAudioStream;
-        AVFrame *aframe = m_pAudioFrame;
-        AVCodecContext *acodectx = m_pAudioCodecContext;
-        SwrContext *swrctx = m_pAudioSwrContext;
-        void **swrbuf = &m_pAudioSwrBuffer;
-        int *swrbufsize = &m_nAudioSwrBufferSize;
-        
-        AVPacket packet;
-        
-        NSMutableArray *frames = [NSMutableArray arrayWithCapacity:15];
-        BOOL reading = YES;
-        
-        while (reading) {
-            g_dIOStartTime = [NSDate timeIntervalSinceReferenceDate];
-            int ret = av_read_frame(fmtctx, &packet);
-            if (ret < 0) {
-                if (ret == AVERROR_EOF) self.isEOF = YES;
-                char *e = av_err2str(ret);
-                if (DLGPlayerUtils.debugEnabled) {
-                    NSLog(@"DLGPlayer read frame error: %s", e);
-                }
-                break;
+    AVFormatContext *fmtctx = m_pFormatContext;
+    const int vstream = m_nVideoStream;
+    AVFrame *vframe = m_pVideoFrame;
+    AVFrame *vswsframe = m_pVideoSwsFrame;
+    AVCodecContext *vcodectx = m_pVideoCodecContext;
+    struct SwsContext *swsctx = m_pVideoSwsContext;
+    const int picstream = m_nPictureStream;
+    const int astream = m_nAudioStream;
+    AVFrame *aframe = m_pAudioFrame;
+    AVCodecContext *acodectx = m_pAudioCodecContext;
+    SwrContext *swrctx = m_pAudioSwrContext;
+    void **swrbuf = &m_pAudioSwrBuffer;
+    int *swrbufsize = &m_nAudioSwrBufferSize;
+    
+    AVPacket packet;
+    
+    NSMutableArray *frames = [NSMutableArray arrayWithCapacity:15];
+    BOOL reading = YES;
+    
+    while (reading) {
+        g_dIOStartTime = [NSDate timeIntervalSinceReferenceDate];
+        int ret = av_read_frame(fmtctx, &packet);
+        if (ret < 0) {
+            if (ret == AVERROR_EOF) self.isEOF = YES;
+            char *e = av_err2str(ret);
+            if (DLGPlayerUtils.debugEnabled) {
+                NSLog(@"DLGPlayer read frame error: %s", e);
             }
-            
-            /*
-             * https://ffmpeg.org/doxygen/3.1/group__lavc__encdec.html
-             */
-            NSArray<DLGPlayerFrame *> *fs = nil;
-            
-            if (packet.stream_index == vstream) {
-                fs = [self handleVideoPacket:&packet byContext:vcodectx andFrame:vframe andSwsContext:swsctx andSwsFrame:vswsframe];
-                reading = NO;
-            } else if (packet.stream_index == astream) {
-                fs = [self handleAudioPacket:&packet byContext:acodectx andFrame:aframe andSwrContext:swrctx andSwrBuffer:swrbuf andSwrBufferSize:swrbufsize];
-                
-                if (!_hasVideo) {
-                    reading = NO;
-                }
-            } else if (packet.stream_index == picstream) {
-                fs = [self handlePicturePacket:&packet];
-                
-                if (!_hasVideo && !_hasAudio) {
-                    reading = NO;
-                }
-            }
-            
-            if (fs != nil && fs.count > 0) {
-                [frames addObjectsFromArray:fs];
-            }
-            
-            av_packet_unref(&packet);
+            break;
         }
         
-        return frames;
+        /*
+         * https://ffmpeg.org/doxygen/3.1/group__lavc__encdec.html
+         */
+        NSArray<DLGPlayerFrame *> *fs = nil;
+        
+        if (packet.stream_index == vstream) {
+            fs = [self handleVideoPacket:&packet byContext:vcodectx andFrame:vframe andSwsContext:swsctx andSwsFrame:vswsframe];
+            reading = NO;
+        } else if (packet.stream_index == astream) {
+            fs = [self handleAudioPacket:&packet byContext:acodectx andFrame:aframe andSwrContext:swrctx andSwrBuffer:swrbuf andSwrBufferSize:swrbufsize];
+            
+            if (!_hasVideo) {
+                reading = NO;
+            }
+        } else if (packet.stream_index == picstream) {
+            fs = [self handlePicturePacket:&packet];
+            
+            if (!_hasVideo && !_hasAudio) {
+                reading = NO;
+            }
+        }
+        
+        if (fs != nil && fs.count > 0) {
+            [frames addObjectsFromArray:fs];
+        }
+        
+        av_packet_unref(&packet);
     }
+    
+    return frames;
 }
 
 - (NSArray<DLGPlayerVideoFrame *> *)handlePicturePacket:(AVPacket *)packet {
