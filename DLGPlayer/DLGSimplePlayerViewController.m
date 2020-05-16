@@ -81,114 +81,120 @@ typedef enum : NSUInteger {
 }
 
 - (BOOL)isPlaying {
-    return self.player.playing;
+    return _player.playing;
 }
     
 - (void)setStatus:(DLGPlayerStatus)status {
     _status = status;
     [_controlStatus setStatus:_status];
     
-    if ([_delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate viewController:self didChangeStatus:status];
-        });
-    }
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf && [strongSelf.delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
+            [strongSelf.delegate viewController:strongSelf didChangeStatus:status];
+        }
+    });
 }
 
 - (BOOL)isMute {
-    return self.player.mute;
+    return _player.mute;
 }
 
 - (void)setIsMute:(BOOL)isMute {
-    self.player.mute = isMute;
+    _player.mute = isMute;
 }
 
 - (double)minBufferDuration {
-    return self.player.minBufferDuration;
+    return _player.minBufferDuration;
 }
 
 - (void)setMinBufferDuration:(double)minBufferDuration {
-    self.player.minBufferDuration = minBufferDuration;
+    _player.minBufferDuration = minBufferDuration;
 }
 
 - (double)maxBufferDuration {
-    return self.player.maxBufferDuration;
+    return _player.maxBufferDuration;
 }
 
 - (void)setMaxBufferDuration:(double)maxBufferDuration {
-    self.player.maxBufferDuration = maxBufferDuration;
+    _player.maxBufferDuration = maxBufferDuration;
 }
 
 - (BOOL)isAllowsFrameDrop {
-    return self.player.allowsFrameDrop;
+    return _player.allowsFrameDrop;
 }
 
 - (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
-    self.player.allowsFrameDrop = isAllowsFrameDrop;
+    _player.allowsFrameDrop = isAllowsFrameDrop;
 }
 
 - (double)speed {
-    return self.player.speed;
+    return _player.speed;
 }
 - (void)setSpeed:(double)speed {
-    self.player.speed = speed;
+    _player.speed = speed;
 }
     
 #pragma mark - Init
 - (void)initAll {
-    self.player = [[DLGPlayer alloc] init];
+    _player = [[DLGPlayer alloc] init];
     _status = DLGPlayerStatusNone;
     _controlStatus = [[DLGPlayerControlStatus alloc] initWithStatus:_status];
 }
     
 - (void)open {
     self.status = DLGPlayerStatusOpening;
-    [self.player open:_url];
+    [_player open:_url];
 }
     
 - (void)play {
-    [UIApplication sharedApplication].idleTimerDisabled = _preventFromScreenLock;
-    [self.player play];
+//    [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
+    [_player play];
     self.status = DLGPlayerStatusPlaying;
 }
     
 - (void)replay {
-    self.player.position = 0;
+    _player.position = 0;
     [self play];
 }
     
 - (void)pause {
-    [UIApplication sharedApplication].idleTimerDisabled = NO;
-    [self.player pause];
+//    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [_player pause];
     self.status = DLGPlayerStatusPaused;
 }
 
 - (void)stop {
     self.status = DLGPlayerStatusClosing;
-    [UIApplication sharedApplication].idleTimerDisabled = NO;
-    [self.player close];
+//    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [_player close];
 }
     
     
 #pragma mark - UI
 - (void)addPlayerView {
-    UIView *v = self.player.playerView;
+    UIView *v = _player.playerView;
     v.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:v];
     
-    // Add constraints
-    NSDictionary *views = NSDictionaryOfVariableBindings(v);
-    NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
-                                                                                options:0
-                                                                                metrics:nil
-                                                                                  views:views];
-    [self.view addConstraints:ch];
-    NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
-                                                                                options:0
-                                                                                metrics:nil
-                                                                                  views:views];
-    [self.view addConstraints:cv];
+    @autoreleasepool {
+        // Add constraints
+        NSDictionary *views = NSDictionaryOfVariableBindings(v);
+        NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
+                                                                                    options:0
+                                                                                    metrics:nil
+                                                                                      views:views];
+        [self.view addConstraints:ch];
+        NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
+                                                                                    options:0
+                                                                                    metrics:nil
+                                                                                      views:views];
+        [self.view addConstraints:cv];
+    }
 }
     
 #pragma mark - Notifications
@@ -198,12 +204,14 @@ typedef enum : NSUInteger {
                name:UIApplicationDidEnterBackgroundNotification object:nil];
     [nc addObserver:self selector:@selector(notifyAppWillEnterForeground:)
                name:UIApplicationWillEnterForegroundNotification object:nil];
-    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:self.player];
-    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:self.player];
-    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:self.player];
-    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:self.player];
-    [nc addObserver:self selector:@selector(notifyPlayerRenderBegan:) name:DLGPlayerNotificationRenderBegan object:self.player];
-    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:self.player];
+    [nc addObserver:self selector:@selector(notifyPlayerAudioOpened:) name:DLGPlayerNotificationAudioOpened object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerAudioClosed:) name:DLGPlayerNotificationAudioClosed object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerOpened:) name:DLGPlayerNotificationOpened object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerClosed:) name:DLGPlayerNotificationClosed object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerEOF:) name:DLGPlayerNotificationEOF object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerBufferStateChanged:) name:DLGPlayerNotificationBufferStateChanged object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerRenderBegan:) name:DLGPlayerNotificationRenderBegan object:_player];
+    [nc addObserver:self selector:@selector(notifyPlayerError:) name:DLGPlayerNotificationError object:_player];
 }
 
 - (void)unregisterNotification {
@@ -211,7 +219,7 @@ typedef enum : NSUInteger {
 }
 
 - (void)notifyAppDidEnterBackground:(NSNotification *)notif {
-    if (self.player.playing) {
+    if (_player.playing) {
         [self pause];
         if (_restorePlayAfterAppEnterForeground) restorePlay = YES;
     }
@@ -242,6 +250,14 @@ typedef enum : NSUInteger {
     self.status = DLGPlayerStatusOpened;
     
     if (_isAutoplay) [self play];
+}
+
+- (void)notifyPlayerAudioOpened:(NSNotification *)notif {
+    self.status = DLGPlayerStatusAudioOpened;
+}
+
+- (void)notifyPlayerAudioClosed:(NSNotification *)notif {
+    self.status = DLGPlayerStatusAudioClosed;
 }
     
 - (void)notifyPlayerBufferStateChanged:(NSNotification *)notif {
@@ -276,12 +292,19 @@ typedef enum : NSUInteger {
         }
     }
     
+    __weak typeof(self)weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
-            [self.delegate viewController:self didReceiveError:error];
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf) {
+            return;
         }
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:self userInfo:notif.userInfo];
+        if ([strongSelf.delegate respondsToSelector:@selector(viewController:didReceiveError:)]) {
+            [strongSelf.delegate viewController:strongSelf didReceiveError:error];
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationError object:strongSelf userInfo:notif.userInfo];
+        }
     });
 }
     

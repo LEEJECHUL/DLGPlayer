@@ -20,12 +20,12 @@ final class RootViewController: UIViewController {
     private var isFirstViewAppearance = true
     
     deinit {
-        print("deinit")
-        
+        print("RootViewController deinit")
+        navigationItem.rightBarButtonItem = nil
     }
 
     private func createPlayers() {
-        for i in 0..<3 {
+        for i in 0..<1 {
             let pv = DLGSimplePlayerViewController()
             pv.view.translatesAutoresizingMaskIntoConstraints = true
             pv.delegate = self
@@ -49,20 +49,16 @@ final class RootViewController: UIViewController {
     }
     private func removePlayers() {
         players.forEach {
+            $0.stop()
             $0.removeFromParent()
             $0.view.removeFromSuperview()
         }
         players.removeAll()
     }
     private func playAll() {
-        let first = players.first
-        
-        players
-            .filter { $0 != first }
-            .forEach { $0.stop() }
-
-        first.map {
-            $0.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAADIQF?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+        players.forEach {
+            $0.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+//            $0.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAADIQF?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
             $0.open()
         }
     }
@@ -70,10 +66,6 @@ final class RootViewController: UIViewController {
         removePlayers()
         createPlayers()
         playAll()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
-            self?.reset()
-        }
     }
     
     override func viewDidLoad() {
@@ -101,6 +93,11 @@ final class RootViewController: UIViewController {
         super.viewWillDisappear(animated)
         
     }
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        removePlayers()
+    }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         navigationController?.isNavigationBarHidden = UIDevice.current.orientation.isLandscape
     }
@@ -120,21 +117,41 @@ final class RootViewController: UIViewController {
 //        playerViewController?.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
-//        sender.isSelected = !sender.isSelected
-//
-//        if sender.isSelected {
-//            if playerViewController?.status == .paused {
-//                playerViewController?.play()
-//            } else {
-//                playRTMP1()
-//            }
-//        } else {
-//            playerViewController?.pause()
-//        }
+        sender.isSelected = !sender.isSelected
+        
+        let vc = players.first
+        
+        if sender.isSelected {
+            vc?.play()
+        } else {
+            vc?.pause()
+        }
     }
     @IBAction private func refreshButtonClicked(_ sender: UIButton) {
     }
+    
+    private var isPlaying = true
     @IBAction private func stopButtonClicked() {
+        guard let vc = players.first else {
+            return
+        }
+        
+        if isPlaying {
+            vc.stop()
+        } else {
+            vc.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            vc.open()
+        }
+        
+        isPlaying = !isPlaying
+        
+        if #available(iOS 10.0, *) {
+            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                self?.stopButtonClicked()
+            }
+        } else {
+            // Fallback on earlier versions
+        }
     }
     @IBAction private func valueChanged(_ sender: UISlider) {
     }
@@ -163,6 +180,8 @@ extension DLGPlayerStatus {
             return "buffering"
         case .closed:
             return "closed"
+        case .audioClosed:
+            return "audioClosed"
         case .closing:
             return "closing"
         case .EOF:
@@ -171,6 +190,8 @@ extension DLGPlayerStatus {
             return "none"
         case .opened:
             return "opened"
+        case .audioOpened:
+            return "audioOpened"
         case .opening:
             return "opening"
         case .paused:

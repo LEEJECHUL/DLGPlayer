@@ -24,8 +24,9 @@
 @property (nonatomic) double requestSeekPosition;
 @property (nonatomic, strong) NSMutableArray *vframes;
 @property (nonatomic, strong) NSMutableArray *aframes;
-@property (nonatomic, strong) dispatch_queue_t processingQueue;
-@property (nonatomic, strong) dispatch_queue_t renderingQueue;
+@property (nonatomic, copy) dispatch_queue_t frameQueue;
+@property (nonatomic, copy) dispatch_queue_t processingQueue;
+@property (nonatomic, copy) dispatch_queue_t renderingQueue;
 @property (nonatomic, strong) dispatch_semaphore_t vFramesLock;
 @property (nonatomic, strong) dispatch_semaphore_t aFramesLock;
 @property (nonatomic, strong) DLGPlayerAudioFrame *playingAudioFrame;
@@ -42,9 +43,6 @@
 @property (atomic) double mediaSyncTime;
 @property (atomic) double mediaSyncPosition;
 @end
-
-static dispatch_queue_t audioProcessingQueue;
-static dispatch_queue_t processingQueueStatic;
 
 @implementation DLGPlayer
 
@@ -97,11 +95,8 @@ static dispatch_queue_t processingQueueStatic;
     _vframes = [NSMutableArray arrayWithCapacity:128];
     _aframes = [NSMutableArray arrayWithCapacity:128];
     _renderingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.renderingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
+    _frameQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.frameQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
     _processingQueue = dispatch_queue_create([[NSString stringWithFormat:@"DLGPlayer.processingQueue::%zd", self.hash] UTF8String], DISPATCH_QUEUE_SERIAL);
-    
-    if (!audioProcessingQueue) {
-        audioProcessingQueue = dispatch_queue_create("DLGPlayer.audioProcessingQueue", DISPATCH_QUEUE_SERIAL);
-    }
 }
 
 - (void)initView {
@@ -152,13 +147,6 @@ static dispatch_queue_t processingQueueStatic;
         return;
     }
     
-    dispatch_async(audioProcessingQueue, ^{
-        if ([self.audio open:nil]) {
-            self.decoder.audioChannels = [self.audio channels];
-            self.decoder.audioSampleRate = [self.audio sampleRate];
-        }
-    });
-    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
@@ -170,18 +158,18 @@ static dispatch_queue_t processingQueueStatic;
         
         strongSelf.opening = YES;
         
-        @autoreleasepool {
-            NSError *error = nil;
-            if (![strongSelf.decoder open:url error:&error]) {
-                strongSelf.opening = NO;
+        if ([strongSelf.audio open:nil]) {
+            strongSelf.decoder.audioChannels = [strongSelf.audio channels];
+            strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:strongSelf];
+        }
 
-                dispatch_async(audioProcessingQueue, ^{
-                    [strongSelf.audio close:nil];
-                });
-                
-                [strongSelf handleError:error];
-                return;
-            }
+        NSError *error = nil;
+        if (![strongSelf.decoder open:url error:&error]) {
+            strongSelf.opening = NO;
+            [strongSelf handleError:error];
+            return;
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -229,12 +217,6 @@ static dispatch_queue_t processingQueueStatic;
         return;
     }
     
-    [self pause];
-    
-    dispatch_async(audioProcessingQueue, ^{
-        [self.audio close:nil];
-    });
-
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
@@ -245,17 +227,29 @@ static dispatch_queue_t processingQueueStatic;
         }
         
         strongSelf.closing = YES;
+        strongSelf.playing = NO;
+        
+        if ([strongSelf.audio close:nil]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioClosed object:strongSelf];
+        }
+        
+        dispatch_async(strongSelf.frameQueue, ^{
+            [strongSelf runFrameReader];
+            [strongSelf.decoder prepareClose];
+            [strongSelf.decoder close];
+        });
 
-        [strongSelf.decoder prepareClose];
-        [strongSelf.decoder close];
         [strongSelf.view clear];
         [strongSelf clearVars];
-
         [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
     });
 }
 
 - (void)play {
+    if (!self.opened || self.playing || self.closing) {
+        return;
+    }
+    
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
@@ -268,24 +262,31 @@ static dispatch_queue_t processingQueueStatic;
         strongSelf.playing = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (strongSelf) {
-                [strongSelf render];
-            }
+            [strongSelf render];
         });
         
-        dispatch_async(audioProcessingQueue, ^{
-            [strongSelf.audio play];
+        dispatch_async(strongSelf.frameQueue, ^{
+            [strongSelf runFrameReader];
         });
-        
-        [strongSelf runFrameReader];
+        [strongSelf.audio play];
     });
 }
 
 - (void)pause {
-    self.playing = NO;
-
-    dispatch_async(audioProcessingQueue, ^{
-        [self.audio pause];
+    if (!self.playing) {
+        return;
+    }
+    
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(self.processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf) {
+            strongSelf.playing = NO;
+            
+            [strongSelf.audio pause];
+        }
     });
 }
 
@@ -575,68 +576,66 @@ static dispatch_queue_t processingQueueStatic;
     }
     
     while(frames > 0) {
-        @autoreleasepool {
-            if (self.playingAudioFrame == nil) {
-                {
-                    if (self.aframes.count <= 0) {
-                        memset(data, 0, frames * channels * sizeof(float));
-                        return;
-                    }
+        if (self.playingAudioFrame == nil) {
+            {
+                if (self.aframes.count <= 0) {
+                    memset(data, 0, frames * channels * sizeof(float));
+                    return;
+                }
+                
+                long timeout = dispatch_semaphore_wait(self.aFramesLock, DISPATCH_TIME_NOW);
+                if (timeout == 0) {
+                    DLGPlayerAudioFrame *frame = self.aframes[0];
                     
-                    long timeout = dispatch_semaphore_wait(self.aFramesLock, DISPATCH_TIME_NOW);
-                    if (timeout == 0) {
-                        DLGPlayerAudioFrame *frame = self.aframes[0];
+                    if (self.decoder.hasVideo) {
+                        const double dt = self.mediaPosition - frame.position;
                         
-                        if (self.decoder.hasVideo) {
-                            const double dt = self.mediaPosition - frame.position;
-                            
-                            if (dt < -0.1 && self.vframes.count > 0) { // audio is faster than video, silence
-                                memset(data, 0, frames * channels * sizeof(float));
-                                dispatch_semaphore_signal(self.aFramesLock);
-                                break;
-                            } else if (dt > 0.1) { // audio is slower than video, skip
-                                [self.aframes removeObjectAtIndex:0];
-                                dispatch_semaphore_signal(self.aFramesLock);
-                                continue;
-                            } else {
-                                self.playingAudioFrameDataPosition = 0;
-                                self.playingAudioFrame = frame;
-                                [self.aframes removeObjectAtIndex:0];
-                            }
+                        if (dt < -0.1 && self.vframes.count > 0) { // audio is faster than video, silence
+                            memset(data, 0, frames * channels * sizeof(float));
+                            dispatch_semaphore_signal(self.aFramesLock);
+                            break;
+                        } else if (dt > 0.1) { // audio is slower than video, skip
+                            [self.aframes removeObjectAtIndex:0];
+                            dispatch_semaphore_signal(self.aFramesLock);
+                            continue;
                         } else {
                             self.playingAudioFrameDataPosition = 0;
                             self.playingAudioFrame = frame;
                             [self.aframes removeObjectAtIndex:0];
-                            self.mediaPosition = frame.position;
-                            self.bufferedDuration -= frame.duration;
                         }
-                        dispatch_semaphore_signal(self.aFramesLock);
-                    } else return;
-                }
+                    } else {
+                        self.playingAudioFrameDataPosition = 0;
+                        self.playingAudioFrame = frame;
+                        [self.aframes removeObjectAtIndex:0];
+                        self.mediaPosition = frame.position;
+                        self.bufferedDuration -= frame.duration;
+                    }
+                    dispatch_semaphore_signal(self.aFramesLock);
+                } else return;
             }
-            
-            NSData *frameData = self.playingAudioFrame.data;
-            NSUInteger pos = self.playingAudioFrameDataPosition;
-            if (frameData == nil) {
-                memset(data, 0, frames * channels * sizeof(float));
-                return;
-            }
-            
-            const void *bytes = (Byte *)frameData.bytes + pos;
-            const NSUInteger remainingBytes = frameData.length - pos;
-            const NSUInteger channelSize = channels * sizeof(float);
-            const NSUInteger bytesToCopy = MIN(frames * channelSize, remainingBytes);
-            const NSUInteger framesToCopy = bytesToCopy / channelSize;
-            
-            memcpy(data, bytes, bytesToCopy);
-            frames -= framesToCopy;
-            data += framesToCopy * channels;
-            
-            if (bytesToCopy < remainingBytes) {
-                self.playingAudioFrameDataPosition += bytesToCopy;
-            } else {
-                self.playingAudioFrame = nil;
-            }
+        }
+        
+        NSData *frameData = self.playingAudioFrame.data;
+        NSUInteger pos = self.playingAudioFrameDataPosition;
+        if (frameData == nil) {
+            memset(data, 0, frames * channels * sizeof(float));
+            return;
+        }
+        
+        const void *bytes = (Byte *)frameData.bytes + pos;
+        const NSUInteger remainingBytes = frameData.length - pos;
+        const NSUInteger channelSize = channels * sizeof(float);
+        const NSUInteger bytesToCopy = MIN(frames * channelSize, remainingBytes);
+        const NSUInteger framesToCopy = bytesToCopy / channelSize;
+        
+        memcpy(data, bytes, bytesToCopy);
+        frames -= framesToCopy;
+        data += framesToCopy * channels;
+        
+        if (bytesToCopy < remainingBytes) {
+            self.playingAudioFrameDataPosition += bytesToCopy;
+        } else {
+            self.playingAudioFrame = nil;
         }
     }
 }

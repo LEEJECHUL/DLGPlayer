@@ -205,15 +205,17 @@
         return nil;
     }
     
-    const id<MTLTexture> texture = metalView.currentDrawable.texture;
-    const NSInteger w = texture.width;
-    const NSInteger h = texture.height;
-    CIContext *context = [CIContext contextWithMTLDevice:metalView.device];
-    CIImage *outputImage = [[CIImage alloc] initWithMTLTexture:texture options:@{kCIImageColorSpace: (__bridge_transfer id) CGColorSpaceCreateDeviceRGB()}];
-    CGImageRef cgImg = [context createCGImage:outputImage fromRect:CGRectMake(0, 0, w, h)];
-    UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
-    CGImageRelease(cgImg);
-    return resultImg;
+    @autoreleasepool {
+        const id<MTLTexture> texture = metalView.currentDrawable.texture;
+        const NSInteger w = texture.width;
+        const NSInteger h = texture.height;
+        CIContext *context = [CIContext contextWithMTLDevice:metalView.device];
+        CIImage *outputImage = [[CIImage alloc] initWithMTLTexture:texture options:@{kCIImageColorSpace: (__bridge_transfer id) CGColorSpaceCreateDeviceRGB()}];
+        CGImageRef cgImg = [context createCGImage:outputImage fromRect:CGRectMake(0, 0, w, h)];
+        UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
+        CGImageRelease(cgImg);
+        return resultImg;
+    }
 #endif
 }
 
