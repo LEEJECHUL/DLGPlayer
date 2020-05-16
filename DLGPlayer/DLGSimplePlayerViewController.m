@@ -102,15 +102,20 @@ typedef enum : NSUInteger {
 - (BOOL)isMute {
     return _player.mute;
 }
-
 - (void)setIsMute:(BOOL)isMute {
     _player.mute = isMute;
+}
+
+- (double)frameDropDuration {
+    return _player.frameDropDuration;
+}
+- (void)setFrameDropDuration:(double)frameDropDuration {
+    _player.frameDropDuration = frameDropDuration;
 }
 
 - (double)minBufferDuration {
     return _player.minBufferDuration;
 }
-
 - (void)setMinBufferDuration:(double)minBufferDuration {
     _player.minBufferDuration = minBufferDuration;
 }
@@ -118,7 +123,6 @@ typedef enum : NSUInteger {
 - (double)maxBufferDuration {
     return _player.maxBufferDuration;
 }
-
 - (void)setMaxBufferDuration:(double)maxBufferDuration {
     _player.maxBufferDuration = maxBufferDuration;
 }
@@ -126,7 +130,6 @@ typedef enum : NSUInteger {
 - (BOOL)isAllowsFrameDrop {
     return _player.allowsFrameDrop;
 }
-
 - (void)setIsAllowsFrameDrop:(BOOL)isAllowsFrameDrop {
     _player.allowsFrameDrop = isAllowsFrameDrop;
 }
@@ -181,20 +184,18 @@ typedef enum : NSUInteger {
     
     [self.view addSubview:v];
     
-    @autoreleasepool {
-        // Add constraints
-        NSDictionary *views = NSDictionaryOfVariableBindings(v);
-        NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
-                                                                                    options:0
-                                                                                    metrics:nil
-                                                                                      views:views];
-        [self.view addConstraints:ch];
-        NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
-                                                                                    options:0
-                                                                                    metrics:nil
-                                                                                      views:views];
-        [self.view addConstraints:cv];
-    }
+    // Add constraints
+    NSDictionary *views = NSDictionaryOfVariableBindings(v);
+    NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
+                                                                                options:0
+                                                                                metrics:nil
+                                                                                  views:views];
+    [self.view addConstraints:ch];
+    NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
+                                                                                options:0
+                                                                                metrics:nil
+                                                                                  views:views];
+    [self.view addConstraints:cv];
 }
     
 #pragma mark - Notifications
