@@ -70,8 +70,9 @@
 #pragma mark - Private Methods
     
 - (void)setUpPipelineState {
+    NSString *name = _isYUV ? @"YUVColorConversion" : @"RGBColorConversion";
+    
     @autoreleasepool {
-        NSString *name = _isYUV ? @"YUVColorConversion" : @"RGBColorConversion";
         id<MTLFunction> kernelFunction = [defaultLibrary newFunctionWithName:name];
         
         if (!kernelFunction && DLGPlayerUtils.debugEnabled) {
@@ -124,7 +125,7 @@
 #endif
 
 - (void)initProperties {
-    metalView = [MTKView new];
+    metalView = [[MTKView alloc] init];
     metalView.autoResizeDrawable = NO;
     metalView.framebufferOnly = NO;
     metalView.contentScaleFactor = UIScreen.mainScreen.scale;
@@ -205,17 +206,15 @@
         return nil;
     }
     
-    @autoreleasepool {
-        const id<MTLTexture> texture = metalView.currentDrawable.texture;
-        const NSInteger w = texture.width;
-        const NSInteger h = texture.height;
-        CIContext *context = [CIContext contextWithMTLDevice:metalView.device];
-        CIImage *outputImage = [[CIImage alloc] initWithMTLTexture:texture options:@{kCIImageColorSpace: (__bridge_transfer id) CGColorSpaceCreateDeviceRGB()}];
-        CGImageRef cgImg = [context createCGImage:outputImage fromRect:CGRectMake(0, 0, w, h)];
-        UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
-        CGImageRelease(cgImg);
-        return resultImg;
-    }
+    const id<MTLTexture> texture = metalView.currentDrawable.texture;
+    const NSInteger w = texture.width;
+    const NSInteger h = texture.height;
+    CIContext *context = [CIContext contextWithMTLDevice:metalView.device];
+    CIImage *outputImage = [[CIImage alloc] initWithMTLTexture:texture options:@{kCIImageColorSpace: (__bridge_transfer id) CGColorSpaceCreateDeviceRGB()}];
+    CGImageRef cgImg = [context createCGImage:outputImage fromRect:CGRectMake(0, 0, w, h)];
+    UIImage *resultImg = [UIImage imageWithCGImage:cgImg scale:UIScreen.mainScreen.scale orientation:UIImageOrientationDownMirrored];
+    CGImageRelease(cgImg);
+    return resultImg;
 #endif
 }
 

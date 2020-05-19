@@ -137,8 +137,9 @@ final class RootViewController: UIViewController {
         }
         
         if isPlaying {
-            vc.stop()
+            vc.player.closeAudio()
         } else {
+            vc.stop()
             vc.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
             vc.open()
         }
@@ -146,7 +147,7 @@ final class RootViewController: UIViewController {
         isPlaying = !isPlaying
         
         if #available(iOS 10.0, *) {
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
                 self?.stopButtonClicked()
             }
         } else {
