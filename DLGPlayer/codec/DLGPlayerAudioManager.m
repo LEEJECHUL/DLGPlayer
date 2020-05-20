@@ -28,7 +28,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
 
 @interface DLGPlayerAudioManager () {
     BOOL _registeredKVO;
-    BOOL _opened;
     BOOL _closing;
     BOOL _shouldPlayAfterInterruption;
     BOOL _playing;
@@ -72,6 +71,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     }
     
     [self unregisterNotifications];
+    [self close];
     
     if (_audioData) {
         free(_audioData);

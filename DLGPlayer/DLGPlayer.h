@@ -42,6 +42,7 @@ typedef void (^onPauseComplete)(void);
 - (void)open:(NSString *)url;
 - (void)close;
 - (void)closeAudio;
+- (void)closeCompletely;
 - (void)play;
 - (void)pause;
 - (UIImage *)snapshot;

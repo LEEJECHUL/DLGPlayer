@@ -178,7 +178,12 @@ typedef enum : NSUInteger {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player close];
 }
-    
+
+- (void)stopCompletely {
+    self.status = DLGPlayerStatusClosing;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [_player closeCompletely];
+}
     
 #pragma mark - UI
 - (void)addPlayerView {

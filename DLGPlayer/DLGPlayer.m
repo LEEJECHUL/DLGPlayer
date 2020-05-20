@@ -18,8 +18,16 @@
 #import "MetalPlayerView.h"
 
 @interface DLGPlayer ()
+@property (nonatomic) BOOL closing;
+@property (nonatomic) BOOL opening;
+@property (nonatomic) BOOL frameDropped;
 @property (nonatomic) BOOL notifiedBufferStart;
+@property (nonatomic) BOOL renderBegan;
 @property (nonatomic) BOOL requestSeek;
+@property (nonatomic) double bufferedDuration;
+@property (nonatomic) double mediaPosition;
+@property (nonatomic) double mediaSyncPosition;
+@property (nonatomic) double mediaSyncTime;
 @property (nonatomic) double requestSeekPosition;
 @property (nonatomic) NSUInteger playingAudioFrameDataPosition;
 @property (nonatomic, strong) NSMutableArray *vframes;
@@ -33,18 +41,36 @@
 @property (nonatomic, strong) DLGPlayerDecoder *decoder;
 @property (nonatomic, strong) DLGPlayerAudioManager *audio;
 @property (nonatomic, strong) id<DLGPlayerVideoFrameView> view;
-
-@property (nonatomic) BOOL closing;
-@property (nonatomic) BOOL opening;
-@property (nonatomic) BOOL renderBegan;
-@property (nonatomic) BOOL frameDropped;
-@property (nonatomic) double bufferedDuration;
-@property (nonatomic) double mediaPosition;
-@property (nonatomic) double mediaSyncTime;
-@property (nonatomic) double mediaSyncPosition;
 @end
 
 @implementation DLGPlayer
+
+#pragma mark - Public Properties
+
+- (UIView *)playerView {
+    return (UIView *) _view;
+}
+
+- (void)setPosition:(double)position {
+    self.requestSeekPosition = position;
+    self.requestSeek = YES;
+}
+
+- (double)position {
+    return self.mediaPosition;
+}
+
+- (void)setSpeed:(double)speed {
+    _speed = speed;
+    self.decoder.speed = speed;
+}
+
+- (void)setMute:(BOOL)mute {
+    _mute = mute;
+    self.audio.mute = mute;
+}
+
+#pragma mark - Con(De)structors
 
 - (id)init {
     self = [super init];
@@ -59,6 +85,131 @@
         NSLog(@"DLGPlayer dealloc");
     }
 }
+
+#pragma mark - Public Methods
+
+- (void)open:(NSString *)url {
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(self.processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf || strongSelf.opening || strongSelf.closing) {
+            return;
+        }
+        
+        strongSelf.opening = YES;
+        
+        if (!strongSelf.audio.opened && [strongSelf.audio open:nil]) {
+            strongSelf.decoder.audioChannels = [strongSelf.audio channels];
+            strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:self];
+        }
+
+        NSError *error = nil;
+        if (![strongSelf.decoder open:url error:&error]) {
+            strongSelf.opening = NO;
+            [strongSelf handleError:error];
+            return;
+        }
+        
+        strongSelf.duration = strongSelf.decoder.duration;
+        strongSelf.metadata = strongSelf.decoder.metadata;
+        strongSelf.opening = NO;
+        strongSelf.buffering = NO;
+        strongSelf.playing = NO;
+        strongSelf.bufferedDuration = 0;
+        strongSelf.mediaPosition = 0;
+        strongSelf.mediaSyncTime = 0;
+        strongSelf.view.isYUV = [strongSelf.decoder isYUV];
+        strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
+        strongSelf.view.rotation = strongSelf.decoder.rotation;
+        strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
+
+        __weak typeof(strongSelf)ws = strongSelf;
+        strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+            [ws readAudioFrame:data frames:frames channels:channels];
+        };
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
+                DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
+                [view setCurrentEAGLContext];
+            }
+            
+            strongSelf.opened = YES;
+
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+        });
+    });
+}
+
+- (void)close {
+    [self close:NO];
+}
+
+- (void)closeAudio {
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(self.processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf && [strongSelf.audio close:nil]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioClosed object:strongSelf];
+        }
+    });
+}
+
+- (void)closeCompletely {
+    [self close:YES];
+}
+
+- (void)play {
+    __weak typeof(self)weakSelf = self;
+    
+    NSDate *now = [NSDate date];
+    
+    dispatch_async(self.processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
+            return;
+        }
+        
+        strongSelf.playing = YES;
+
+        [strongSelf.audio play];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf render];
+        });
+        
+        dispatch_async(strongSelf.frameReaderQueue, ^{
+            [strongSelf runFrameReader];
+        });
+    });
+}
+
+- (void)pause {
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(self.processingQueue, ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf.playing) {
+            strongSelf.playing = NO;
+            
+            [strongSelf.audio pause];
+        }
+    });
+}
+
+- (UIImage *)snapshot {
+    return [_view snapshot];
+}
+
+#pragma mark - Private Methods
 
 - (void)initAll {
     [self initVars];
@@ -111,6 +262,7 @@
     } else {
         _view = [[DLGPlayerView alloc] init];
     }
+    ((UIView *) _view).contentMode = UIViewContentModeScaleToFill;
 }
 
 - (void)initDecoder {
@@ -148,75 +300,7 @@
     self.playingAudioFrame = nil;
 }
 
-- (void)open:(NSString *)url {
-    __weak typeof(self)weakSelf = self;
-    
-    dispatch_async(self.processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (!strongSelf || strongSelf.opening || strongSelf.closing) {
-            return;
-        }
-        
-        strongSelf.opening = YES;
-        
-        if ([strongSelf.audio open:nil]) {
-            strongSelf.decoder.audioChannels = [strongSelf.audio channels];
-            strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:self];
-        }
-
-        dispatch_async(strongSelf.frameReaderQueue, ^{
-            NSError *error = nil;
-            if (![strongSelf.decoder open:url error:&error]) {
-                strongSelf.opening = NO;
-                [strongSelf handleError:error];
-                return;
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!strongSelf || !strongSelf.opening || strongSelf.closing) {
-                    return;
-                }
-                
-                if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
-                    DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
-                    [view setCurrentEAGLContext];
-                }
-                
-                strongSelf.view.isYUV = [strongSelf.decoder isYUV];
-                strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
-                strongSelf.view.rotation = strongSelf.decoder.rotation;
-                strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
-                
-                if ([strongSelf.view isKindOfClass:[UIView class]]) {
-                    ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
-                }
-                
-                strongSelf.duration = strongSelf.decoder.duration;
-                strongSelf.metadata = strongSelf.decoder.metadata;
-                strongSelf.opening = NO;
-                strongSelf.buffering = NO;
-                strongSelf.playing = NO;
-                strongSelf.bufferedDuration = 0;
-                strongSelf.mediaPosition = 0;
-                strongSelf.mediaSyncTime = 0;
-
-                __weak typeof(strongSelf)ws = strongSelf;
-                strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-                    [ws readAudioFrame:data frames:frames channels:channels];
-                };
-                
-                strongSelf.opened = YES;
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
-            });
-        });
-    });
-}
-
-- (void)close {
+- (void)close:(BOOL)completely {
     __weak typeof(self)weakSelf = self;
     
     dispatch_async(self.processingQueue, ^{
@@ -229,7 +313,11 @@
         strongSelf.closing = YES;
         strongSelf.playing = NO;
         
-        [strongSelf closeAudio];
+        if (completely) {
+            [strongSelf.audio close:nil];
+        } else {
+            [strongSelf.audio pause];
+        }
         
         dispatch_async(strongSelf.frameReaderQueue, ^{
             [strongSelf.decoder prepareClose];
@@ -240,54 +328,6 @@
         [strongSelf clearVars];
         [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
     });
-}
-
-- (void)closeAudio {
-    if ([self.audio close:nil]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioClosed object:self];
-    }
-}
-
-- (void)play {
-    __weak typeof(self)weakSelf = self;
-    
-    dispatch_async(self.processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (!strongSelf || !strongSelf.opened || strongSelf.playing || strongSelf.closing) {
-            return;
-        }
-        
-        strongSelf.playing = YES;
-
-        [strongSelf.audio play];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [strongSelf render];
-        });
-        
-        dispatch_async(strongSelf.frameReaderQueue, ^{
-            [strongSelf runFrameReader];
-        });
-    });
-}
-
-- (void)pause {
-    __weak typeof(self)weakSelf = self;
-    
-    dispatch_async(self.processingQueue, ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (strongSelf.playing) {
-            strongSelf.playing = NO;
-            
-            [strongSelf.audio pause];
-        }
-    });
-}
-
-- (UIImage *)snapshot {
-    return [_view snapshot];
 }
 
 - (void)runFrameReader {
@@ -641,30 +681,6 @@
     }
 }
 
-- (UIView *)playerView {
-    return (UIView *) _view;
-}
-
-- (void)setPosition:(double)position {
-    self.requestSeekPosition = position;
-    self.requestSeek = YES;
-}
-
-- (double)position {
-    return self.mediaPosition;
-}
-
-- (void)setSpeed:(double)speed {
-    _speed = speed;
-    self.decoder.speed = speed;
-}
-
-- (void)setMute:(BOOL)mute {
-    _mute = mute;
-    self.audio.mute = mute;
-}
-
-#pragma mark - Handle Error
 - (void)handleError:(NSError *)error {
     if (error == nil) {
         return;

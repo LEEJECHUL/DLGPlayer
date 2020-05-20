@@ -29,7 +29,7 @@ final class RootViewController: UIViewController {
             let pv = DLGSimplePlayerViewController()
             pv.view.translatesAutoresizingMaskIntoConstraints = true
             pv.delegate = self
-            pv.isAllowsFrameDrop = true
+//            pv.isAllowsFrameDrop = true
             pv.isAutoplay = true
 //            pv.isMute = true
             pv.preventFromScreenLock = true

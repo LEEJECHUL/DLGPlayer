@@ -13,6 +13,7 @@ typedef void(^DLGPlayerAudioManagerFrameReaderBlock)(float *data, UInt32 num, UI
 @interface DLGPlayerAudioManager : NSObject
 
 @property (nonatomic) BOOL mute;
+@property (nonatomic) BOOL opened;
 @property (nonatomic) float volume;
 @property (nonatomic, copy) DLGPlayerAudioManagerFrameReaderBlock frameReaderBlock;
 @property (nonatomic) NSTimeInterval bufferDuration;
