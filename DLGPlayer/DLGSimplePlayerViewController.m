@@ -77,7 +77,10 @@ typedef enum : NSUInteger {
 
 #pragma mark - getter/setter
 - (BOOL)hasUrl {
-    return _url != nil && [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length > 0;
+    @autoreleasepool {
+        NSString *trimmed = [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+        return _url != nil && trimmed.length > 0;
+    }
 }
 
 - (BOOL)isPlaying {
@@ -154,7 +157,7 @@ typedef enum : NSUInteger {
 }
     
 - (void)play {
-//    [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
+    [UIApplication sharedApplication].idleTimerDisabled = self.preventFromScreenLock;
     [_player play];
     self.status = DLGPlayerStatusPlaying;
 }
@@ -165,37 +168,43 @@ typedef enum : NSUInteger {
 }
     
 - (void)pause {
-//    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player pause];
     self.status = DLGPlayerStatusPaused;
 }
 
 - (void)stop {
     self.status = DLGPlayerStatusClosing;
-//    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_player close];
 }
-    
+
+- (void)stopCompletely {
+    self.status = DLGPlayerStatusClosing;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [_player closeCompletely];
+}
     
 #pragma mark - UI
 - (void)addPlayerView {
     UIView *v = _player.playerView;
     v.translatesAutoresizingMaskIntoConstraints = NO;
-    
+
     [self.view addSubview:v];
-    
-    // Add constraints
-    NSDictionary *views = NSDictionaryOfVariableBindings(v);
-    NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
-                                                                                options:0
-                                                                                metrics:nil
-                                                                                  views:views];
-    [self.view addConstraints:ch];
-    NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
-                                                                                options:0
-                                                                                metrics:nil
-                                                                                  views:views];
-    [self.view addConstraints:cv];
+
+    @autoreleasepool {
+        NSDictionary *views = NSDictionaryOfVariableBindings(v);
+        NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
+                                                                                    options:0
+                                                                                    metrics:nil
+                                                                                      views:views];
+        [self.view addConstraints:ch];
+        NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
+                                                                                    options:0
+                                                                                    metrics:nil
+                                                                                      views:views];
+        [self.view addConstraints:cv];
+    }
 }
     
 #pragma mark - Notifications
