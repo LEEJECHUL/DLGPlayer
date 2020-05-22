@@ -73,24 +73,29 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     [self unregisterNotifications];
     [self close];
     
-    if (_audioData) {
-        free(_audioData);
-        _audioData = NULL;
-    }
+    free(_audioData);
+    _audioData = NULL;
+}
+
+- (BOOL)open {
+    return [self open:nil];
 }
 
 /*
  * https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html
  */
 - (BOOL)open:(NSError **)error {
+    if (self.mute) {
+        return NO;
+    }
+    
     if (DLGPlayerUtils.debugEnabled) {
         NSLog(@"[Audio] %zd -> opening", self.hash);
     }
     NSError *rawError = nil;
     AVAudioSession *session = [AVAudioSession sharedInstance];
-    AVAudioSessionCategory category = self.mute ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
 
-    if (![session setCategory:category error:&rawError]) {
+    if (![session setCategory:AVAudioSessionCategoryPlayback error:&rawError]) {
         [DLGPlayerUtils createError:error
                          withDomain:DLGPlayerErrorDomainAudioManager
                             andCode:DLGPlayerErrorCodeCannotSetAudioCategory
@@ -422,6 +427,7 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         }
     }
     
+    
     return noErr;
 }
 
@@ -443,14 +449,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
     [nc addObserver:self
            selector:@selector(notifyAudioSessionInterruptionNotification:)
                name:AVAudioSessionInterruptionNotification
-             object:nil];
-    [nc addObserver:self
-           selector:@selector(notifyAudioSessionMediaServicesWereLostNotification:)
-               name:AVAudioSessionMediaServicesWereLostNotification
-             object:nil];
-    [nc addObserver:self
-           selector:@selector(notifyAudioSessionMediaServicesWereResetNotification:)
-               name:AVAudioSessionMediaServicesWereResetNotification
              object:nil];
     
     if (!_registeredKVO) {
@@ -492,14 +490,6 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
             [self play];
         }
     }
-}
-
-- (void)notifyAudioSessionMediaServicesWereLostNotification:(NSNotification *)notif {
-    [self clear];
-}
-
-- (void)notifyAudioSessionMediaServicesWereResetNotification:(NSNotification *)notif {
-    [self clear];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {

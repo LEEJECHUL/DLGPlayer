@@ -27,11 +27,11 @@
     return NO;
 }
 
-- (BOOL)prepareDevice:(id<MTLDevice>)device {
+- (BOOL)prepareDevice:(__weak id<MTLDevice>)device {
     return NO;
 }
 
-- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder {
+- (BOOL)render:(__weak id<MTLComputeCommandEncoder>)encoder {
     return NO;
 }
 

@@ -192,19 +192,17 @@ typedef enum : NSUInteger {
 
     [self.view addSubview:v];
 
-    @autoreleasepool {
-        NSDictionary *views = NSDictionaryOfVariableBindings(v);
-        NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
-                                                                                    options:0
-                                                                                    metrics:nil
-                                                                                      views:views];
-        [self.view addConstraints:ch];
-        NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
-                                                                                    options:0
-                                                                                    metrics:nil
-                                                                                      views:views];
-        [self.view addConstraints:cv];
-    }
+    NSDictionary *views = NSDictionaryOfVariableBindings(v);
+    NSArray<NSLayoutConstraint *> *ch = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
+                                                                                options:0
+                                                                                metrics:nil
+                                                                                  views:views];
+    [self.view addConstraints:ch];
+    NSArray<NSLayoutConstraint *> *cv = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v]|"
+                                                                                options:0
+                                                                                metrics:nil
+                                                                                  views:views];
+    [self.view addConstraints:cv];
 }
     
 #pragma mark - Notifications

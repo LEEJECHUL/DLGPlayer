@@ -9,15 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "DLGPlayerAudioFrame.h"
 #import "DLGPlayerAudioManager.h"
+#import "DLGPlayerControlStatus.h"
 #import "DLGPlayerDef.h"
 #import "DLGPlayerDecoder.h"
 #import "DLGPlayerFrame.h"
+#import "DLGPlayerUtils.h"
 #import "DLGPlayerVideoFrame.h"
 #import "DLGPlayerVideoRGBFrame.h"
 #import "DLGPlayerVideoYUVFrame.h"
 #import "DLGPlayerViewController.h"
-#import "DLGPlayerUtils.h"
-#import "DLGPlayerControlStatus.h"
 #import "DLGSimplePlayerViewController.h"
 
 typedef void (^onPauseComplete)(void);
@@ -26,9 +26,9 @@ typedef void (^onPauseComplete)(void);
 @property (readonly, strong) UIView *playerView;
 @property (nonatomic) BOOL allowsFrameDrop;
 @property (nonatomic) BOOL mute;
-@property (nonatomic) BOOL playing;
-@property (nonatomic) BOOL buffering;
-@property (nonatomic) BOOL opened;
+@property (atomic) BOOL playing;
+@property (atomic) BOOL buffering;
+@property (atomic) BOOL opened;
 @property (nonatomic) float brightness;
 @property (nonatomic) double frameDropDuration;
 @property (nonatomic) double minBufferDuration;

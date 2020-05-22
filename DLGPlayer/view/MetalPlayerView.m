@@ -72,19 +72,17 @@
 - (void)setUpPipelineState {
     NSString *name = _isYUV ? @"YUVColorConversion" : @"RGBColorConversion";
     
-    @autoreleasepool {
-        id<MTLFunction> kernelFunction = [defaultLibrary newFunctionWithName:name];
-        
-        if (!kernelFunction && DLGPlayerUtils.debugEnabled) {
-            NSLog(@"Error creating compute shader");
-            return;
-        }
-        
-        pipelineState = [metalView.device newComputePipelineStateWithFunction:kernelFunction error:nil];
-        
-        if (!pipelineState && DLGPlayerUtils.debugEnabled) {
-            NSLog(@"Error creating the pipeline state");
-        }
+    id<MTLFunction> kernelFunction = [defaultLibrary newFunctionWithName:name];
+    
+    if (!kernelFunction && DLGPlayerUtils.debugEnabled) {
+        NSLog(@"Error creating compute shader");
+        return;
+    }
+    
+    pipelineState = [metalView.device newComputePipelineStateWithFunction:kernelFunction error:nil];
+    
+    if (!pipelineState && DLGPlayerUtils.debugEnabled) {
+        NSLog(@"Error creating the pipeline state");
     }
 }
 
@@ -97,28 +95,26 @@
         return;
     }
     
-    @autoreleasepool {
-        id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+    id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+    
+    if (!commandBuffer) {
+        return;
+    }
+    
+    id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
+    
+    if (commandEncoder) {
+        float brightness = currentFrame.brightness;
         
-        if (!commandBuffer) {
-            return;
-        }
+        [commandEncoder setComputePipelineState:pipelineState];
+        [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
+        [currentFrame render:commandEncoder];
+        [commandEncoder setTexture:metalView.currentDrawable.texture atIndex:3];
+        [commandEncoder dispatchThreadgroups:threadgroupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
+        [commandEncoder endEncoding];
         
-        id<MTLComputeCommandEncoder> commandEncoder = [commandBuffer computeCommandEncoder];
-        
-        if (commandEncoder) {
-            float brightness = currentFrame.brightness;
-            
-            [commandEncoder setComputePipelineState:pipelineState];
-            [commandEncoder setBytes:&brightness length:sizeof(brightness) atIndex:0];
-            [currentFrame render:commandEncoder];
-            [commandEncoder setTexture:metalView.currentDrawable.texture atIndex:3];
-            [commandEncoder dispatchThreadgroups:threadgroupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
-            [commandEncoder endEncoding];
-            
-            [commandBuffer presentDrawable:metalView.currentDrawable];
-            [commandBuffer commit];
-        }
+        [commandBuffer presentDrawable:metalView.currentDrawable];
+        [commandBuffer commit];
     }
 }
 
@@ -142,10 +138,8 @@
     commandQueue = [metalView.device newCommandQueue];
     
     if (@available(iOS 10.0, *)) {
-        @autoreleasepool {
-            NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-            defaultLibrary = [metalView.device newDefaultLibraryWithBundle:bundle error:nil];
-        }
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        defaultLibrary = [metalView.device newDefaultLibraryWithBundle:bundle error:nil];
     } else {
         defaultLibrary = [metalView.device newDefaultLibrary];
     }

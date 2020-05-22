@@ -29,7 +29,7 @@ final class RootViewController: UIViewController {
             let pv = DLGSimplePlayerViewController()
             pv.view.translatesAutoresizingMaskIntoConstraints = true
             pv.delegate = self
-//            pv.isAllowsFrameDrop = true
+            pv.isAllowsFrameDrop = true
             pv.isAutoplay = true
 //            pv.isMute = true
             pv.preventFromScreenLock = true
@@ -49,7 +49,7 @@ final class RootViewController: UIViewController {
     }
     private func removePlayers() {
         players.forEach {
-            $0.stop()
+            $0.stopCompletely()
             $0.removeFromParent()
             $0.view.removeFromSuperview()
         }

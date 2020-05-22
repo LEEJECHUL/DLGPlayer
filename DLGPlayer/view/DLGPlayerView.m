@@ -190,19 +190,21 @@
     }
     
     // Load shaders
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    NSString *vertexShaderFilename = @"DLGPlayerVertexShader";
-    if (_shouldScale) vertexShaderFilename = @"DLGPlayerRotationScaleVertexShader";
-    else if (_shouldRotate) vertexShaderFilename = @"DLGPlayerRotationVertexShader";
-    NSString *vertexShaderFile = [bundle pathForResource:vertexShaderFilename ofType:@"glsl"];
-    GLuint vertexShader = [DLGPlayerView loadShader:GL_VERTEX_SHADER withFile:vertexShaderFile];
-    NSString *fragmentShaderResource = _isYUV ? @"DLGPlayerYUVFragmentShader" : @"DLGPlayerRGBFragmentShader";
-    NSString *fragmentShaderFile = [bundle pathForResource:fragmentShaderResource ofType:@"glsl"];
-    GLuint fragmentShader = [DLGPlayerView loadShader:GL_FRAGMENT_SHADER withFile:fragmentShaderFile];
-    
-    // Attach shaders
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
+    @autoreleasepool {
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSString *vertexShaderFilename = @"DLGPlayerVertexShader";
+        if (_shouldScale) vertexShaderFilename = @"DLGPlayerRotationScaleVertexShader";
+        else if (_shouldRotate) vertexShaderFilename = @"DLGPlayerRotationVertexShader";
+        NSString *vertexShaderFile = [bundle pathForResource:vertexShaderFilename ofType:@"glsl"];
+        GLuint vertexShader = [DLGPlayerView loadShader:GL_VERTEX_SHADER withFile:vertexShaderFile];
+        NSString *fragmentShaderResource = _isYUV ? @"DLGPlayerYUVFragmentShader" : @"DLGPlayerRGBFragmentShader";
+        NSString *fragmentShaderFile = [bundle pathForResource:fragmentShaderResource ofType:@"glsl"];
+        GLuint fragmentShader = [DLGPlayerView loadShader:GL_FRAGMENT_SHADER withFile:fragmentShaderFile];
+        
+        // Attach shaders
+        glAttachShader(program, vertexShader);
+        glAttachShader(program, fragmentShader);
+    }
     
     // Bind
     glBindAttribLocation(program, VERTEX_ATTRIBUTE_POSITION, "position");
