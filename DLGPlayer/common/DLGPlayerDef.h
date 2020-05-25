@@ -11,7 +11,7 @@
 
 #define DLGPlayerLocalizedStringTable   @"DLGPlayerStrings"
 
-#define DLGPlayerFrameDropDuration  4
+#define DLGPlayerFrameDropDuration  1.2
 #define DLGPlayerMinBufferDuration  1
 #define DLGPlayerMaxBufferDuration  5
 

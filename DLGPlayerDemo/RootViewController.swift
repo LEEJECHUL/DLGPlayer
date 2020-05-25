@@ -31,7 +31,7 @@ final class RootViewController: UIViewController {
             pv.delegate = self
             pv.isAllowsFrameDrop = true
             pv.isAutoplay = true
-//            pv.isMute = true
+            pv.isMute = true
             pv.preventFromScreenLock = true
             pv.restorePlayAfterAppEnterForeground = true
             pv.minBufferDuration = 0
@@ -57,8 +57,8 @@ final class RootViewController: UIViewController {
     }
     private func playAll() {
         players.forEach {
-            $0.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-//            $0.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAADIQF?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+//            $0.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            $0.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAADJMO?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
             $0.open()
         }
     }
@@ -114,7 +114,7 @@ final class RootViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-//        playerViewController?.isMute = !sender.isSelected
+        players.first?.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected

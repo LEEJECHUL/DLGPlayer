@@ -98,8 +98,6 @@ struct FilterParamters {
     
     glUniform1f(glGetUniformLocation(program, "f_brightness"), self.brightness);
     
-    free(data);
-    
     return YES;
 }
     
