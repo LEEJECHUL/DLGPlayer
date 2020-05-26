@@ -31,7 +31,7 @@ final class RootViewController: UIViewController {
             pv.delegate = self
             pv.isAllowsFrameDrop = true
             pv.isAutoplay = true
-            pv.isMute = true
+//            pv.isMute = true
             pv.preventFromScreenLock = true
             pv.restorePlayAfterAppEnterForeground = true
             pv.minBufferDuration = 0
@@ -71,12 +71,11 @@ final class RootViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        DLGPlayerUtils.setDebugEnabled(true)
+        
         for i in 0..<segmentedControl.numberOfSegments {
             segmentedControl.setWidth(50, forSegmentAt: i)
         }
-        
-        
-        DLGPlayerUtils.setDebugEnabled(true)
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

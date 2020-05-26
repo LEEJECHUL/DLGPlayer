@@ -24,6 +24,7 @@
 @property (atomic) BOOL opening;
 @property (nonatomic, readonly) BOOL frameDropAvailable;
 @property (atomic) BOOL frameDropFinished;
+@property (atomic) BOOL frameDropStarted;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL renderBegan;
 @property (nonatomic) BOOL requestSeek;
@@ -141,45 +142,47 @@
             strongSelf.decoder.audioSampleRate = [strongSelf.audio sampleRate];
             [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:strongSelf];
         }
-
-        NSError *error = nil;
-        if (![strongSelf.decoder open:url error:&error]) {
-            strongSelf.opening = NO;
-            [strongSelf handleError:error];
-            return;
-        }
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
-                DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
-                [view setCurrentEAGLContext];
+        dispatch_async(strongSelf.frameReaderQueue, ^{
+            NSError *error = nil;
+            if (![strongSelf.decoder open:url error:&error]) {
+                strongSelf.opening = NO;
+                [strongSelf handleError:error];
+                return;
             }
 
-            strongSelf.view.isYUV = [strongSelf.decoder isYUV];
-            strongSelf.view.keepLastFrame = [strongSelf.decoder hasPicture] && ![strongSelf.decoder hasVideo];
-            strongSelf.view.rotation = strongSelf.decoder.rotation;
-            strongSelf.view.contentSize = CGSizeMake([strongSelf.decoder videoWidth], [strongSelf.decoder videoHeight]);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
+                    DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
+                    [view setCurrentEAGLContext];
+                }
 
-            if ([strongSelf.view isKindOfClass:[UIView class]]) {
-                ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
-            }
-            
-            strongSelf.duration = strongSelf.decoder.duration;
-            strongSelf.metadata = strongSelf.decoder.metadata;
-            strongSelf.opening = NO;
-            strongSelf.buffering = NO;
-            strongSelf.playing = NO;
-            strongSelf.bufferedDuration = 0;
-            strongSelf.mediaPosition = 0;
-            strongSelf.mediaSyncTime = 0;
+                strongSelf.view.isYUV = strongSelf.decoder.isYUV;
+                strongSelf.view.keepLastFrame = strongSelf.decoder.hasPicture && !strongSelf.decoder.hasVideo;
+                strongSelf.view.rotation = strongSelf.decoder.rotation;
+                strongSelf.view.contentSize = CGSizeMake(strongSelf.decoder.videoWidth, strongSelf.decoder.videoHeight);
 
-            __weak typeof(strongSelf)ws = strongSelf;
-            strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-                [ws readAudioFrame:data frames:frames channels:channels];
-            };
-            
-            strongSelf.opened = YES;
-            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+                if ([strongSelf.view isKindOfClass:[UIView class]]) {
+                    ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
+                }
+                
+                strongSelf.duration = strongSelf.decoder.duration;
+                strongSelf.metadata = strongSelf.decoder.metadata;
+                strongSelf.opening = NO;
+                strongSelf.buffering = NO;
+                strongSelf.playing = NO;
+                strongSelf.bufferedDuration = 0;
+                strongSelf.mediaPosition = 0;
+                strongSelf.mediaSyncTime = 0;
+
+                __weak typeof(strongSelf)ws = strongSelf;
+                strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+                    [ws readAudioFrame:data frames:frames channels:channels];
+                };
+                
+                strongSelf.opened = YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+            });
         });
     });
 }
@@ -258,6 +261,7 @@
 - (void)initVars {
     _allowsFrameDrop = NO;
     _frameDropFinished = NO;
+    _frameDropStarted = NO;
     _requestSeek = NO;
     _renderBegan = NO;
     _buffering = NO;
@@ -329,6 +333,7 @@
     _buffering = NO;
     _closing = NO;
     _frameDropFinished = NO;
+    _frameDropStarted = NO;
     _opened = NO;
     _opening = NO;
     _playing = NO;
@@ -485,6 +490,8 @@
     }
     
     if (!_frameDropFinished && _bufferedDuration > _frameDropDuration / _speed) {
+        _frameDropStarted = YES;
+        
         if (dispatch_semaphore_wait(_vFramesLock, DISPATCH_TIME_NOW) == 0) {
             for (DLGPlayerFrame *f in _vframes) {
                 f.dropFrame = YES;
@@ -509,9 +516,10 @@
     if (!_allowsFrameDrop)
         return;
     
-    if (!_frameDropFinished && _bufferedDuration < DLGPlayerFrameDropLimit / _speed) {
+    if (_frameDropStarted && _bufferedDuration < DLGPlayerFrameDropLimit / _speed) {
+        _frameDropStarted = NO;
         _frameDropFinished = YES;
-    } else if (_frameDropFinished && _bufferedDuration > _frameDropDuration / _speed) {
+    } else if (_frameDropFinished && _bufferedDuration > _maxBufferDuration / _speed) {
         _frameDropFinished = NO;
     }
 }
@@ -604,7 +612,7 @@
     } else {
         t = frame.dropFrame ? 0.01 : MAX(frame.duration + [self syncTime], 0.01);
     }
-    
+
     [self resetFrameDropFlag];
     
     __weak typeof(self)weakSelf = self;
@@ -674,6 +682,12 @@
                     if (timeout == 0) {
                         @autoreleasepool {
                             DLGPlayerAudioFrame *frame = _aframes[0];
+                            
+                            if (frame.dropFrame) {
+                                [_aframes removeObjectAtIndex:0];
+                                dispatch_semaphore_signal(_aFramesLock);
+                                continue;
+                            }
                             
                             if (_decoder.hasVideo) {
                                 const double dt = _mediaPosition - frame.position;
