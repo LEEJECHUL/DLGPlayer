@@ -35,7 +35,7 @@ final class RootViewController: UIViewController {
             pv.preventFromScreenLock = true
             pv.restorePlayAfterAppEnterForeground = true
             pv.minBufferDuration = 0
-            pv.maxBufferDuration = 3
+            pv.maxBufferDuration = 5
             pv.view.backgroundColor = .red
             
             addChild(pv)

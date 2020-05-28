@@ -22,13 +22,11 @@
 @interface DLGPlayer ()
 @property (atomic) BOOL closing;
 @property (atomic) BOOL opening;
-@property (nonatomic, readonly) BOOL frameDropAvailable;
-@property (atomic) BOOL frameDropFinished;
-@property (atomic) BOOL frameDropStarted;
+@property (atomic) BOOL frameDropEnabled;
 @property (nonatomic) BOOL notifiedBufferStart;
 @property (nonatomic) BOOL renderBegan;
 @property (nonatomic) BOOL requestSeek;
-@property (nonatomic) double bufferedDuration;
+@property (atomic) double bufferedDuration;
 @property (nonatomic) double mediaPosition;
 @property (nonatomic) double mediaSyncPosition;
 @property (nonatomic) double mediaSyncTime;
@@ -101,10 +99,6 @@
 
         strongSelf.decoder.mute = mute;
     });
-}
-
-- (BOOL)frameDropAvailable {
-    return _allowsFrameDrop && !_frameDropFinished;
 }
 
 #pragma mark - Con(De)structors
@@ -181,6 +175,11 @@
                 };
                 
                 strongSelf.opened = YES;
+                
+                if (strongSelf.allowsFrameDrop) {
+                    strongSelf.frameDropEnabled = YES;
+                }
+                
                 [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
             });
         });
@@ -260,8 +259,7 @@
 
 - (void)initVars {
     _allowsFrameDrop = NO;
-    _frameDropFinished = NO;
-    _frameDropStarted = NO;
+    _frameDropEnabled = NO;
     _requestSeek = NO;
     _renderBegan = NO;
     _buffering = NO;
@@ -332,8 +330,7 @@
     
     _buffering = NO;
     _closing = NO;
-    _frameDropFinished = NO;
-    _frameDropStarted = NO;
+    _frameDropEnabled = NO;
     _opened = NO;
     _opening = NO;
     _playing = NO;
@@ -393,12 +390,17 @@
     _buffering = YES;
     
     double tempDuration = 0;
+    double droppedDuration = 0;
     NSMutableArray *tempVFrames = [NSMutableArray arrayWithCapacity:15];
     NSMutableArray *tempAFrames = [NSMutableArray arrayWithCapacity:15];
     dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 0.02 * NSEC_PER_SEC);
     
+    if (DLGPlayerUtils.debugEnabled && _frameDropEnabled) {
+        NSLog(@"DLGPlayer fram drop began!");
+    }
+    
     while (_playing && !_closing && !_decoder.isEOF && !_requestSeek
-           && (self.frameDropAvailable || (_bufferedDuration + tempDuration) < _maxBufferDuration)) {
+           && (_frameDropEnabled || (_bufferedDuration + tempDuration) < _maxBufferDuration)) {
         @autoreleasepool {
             NSArray *fs = [_decoder readFrames];
             
@@ -407,18 +409,27 @@
             
             for (DLGPlayerFrame *f in fs) {
                 if (f.type == kDLGPlayerFrameTypeVideo) {
+                    if (_frameDropEnabled) {
+                        f.dropFrame = YES;
+                        droppedDuration += f.duration;
+                    }
+                    
                     [tempVFrames addObject:f];
                     tempDuration += f.duration;
                 }
 
                 if (!_mute && f.type == kDLGPlayerFrameTypeAudio) {
-                    [tempAFrames addObject:f];
                     if (!_decoder.hasVideo) {
+                        if (_frameDropEnabled) {
+                            f.dropFrame = YES;
+                            droppedDuration += f.duration;
+                        }
                         tempDuration += f.duration;
                     }
+                    [tempAFrames addObject:f];
                 }
             }
-            
+
             long timeout = dispatch_semaphore_wait(_vFramesLock, t);
             if (timeout == 0) {
                 if (tempVFrames.count > 0) {
@@ -446,7 +457,19 @@
                 }
             }
         }
-        [self dropFrames];
+
+        if (DLGPlayerUtils.debugEnabled && _frameDropEnabled) {
+            NSLog(@"_bufferedDuration -> %f", _bufferedDuration);
+        }
+        
+        if (_frameDropEnabled && droppedDuration > _frameDropDuration) {
+            _frameDropEnabled = NO;
+            droppedDuration = 0;
+
+            if (DLGPlayerUtils.debugEnabled) {
+                NSLog(@"DLGPlayer fram drop ended!");
+            }
+        }
     }
     
     {
@@ -474,54 +497,10 @@
                     dispatch_semaphore_signal(_aFramesLock);
                 }
             }
-            [self dropFrames];
         }
     }
     
     _buffering = NO;
-}
-
-- (void)dropFrames {
-    if (!_allowsFrameDrop)
-        return;
-    
-    if (DLGPlayerUtils.debugEnabled) {
-        NSLog(@"_bufferedDuration -> %f", _bufferedDuration);
-    }
-    
-    if (!_frameDropFinished && _bufferedDuration > _frameDropDuration / _speed) {
-        _frameDropStarted = YES;
-        
-        if (dispatch_semaphore_wait(_vFramesLock, DISPATCH_TIME_NOW) == 0) {
-            for (DLGPlayerFrame *f in _vframes) {
-                f.dropFrame = YES;
-            }
-            dispatch_semaphore_signal(_vFramesLock);
-        }
-        
-        if (dispatch_semaphore_wait(_aFramesLock, DISPATCH_TIME_NOW) == 0) {
-            for (DLGPlayerFrame *f in _aframes) {
-                f.dropFrame = YES;
-            }
-            dispatch_semaphore_signal(_aFramesLock);
-        }
-        
-        if (DLGPlayerUtils.debugEnabled) {
-            NSLog(@"DLGPlayer occurred drop frames beacuse buffer duration is over than frame drop duration.");
-        }
-    }
-}
-
-- (void)resetFrameDropFlag {
-    if (!_allowsFrameDrop)
-        return;
-    
-    if (_frameDropStarted && _bufferedDuration < DLGPlayerFrameDropLimit / _speed) {
-        _frameDropStarted = NO;
-        _frameDropFinished = YES;
-    } else if (_frameDropFinished && _bufferedDuration > _maxBufferDuration / _speed) {
-        _frameDropFinished = NO;
-    }
 }
 
 - (void)seekPositionInFrameReader {
@@ -596,24 +575,23 @@
     {
         if (dispatch_semaphore_wait(_vFramesLock, DISPATCH_TIME_NOW) == 0) {
             frame = _vframes[0];
-            [_vframes removeObjectAtIndex:0];
             frame.brightness = _brightness;
             _mediaPosition = frame.position;
             _bufferedDuration -= frame.duration;
+            [_vframes removeObjectAtIndex:0];
             dispatch_semaphore_signal(_vFramesLock);
         }
     }
 
     [self renderView:frame];
     
+    double syncTime = [self syncTime];
     NSTimeInterval t;
     if (_speed > 1) {
         t = frame.duration;
     } else {
-        t = frame.dropFrame ? 0.01 : MAX(frame.duration + [self syncTime], 0.01);
+        t = frame.dropFrame ? 0.01 : MAX(frame.duration + syncTime, 0.01);
     }
-
-    [self resetFrameDropFlag];
     
     __weak typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (t * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -682,7 +660,7 @@
                     if (timeout == 0) {
                         @autoreleasepool {
                             DLGPlayerAudioFrame *frame = _aframes[0];
-                            
+
                             if (frame.dropFrame) {
                                 [_aframes removeObjectAtIndex:0];
                                 dispatch_semaphore_signal(_aFramesLock);
@@ -692,7 +670,7 @@
                             if (_decoder.hasVideo) {
                                 const double dt = _mediaPosition - frame.position;
                                 
-                                if (dt < -0.1 && _vframes.count > 0) { // audio is faster than video, silence
+                                if (dt < -0.1) { // audio is faster than video, silence
                                     memset(data, 0, frames * channels * sizeof(float));
                                     dispatch_semaphore_signal(_aFramesLock);
                                     break;
