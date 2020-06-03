@@ -155,6 +155,10 @@ typedef enum : NSUInteger {
     _status = DLGPlayerStatusNone;
     _controlStatus = [[DLGPlayerControlStatus alloc] initWithStatus:_status];
 }
+
+- (void)clearView {
+    [_player clearView];
+}
     
 - (void)open {
     self.status = DLGPlayerStatusOpening;

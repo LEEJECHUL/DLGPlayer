@@ -105,8 +105,8 @@
     [self render:_lastFrame];
 }
 
-- (void)clear {
-    if (!_keepLastFrame) {
+- (void)clear:(BOOL)forced {
+    if (forced || !_keepLastFrame) {
         _lastFrame = nil;
     }
     [self render:nil];

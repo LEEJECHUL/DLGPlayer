@@ -39,7 +39,7 @@
     if (DLGPlayerUtils.debugEnabled) {
         NSLog(@"MetalPlayerView dealloc");
     }
-    [self clear];
+    [self clear:YES];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -170,8 +170,8 @@
 #endif
 }
 
-- (void)clear {
-    if (!_keepLastFrame) {
+- (void)clear:(BOOL)forced {
+    if (forced || !_keepLastFrame) {
         currentFrame = nil;
     }
     

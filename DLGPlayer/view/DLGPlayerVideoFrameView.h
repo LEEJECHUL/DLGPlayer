@@ -21,7 +21,7 @@
 @property (nonatomic) BOOL keepLastFrame;
 
 - (void)render:(DLGPlayerVideoFrame *)frame;
-- (void)clear;
+- (void)clear:(BOOL)forced;
 - (UIImage *)snapshot;
 @end
 

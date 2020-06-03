@@ -119,6 +119,10 @@
 
 #pragma mark - Public Methods
 
+- (void)clearView {
+    [_view clear:YES];
+}
+
 - (void)open:(NSString *)url {
     __weak typeof(self)weakSelf = self;
     
@@ -370,7 +374,7 @@
         });
         
         [strongSelf clearVars];
-        [strongSelf.view clear];
+        [strongSelf.view clear:NO];
         [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationClosed object:strongSelf];
     });
 }

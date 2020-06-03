@@ -40,6 +40,7 @@ typedef void (^onPauseComplete)(void);
 @property (nonatomic, readonly) UIView *playerView;
 @property (nonatomic, readonly) DLGPlayerAudioManager *audio;
 
+- (void)clearView;
 - (void)close;
 - (void)closeAudio;
 - (void)closeCompletely;
