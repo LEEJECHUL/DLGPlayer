@@ -84,7 +84,7 @@ typedef enum : NSUInteger {
 - (BOOL)isKeepLastFrame {
     return _player.keepLastFrame;
 }
-- (BOOL)isKeepLastFrame {
+- (void)setIsKeepLastFrame:(BOOL)isKeepLastFrame {
     _player.keepLastFrame = isKeepLastFrame;
 }
 

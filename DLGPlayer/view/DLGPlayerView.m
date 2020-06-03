@@ -106,8 +106,9 @@
 }
 
 - (void)clear {
-    _keepLastFrame = NO;
-    _lastFrame = nil;
+    if (!_keepLastFrame) {
+        _lastFrame = nil;
+    }
     [self render:nil];
 }
 
