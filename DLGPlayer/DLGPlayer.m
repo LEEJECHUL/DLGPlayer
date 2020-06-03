@@ -137,49 +137,51 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationAudioOpened object:strongSelf];
         }
 
-        NSError *error = nil;
-        if (![strongSelf.decoder open:url error:&error]) {
-            strongSelf.opening = NO;
-            [strongSelf handleError:error];
-            return;
-        }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
-                DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
-                [view setCurrentEAGLContext];
+        dispatch_async(strongSelf.frameReaderQueue, ^{
+            NSError *error = nil;
+            if (![strongSelf.decoder open:url error:&error]) {
+                strongSelf.opening = NO;
+                [strongSelf handleError:error];
+                return;
             }
 
-            strongSelf.view.isYUV = strongSelf.decoder.isYUV;
-            strongSelf.view.keepLastFrame = strongSelf.keepLastFrame && strongSelf.decoder.hasPicture && !strongSelf.decoder.hasVideo;
-            strongSelf.view.rotation = strongSelf.decoder.rotation;
-            strongSelf.view.contentSize = CGSizeMake(strongSelf.decoder.videoWidth, strongSelf.decoder.videoHeight);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([strongSelf.view isKindOfClass:[DLGPlayerView class]]) {
+                    DLGPlayerView *view = (DLGPlayerView *) strongSelf.view;
+                    [view setCurrentEAGLContext];
+                }
 
-            if ([strongSelf.view isKindOfClass:[UIView class]]) {
-                ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
-            }
-            
-            strongSelf.duration = strongSelf.decoder.duration;
-            strongSelf.metadata = strongSelf.decoder.metadata;
-            strongSelf.opening = NO;
-            strongSelf.buffering = NO;
-            strongSelf.playing = NO;
-            strongSelf.bufferedDuration = 0;
-            strongSelf.mediaPosition = 0;
-            strongSelf.mediaSyncTime = 0;
+                strongSelf.view.isYUV = strongSelf.decoder.isYUV;
+                strongSelf.view.keepLastFrame = strongSelf.keepLastFrame && strongSelf.decoder.hasPicture && !strongSelf.decoder.hasVideo;
+                strongSelf.view.rotation = strongSelf.decoder.rotation;
+                strongSelf.view.contentSize = CGSizeMake(strongSelf.decoder.videoWidth, strongSelf.decoder.videoHeight);
 
-            __weak typeof(strongSelf)ws = strongSelf;
-            strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
-                [ws readAudioFrame:data frames:frames channels:channels];
-            };
-            
-            strongSelf.opened = YES;
-            
-            if (strongSelf.allowsFrameDrop) {
-                strongSelf.frameDropEnabled = YES;
-            }
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+                if ([strongSelf.view isKindOfClass:[UIView class]]) {
+                    ((UIView *) strongSelf.view).contentMode = UIViewContentModeScaleToFill;
+                }
+                
+                strongSelf.duration = strongSelf.decoder.duration;
+                strongSelf.metadata = strongSelf.decoder.metadata;
+                strongSelf.opening = NO;
+                strongSelf.buffering = NO;
+                strongSelf.playing = NO;
+                strongSelf.bufferedDuration = 0;
+                strongSelf.mediaPosition = 0;
+                strongSelf.mediaSyncTime = 0;
+
+                __weak typeof(strongSelf)ws = strongSelf;
+                strongSelf.audio.frameReaderBlock = ^(float *data, UInt32 frames, UInt32 channels) {
+                    [ws readAudioFrame:data frames:frames channels:channels];
+                };
+                
+                strongSelf.opened = YES;
+                
+                if (strongSelf.allowsFrameDrop) {
+                    strongSelf.frameDropEnabled = YES;
+                }
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:DLGPlayerNotificationOpened object:strongSelf];
+            });
         });
     });
 }
