@@ -77,29 +77,15 @@ typedef enum : NSUInteger {
 
 #pragma mark - getter/setter
 - (BOOL)hasUrl {
-    @autoreleasepool {
-        NSString *trimmed = [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
-        return _url != nil && trimmed.length > 0;
-    }
+    NSString *trimmed = [_url stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+    return _url != nil && trimmed.length > 0;
 }
 
-- (BOOL)isPlaying {
-    return _player.playing;
+- (BOOL)isKeepLastFrame {
+    return _player.keepLastFrame;
 }
-    
-- (void)setStatus:(DLGPlayerStatus)status {
-    _status = status;
-    [_controlStatus setStatus:_status];
-    
-    __weak typeof(self)weakSelf = self;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
-        
-        if (strongSelf && [strongSelf.delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
-            [strongSelf.delegate viewController:strongSelf didChangeStatus:status];
-        }
-    });
+- (BOOL)isKeepLastFrame {
+    _player.keepLastFrame = isKeepLastFrame;
 }
 
 - (BOOL)isMute {
@@ -107,6 +93,10 @@ typedef enum : NSUInteger {
 }
 - (void)setIsMute:(BOOL)isMute {
     _player.mute = isMute;
+}
+
+- (BOOL)isPlaying {
+    return _player.playing;
 }
 
 - (double)frameDropDuration {
@@ -142,6 +132,21 @@ typedef enum : NSUInteger {
 }
 - (void)setSpeed:(double)speed {
     _player.speed = speed;
+}
+    
+- (void)setStatus:(DLGPlayerStatus)status {
+    _status = status;
+    [_controlStatus setStatus:_status];
+    
+    __weak typeof(self)weakSelf = self;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        if (strongSelf && [strongSelf.delegate respondsToSelector:@selector(viewController:didChangeStatus:)]) {
+            [strongSelf.delegate viewController:strongSelf didChangeStatus:status];
+        }
+    });
 }
     
 #pragma mark - Init

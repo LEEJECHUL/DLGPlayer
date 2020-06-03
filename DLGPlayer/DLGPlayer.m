@@ -151,7 +151,7 @@
             }
 
             strongSelf.view.isYUV = strongSelf.decoder.isYUV;
-            strongSelf.view.keepLastFrame = strongSelf.decoder.hasPicture && !strongSelf.decoder.hasVideo;
+            strongSelf.view.keepLastFrame = strongSelf.keepLastFrame && strongSelf.decoder.hasPicture && !strongSelf.decoder.hasVideo;
             strongSelf.view.rotation = strongSelf.decoder.rotation;
             strongSelf.view.contentSize = CGSizeMake(strongSelf.decoder.videoWidth, strongSelf.decoder.videoHeight);
 
@@ -258,6 +258,7 @@
 - (void)initVars {
     _allowsFrameDrop = NO;
     _frameDropEnabled = NO;
+    _keepLastFrame = YES;
     _requestSeek = NO;
     _renderBegan = NO;
     _buffering = NO;
