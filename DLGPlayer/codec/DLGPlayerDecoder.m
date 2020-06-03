@@ -599,7 +599,7 @@ int interruptCallback(void *context) {
             f.height = height;
             f.position = frame->best_effort_timestamp * _videoTimebase;
             
-            double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevVideo;
+            double duration = frame->pts - ptsPrevVideo;
             
             if (duration > 0) {
                 f.duration = duration * _videoTimebase / _speed;
@@ -695,7 +695,7 @@ int interruptCallback(void *context) {
         f.data = mdata;
         f.position = frame->best_effort_timestamp * _audioTimebase;
         
-        double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevAudio;
+        double duration = frame->pts - ptsPrevAudio;
         
         if (duration > 0) {
             f.duration = duration * _audioTimebase / _speed;
