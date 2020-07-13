@@ -50,7 +50,7 @@ function buildTargets() {
 
 if [ ! $TARGETS ]
 then
-  buildTargets "ogg speex ffmpeg"
+  buildTargets "speex ffmpeg"
 else
   buildTargets $TARGETS
 fi

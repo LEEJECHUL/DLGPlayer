@@ -90,30 +90,29 @@ if [ "$FF_ARCH" = "i386" ]; then
     FF_BUILD_NAME="speex/i386"
     FF_BUILD_NAME_OGG=ogg/i386
     FF_XCRUN_PLATFORM="iPhoneSimulator"
-    FF_XCRUN_OSVERSION="-mios-simulator-version-min=6.0"
+    FF_XCRUN_OSVERSION="-mios-simulator-version-min=6.0 -fembed-bitcode"
     SPEEX_CFG_FLAGS="$SPEEX_CFG_FLAGS_SIMULATOR $SPEEX_CFG_FLAGS"
 elif [ "$FF_ARCH" = "x86_64" ]; then
     FF_BUILD_NAME="speex/x86_64"
     FF_BUILD_NAME_OGG=ogg/x86_64
     FF_XCRUN_PLATFORM="iPhoneSimulator"
-    FF_XCRUN_OSVERSION="-mios-simulator-version-min=7.0"
+    FF_XCRUN_OSVERSION="-mios-simulator-version-min=7.0 -fembed-bitcode"
     SPEEX_CFG_FLAGS="$SPEEX_CFG_FLAGS_SIMULATOR $SPEEX_CFG_FLAGS"
 elif [ "$FF_ARCH" = "armv7" ]; then
     FF_BUILD_NAME="speex/armv7"
     FF_BUILD_NAME_OGG=ogg/armv7
-    FF_XCRUN_OSVERSION="-miphoneos-version-min=6.0"
+    FF_XCRUN_OSVERSION="-miphoneos-version-min=6.0 -fembed-bitcode"
     SPEEX_CFG_FLAGS="$SPEEX_CFG_FLAGS_ARM $SPEEX_CFG_FLAGS"
-#    OPENSSL_CFG_CPU="--cpu=cortex-a8"
 elif [ "$FF_ARCH" = "armv7s" ]; then
     FF_BUILD_NAME="speex/armv7s"
     FF_BUILD_NAME_OGG=ogg/armv7s
     SPEEX_CFG_CPU="--cpu=swift"
-    FF_XCRUN_OSVERSION="-miphoneos-version-min=6.0"
+    FF_XCRUN_OSVERSION="-miphoneos-version-min=6.0 -fembed-bitcode"
     SPEEX_CFG_FLAGS="$SPEEX_CFG_FLAGS_ARM $SPEEX_CFG_FLAGS"
 elif [ "$FF_ARCH" = "arm64" ]; then
     FF_BUILD_NAME="speex/arm64"
     FF_BUILD_NAME_OGG=ogg/arm64
-    FF_XCRUN_OSVERSION="-miphoneos-version-min=7.0"
+    FF_XCRUN_OSVERSION="-miphoneos-version-min=7.0 -fembed-bitcode"
     SPEEX_CFG_FLAGS="$SPEEX_CFG_FLAGS_ARM $SPEEX_CFG_FLAGS"
     FF_GASPP_EXPORT="GASPP_FIX_XCODE5=1"
 else

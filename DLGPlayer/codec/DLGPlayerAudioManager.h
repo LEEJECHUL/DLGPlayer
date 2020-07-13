@@ -18,6 +18,7 @@ typedef void(^DLGPlayerAudioManagerFrameReaderBlock)(float *data, UInt32 num, UI
 @property (nonatomic, copy) DLGPlayerAudioManagerFrameReaderBlock frameReaderBlock;
 @property (nonatomic) NSTimeInterval bufferDuration;
 
+- (BOOL)open;
 - (BOOL)open:(NSError **)error;
 - (BOOL)play;
 - (BOOL)play:(NSError **)error;

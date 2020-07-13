@@ -85,7 +85,7 @@
     return YES;
 }
     
-- (BOOL)prepareDevice:(id<MTLDevice>)device {
+- (BOOL)prepareDevice:(__weak id<MTLDevice>)device {
     const NSInteger w = self.width;
     const NSInteger h = self.height;
     
@@ -96,7 +96,7 @@
     return YES;
 }
     
-- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder {
+- (BOOL)render:(__weak id<MTLComputeCommandEncoder>)encoder {
     if (!self.prepared) {
         return NO;
     }
@@ -123,11 +123,9 @@
     const NSInteger w = self.width;
     const NSInteger h = self.height;
     
-    @autoreleasepool {
-        MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w height:h mipmapped:NO];
-        
-        _mtlTexture = [device newTextureWithDescriptor:descriptor];
-    }
+    MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w height:h mipmapped:NO];
+    
+    _mtlTexture = [device newTextureWithDescriptor:descriptor];
 }
     
 - (void)updateMTLTextures {

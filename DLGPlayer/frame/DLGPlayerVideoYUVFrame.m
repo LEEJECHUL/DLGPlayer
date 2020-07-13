@@ -42,7 +42,7 @@ struct FilterParamters {
 #pragma mark - Destructor
     
 - (void)dealloc {
-    [self deleteTexture];
+    [self deleteTextures];
 }
 
 #pragma mark - Overidden: DLGPlayerVideoFrame
@@ -101,7 +101,7 @@ struct FilterParamters {
     return YES;
 }
     
-- (BOOL)prepareDevice:(id<MTLDevice>)device {
+- (BOOL)prepareDevice:(__weak id<MTLDevice>)device {
     const NSInteger w = self.width;
     const NSInteger h = self.height;
     
@@ -114,7 +114,7 @@ struct FilterParamters {
     return YES;
 }
     
-- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder {
+- (BOOL)render:(__weak id<MTLComputeCommandEncoder>)encoder {
     if (!self.prepared) {
         return NO;
     }
@@ -128,10 +128,12 @@ struct FilterParamters {
     
 #pragma mark - Private Methods (OpenGL ES)
     
-- (void)deleteTexture {
+- (void)deleteTextures {
     if (_texture[0] != 0) {
         glDeleteTextures(3, _texture);
-        for (int i = 0; i < 3; ++i) _texture[i] = 0;
+        for (int i = 0; i < 3; ++i) {
+            _texture[i] = 0;
+        }
     }
 }
     
@@ -161,15 +163,13 @@ struct FilterParamters {
     const NSInteger w = self.width;
     const NSInteger h = self.height;
     
-    @autoreleasepool {
-        MTLTextureDescriptor *y = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w height:h mipmapped:NO];
-        MTLTextureDescriptor *u = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w / 2 height:h / 2 mipmapped:NO];
-        MTLTextureDescriptor *v = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w / 2 height:h / 2 mipmapped:NO];
-        
-        _yTexture = [device newTextureWithDescriptor:y];
-        _uTexture = [device newTextureWithDescriptor:u];
-        _vTexture = [device newTextureWithDescriptor:v];
-    }
+    MTLTextureDescriptor *y = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w height:h mipmapped:NO];
+    MTLTextureDescriptor *u = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w / 2 height:h / 2 mipmapped:NO];
+    MTLTextureDescriptor *v = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Uint width:w / 2 height:h / 2 mipmapped:NO];
+    
+    _yTexture = [device newTextureWithDescriptor:y];
+    _uTexture = [device newTextureWithDescriptor:u];
+    _vTexture = [device newTextureWithDescriptor:v];
 }
     
 - (void)updateMTLTextures {

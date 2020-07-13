@@ -18,6 +18,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         navigationItem.rightBarButtonItem = .init(title: "open", style: .plain, target: self, action: #selector(clicked))
+        clicked()
     }
     
     @objc private func clicked() {

@@ -704,7 +704,6 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
-					"-l\"ogg\"",
 					"-l\"speex\"",
 					"-l\"avcodec\"",
 					"-l\"avdevice\"",
@@ -773,7 +772,6 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
-					"-l\"ogg\"",
 					"-l\"speex\"",
 					"-l\"avcodec\"",
 					"-l\"avdevice\"",

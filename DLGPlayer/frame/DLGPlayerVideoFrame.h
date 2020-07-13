@@ -25,7 +25,7 @@ typedef enum : NSUInteger {
 @property (nonatomic) float brightness;
 
 - (BOOL)prepareProgram:(GLuint)program;
-- (BOOL)prepareDevice:(id<MTLDevice>)device;
-- (BOOL)render:(id<MTLComputeCommandEncoder>)encoder;
+- (BOOL)prepareDevice:(__weak id<MTLDevice>)device;
+- (BOOL)render:(__weak id<MTLComputeCommandEncoder>)encoder;
 
 @end

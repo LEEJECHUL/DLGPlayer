@@ -29,13 +29,13 @@ final class RootViewController: UIViewController {
             let pv = DLGSimplePlayerViewController()
             pv.view.translatesAutoresizingMaskIntoConstraints = true
             pv.delegate = self
-//            pv.isAllowsFrameDrop = true
+            pv.isAllowsFrameDrop = true
             pv.isAutoplay = true
 //            pv.isMute = true
             pv.preventFromScreenLock = true
             pv.restorePlayAfterAppEnterForeground = true
             pv.minBufferDuration = 0
-            pv.maxBufferDuration = 3
+            pv.maxBufferDuration = 5
             pv.view.backgroundColor = .red
             
             addChild(pv)
@@ -49,7 +49,7 @@ final class RootViewController: UIViewController {
     }
     private func removePlayers() {
         players.forEach {
-            $0.stop()
+            $0.stopCompletely()
             $0.removeFromParent()
             $0.view.removeFromSuperview()
         }
@@ -57,8 +57,8 @@ final class RootViewController: UIViewController {
     }
     private func playAll() {
         players.forEach {
-            $0.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-//            $0.url = "rtmps://devmedia010.toastcam.com:10082/flvplayback/AAAAAADIQF?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
+//            $0.url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            $0.url = "rtmps://devmedia011.toastcam.com:10082/flvplayback/AAAAAADJMO?token=b6e503e4-f47c-4238-baca-51cbdfc10001"
             $0.open()
         }
     }
@@ -71,12 +71,11 @@ final class RootViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        DLGPlayerUtils.setDebugEnabled(true)
+        
         for i in 0..<segmentedControl.numberOfSegments {
             segmentedControl.setWidth(50, forSegmentAt: i)
         }
-        
-        
-        DLGPlayerUtils.setDebugEnabled(true)
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -114,7 +113,7 @@ final class RootViewController: UIViewController {
     }
     @IBAction private func muteButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
-//        playerViewController?.isMute = !sender.isSelected
+        players.first?.isMute = !sender.isSelected
     }
     @IBAction private func playOrPauseButtonClicked(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected

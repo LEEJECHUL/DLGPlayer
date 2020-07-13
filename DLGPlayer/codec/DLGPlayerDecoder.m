@@ -59,10 +59,20 @@ int interruptCallback(void *context) {
 
 @implementation DLGPlayerDecoder
 
+- (void)setMute:(BOOL)mute {
+    if (mute == _mute)
+        return;
+    
+    _mute = mute;
+    
+    [self setAudioSwrContext];
+}
+
 - (void)dealloc {
     if (DLGPlayerUtils.debugEnabled) {
         NSLog(@"DLGPlayerDecoder dealloc");
     }
+    free(m_pAudioSwrBuffer);
 }
 
 - (BOOL)open:(NSString *)url error:(NSError **)error {
@@ -151,26 +161,29 @@ int interruptCallback(void *context) {
             astream = -1;
             if (acodectx != NULL) avcodec_free_context(&acodectx);
         }
-        aswrctx = swr_alloc_set_opts(NULL,
-                                     av_get_default_channel_layout(_audioChannels),
-                                     AV_SAMPLE_FMT_S16,
-                                     _audioSampleRate,
-                                     av_get_default_channel_layout(acodectx->channels),
-                                     acodectx->sample_fmt,
-                                     acodectx->sample_rate,
-                                     0,
-                                     NULL);
-        if (aswrctx == NULL) {
-            astream = -1;
-            if (acodectx != NULL) avcodec_free_context(&acodectx);
-            if (aframe != NULL) av_frame_free(&aframe);
-        } else {
-            ret = swr_init(aswrctx);
-            if (ret < 0) {
+
+        if (!_mute) {
+            aswrctx = swr_alloc_set_opts(NULL,
+                                         av_get_default_channel_layout(_audioChannels),
+                                         AV_SAMPLE_FMT_S16,
+                                         _audioSampleRate,
+                                         av_get_default_channel_layout(acodectx->channels),
+                                         acodectx->sample_fmt,
+                                         acodectx->sample_rate,
+                                         0,
+                                         NULL);
+            if (aswrctx == NULL) {
                 astream = -1;
-                if (aswrctx != NULL) swr_free(&aswrctx);
                 if (acodectx != NULL) avcodec_free_context(&acodectx);
                 if (aframe != NULL) av_frame_free(&aframe);
+            } else {
+                ret = swr_init(aswrctx);
+                if (ret < 0) {
+                    astream = -1;
+                    if (aswrctx != NULL) swr_free(&aswrctx);
+                    if (acodectx != NULL) avcodec_free_context(&acodectx);
+                    if (aframe != NULL) av_frame_free(&aframe);
+                }
             }
         }
     }
@@ -200,23 +213,56 @@ int interruptCallback(void *context) {
     ptsPrevAudio = 0;
     ptsPrevVideo = 0;
     
-    self.isYUV = isYUV;
-    self.hasVideo = vstream >= 0;
-    self.hasAudio = astream >= 0;
-    self.hasPicture = picstream >= 0;
-    self.isEOF = NO;
+    _isYUV = isYUV;
+    _hasVideo = vstream >= 0;
+    _hasAudio = astream >= 0;
+    _hasPicture = picstream >= 0;
+    _isEOF = NO;
     
-    self.rotation = rotation;
+    _rotation = rotation;
     int64_t duration = fmtctx->duration;
-    self.duration = (duration == AV_NOPTS_VALUE ? -1 : ((double)duration / AV_TIME_BASE));
-    self.duration /= _speed;
-    self.metadata = [self findMetadata:fmtctx];
+    _duration = (duration == AV_NOPTS_VALUE ? -1 : ((double)duration / AV_TIME_BASE));
+    _duration /= _speed;
+    _metadata = [self findMetadata:fmtctx];
     
     g_bPrepareClose = FALSE;
     AVIOInterruptCB icb = {interruptCallback, NULL};
     fmtctx->interrupt_callback = icb;
     
     return YES;
+}
+
+- (void)setAudioSwrContext {
+    if (m_pAudioSwrContext || !m_pAudioCodecContext || _mute)
+        return;
+    
+    int ret;
+    SwrContext *aswrctx = NULL;
+    
+    aswrctx = swr_alloc_set_opts(NULL,
+                                 av_get_default_channel_layout(_audioChannels),
+                                 AV_SAMPLE_FMT_S16,
+                                 _audioSampleRate,
+                                 av_get_default_channel_layout(m_pAudioCodecContext->channels),
+                                 m_pAudioCodecContext->sample_fmt,
+                                 m_pAudioCodecContext->sample_rate,
+                                 0,
+                                 NULL);
+    if (aswrctx == NULL) {
+        m_nAudioStream = -1;
+        if (m_pAudioCodecContext != NULL) avcodec_free_context(&m_pAudioCodecContext);
+        if (m_pAudioFrame != NULL) av_frame_free(&m_pAudioFrame);
+    } else {
+        ret = swr_init(aswrctx);
+        if (ret < 0) {
+            m_nAudioStream = -1;
+            if (aswrctx != NULL) swr_free(&m_pAudioSwrContext);
+            if (m_pAudioCodecContext != NULL) avcodec_free_context(&m_pAudioCodecContext);
+            if (m_pAudioFrame != NULL) av_frame_free(&m_pAudioFrame);
+        }
+    }
+    
+    m_pAudioSwrContext = aswrctx;
 }
 
 - (NSDictionary *)findMetadata:(AVFormatContext *)fmtctx {
@@ -337,11 +383,11 @@ int interruptCallback(void *context) {
     [self closePictureStream];
     if (m_pFormatContext != NULL) avformat_close_input(&m_pFormatContext);
     avformat_network_deinit();
-    self.isYUV = NO;
-    self.hasVideo = NO;
-    self.hasAudio = NO;
-    self.hasPicture = NO;
-    self.isEOF = NO;
+    _isYUV = NO;
+    _hasVideo = NO;
+    _hasAudio = NO;
+    _hasPicture = NO;
+    _isEOF = NO;
 }
 
 - (void)closeVideoStream {
@@ -374,7 +420,7 @@ int interruptCallback(void *context) {
 
 #pragma mark - Handle Frames
 - (NSArray *)readFrames {
-    if ((m_nVideoStream < 0 && m_nAudioStream < 0) || self.isEOF) {
+    if ((m_nVideoStream < 0 && m_nAudioStream < 0) || _isEOF) {
         return nil;
     }
     
@@ -398,18 +444,18 @@ int interruptCallback(void *context) {
     BOOL reading = YES;
     
     while (reading) {
-        @autoreleasepool {
-            g_dIOStartTime = [NSDate timeIntervalSinceReferenceDate];
-            int ret = av_read_frame(fmtctx, &packet);
-            if (ret < 0) {
-                if (ret == AVERROR_EOF) self.isEOF = YES;
+        g_dIOStartTime = [NSDate timeIntervalSinceReferenceDate];
+        int ret = av_read_frame(fmtctx, &packet);
+        if (ret < 0) {
+            if (ret == AVERROR_EOF) _isEOF = YES;
+            if (DLGPlayerUtils.debugEnabled) {
                 char *e = av_err2str(ret);
-                if (DLGPlayerUtils.debugEnabled) {
-                    NSLog(@"DLGPlayer read frame error: %s", e);
-                }
-                break;
+                NSLog(@"DLGPlayer read frame error: %s", e);
             }
-            
+            break;
+        }
+        
+        @autoreleasepool {
             /*
              * https://ffmpeg.org/doxygen/3.1/group__lavc__encdec.html
              */
@@ -435,9 +481,9 @@ int interruptCallback(void *context) {
             if (fs != nil && fs.count > 0) {
                 [frames addObjectsFromArray:fs];
             }
-            
-            av_packet_unref(&packet);
         }
+        
+        av_packet_unref(&packet);
     }
     
     return frames;
@@ -479,12 +525,15 @@ int interruptCallback(void *context) {
     CGDataProviderRelease(provider);
     
     NSMutableArray<DLGPlayerVideoFrame *> *frames = [NSMutableArray array];
-    DLGPlayerVideoRGBFrame *frame = [[DLGPlayerVideoRGBFrame alloc] init];
-    frame.data = [NSData dataWithBytes:imageData length:length];
-    frame.width = (int)width;
-    frame.height = (int)height;
-    frame.hasAlpha = YES;
-    [frames addObject:frame];
+    
+    @autoreleasepool {
+        DLGPlayerVideoRGBFrame *frame = [[DLGPlayerVideoRGBFrame alloc] init];
+        frame.data = [NSData dataWithBytes:imageData length:length];
+        frame.width = (int)width;
+        frame.height = (int)height;
+        frame.hasAlpha = YES;
+        [frames addObject:frame];
+    }
     
     free(imageData);
     
@@ -502,7 +551,6 @@ int interruptCallback(void *context) {
     
     NSMutableArray<DLGPlayerVideoFrame *> *frames = [NSMutableArray array];
     do {
-        @autoreleasepool {
             ret = avcodec_receive_frame(context, frame);
             if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN)) {
                 break;
@@ -512,7 +560,8 @@ int interruptCallback(void *context) {
                 }
                 break;
             }
-
+        
+        @autoreleasepool {
             DLGPlayerVideoFrame *f = nil;
             const int width = context->width;
             const int height = context->height;
@@ -550,7 +599,7 @@ int interruptCallback(void *context) {
             f.height = height;
             f.position = frame->best_effort_timestamp * _videoTimebase;
             
-            double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevVideo;
+            double duration = frame->pts - ptsPrevVideo;
             
             if (duration > 0) {
                 f.duration = duration * _videoTimebase / _speed;
@@ -580,85 +629,83 @@ int interruptCallback(void *context) {
     
     NSMutableArray<DLGPlayerAudioFrame *> *frames = [NSMutableArray array];
     do {
-        @autoreleasepool {
-            ret = avcodec_receive_frame(context, frame);
-            if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN)) {
-                break;
-            } else if (ret < 0) {
-                if (DLGPlayerUtils.debugEnabled) {
-                    NSLog(@"avcodec_receive_frame: %d", ret);
-                }
-                break;
+        ret = avcodec_receive_frame(context, frame);
+        if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN)) {
+            break;
+        } else if (ret < 0) {
+            if (DLGPlayerUtils.debugEnabled) {
+                NSLog(@"avcodec_receive_frame: %d", ret);
             }
-            if (frame->data[0] == NULL) continue;
-            
-            const float sampleRate = _audioSampleRate;
-            const UInt32 channels = _audioChannels;
-            
-            void *data = NULL;
-            NSInteger samplesPerChannel = 0;
-            if (swrctx != NULL && swrbuf != NULL) {
-                float sampleRatio = sampleRate / context->sample_rate;
-                float channelRatio = channels / context->channels;
-                float ratio = MAX(1, sampleRatio) * MAX(1, channelRatio) * 2;
-                int samples = frame->nb_samples * ratio;
-                int bufsize = av_samples_get_buffer_size(NULL,
-                                                         channels,
-                                                         samples,
-                                                         AV_SAMPLE_FMT_S16,
-                                                         1);
-                if (*swrbuf == NULL || *swrbufsize < bufsize) {
-                    *swrbufsize = bufsize;
-                    *swrbuf = realloc(*swrbuf, bufsize);
-                }
-                
-                Byte *o[2] = { *swrbuf, 0 };
-                samplesPerChannel = swr_convert(swrctx, o, samples, (const uint8_t **)frame->data, frame->nb_samples);
-                if (samplesPerChannel < 0) {
-                    if (DLGPlayerUtils.debugEnabled) {
-                        NSLog(@"failed to resample audio");
-                    }
-                    return nil;
-                }
-                
-                data = *swrbuf;
-            } else {
-                if (context->sample_fmt != AV_SAMPLE_FMT_S16) {
-                    if (DLGPlayerUtils.debugEnabled) {
-                        NSLog(@"invalid audio format");
-                    }
-                    return nil;
-                }
-                
-                data = frame->data[0];
-                samplesPerChannel = frame->nb_samples;
-            }
-            
-            NSUInteger elements = samplesPerChannel * channels;
-            NSUInteger dataLength = elements * sizeof(float);
-            NSMutableData *mdata = [NSMutableData dataWithLength:dataLength];
-            
-            float scalar = 1.0f / INT16_MAX;
-            vDSP_vflt16(data, 1, mdata.mutableBytes, 1, elements);
-            vDSP_vsmul(mdata.mutableBytes, 1, &scalar, mdata.mutableBytes, 1, elements);
-            
-            DLGPlayerAudioFrame *f = [[DLGPlayerAudioFrame alloc] init];
-            f.data = mdata;
-            f.position = frame->best_effort_timestamp * _audioTimebase;
-            
-            
-            double duration = frame->pkt_duration > 0 ? frame->pkt_duration : frame->pts - ptsPrevAudio;
-            
-            if (duration > 0) {
-                f.duration = duration * _audioTimebase / _speed;
-            } else {
-                f.duration = f.data.length / (sizeof(float) * channels * sampleRate) / _speed;
-            }
-            
-            ptsPrevAudio = frame->pts;
-            
-            [frames addObject:f];
+            break;
         }
+        if (frame->data[0] == NULL) continue;
+        
+        const float sampleRate = _audioSampleRate;
+        const UInt32 channels = _audioChannels;
+        
+        void *data = NULL;
+        NSInteger samplesPerChannel = 0;
+        if (swrctx != NULL && swrbuf != NULL) {
+            float sampleRatio = sampleRate / context->sample_rate;
+            float channelRatio = channels / context->channels;
+            float ratio = MAX(1, sampleRatio) * MAX(1, channelRatio) * 2;
+            int samples = frame->nb_samples * ratio;
+            int bufsize = av_samples_get_buffer_size(NULL,
+                                                     channels,
+                                                     samples,
+                                                     AV_SAMPLE_FMT_S16,
+                                                     1);
+            
+            if (*swrbuf == NULL || *swrbufsize < bufsize) {
+                *swrbufsize = bufsize;
+                *swrbuf = realloc(*swrbuf, bufsize);
+            }
+            
+            Byte *o[2] = { *swrbuf, 0 };
+            samplesPerChannel = swr_convert(swrctx, o, samples, (const uint8_t **)frame->data, frame->nb_samples);
+            if (samplesPerChannel < 0) {
+                if (DLGPlayerUtils.debugEnabled) {
+                    NSLog(@"failed to resample audio");
+                }
+                return nil;
+            }
+            
+            data = *swrbuf;
+        } else {
+            if (context->sample_fmt != AV_SAMPLE_FMT_S16) {
+                if (DLGPlayerUtils.debugEnabled) {
+                    NSLog(@"invalid audio format");
+                }
+                return nil;
+            }
+            
+            data = frame->data[0];
+            samplesPerChannel = frame->nb_samples;
+        }
+        
+        NSUInteger elements = samplesPerChannel * channels;
+        NSUInteger dataLength = elements * sizeof(float);
+        NSMutableData *mdata = [NSMutableData dataWithLength:dataLength];
+
+        float scalar = 1.0f / INT16_MAX;
+        vDSP_vflt16(data, 1, mdata.mutableBytes, 1, elements);
+        vDSP_vsmul(mdata.mutableBytes, 1, &scalar, mdata.mutableBytes, 1, elements);
+        
+        DLGPlayerAudioFrame *f = [[DLGPlayerAudioFrame alloc] init];
+        f.data = mdata;
+        f.position = frame->best_effort_timestamp * _audioTimebase;
+        
+        double duration = frame->pts - ptsPrevAudio;
+        
+        if (duration > 0) {
+            f.duration = duration * _audioTimebase / _speed;
+        } else {
+            f.duration = f.data.length / (sizeof(float) * channels * sampleRate) / _speed;
+        }
+        
+        ptsPrevAudio = frame->pts;
+        
+        [frames addObject:f];
     } while(ret == 0);
     
     return frames;
