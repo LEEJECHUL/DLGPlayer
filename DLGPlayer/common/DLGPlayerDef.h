@@ -39,6 +39,8 @@
 #define DLGPlayerErrorCodeCannotStartAudioUnit              -18
 #define DLGPlayerErrorCodeCannotStopAudioUnit               -19
 
+#define Test 10000
+
 #pragma mark - Notification
 #define DLGPlayerNotificationAudioOpened            @"DLGPlayerNotificationAudioOpened"
 #define DLGPlayerNotificationAudioClosed            @"DLGPlayerNotificationAudioClosed"
