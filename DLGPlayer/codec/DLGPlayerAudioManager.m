@@ -347,15 +347,23 @@ OSStatus audioUnitRenderCallback(void *inRefCon,
         if (DLGPlayerUtils.debugEnabled) {
             NSLog(@"[Audio] %zd -> play", self.hash);
         }
-        OSStatus status = AudioOutputUnitStart(_audioUnit);
-        _playing = (status == noErr);
-        if (!_playing) {
-            NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            [DLGPlayerUtils createError:error
-                             withDomain:DLGPlayerErrorDomainAudioManager
-                                andCode:DLGPlayerErrorCodeCannotStartAudioUnit
-                             andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_START_AUDIO_UNIT"]
-                            andRawError:rawError];
+        
+        @try {
+            OSStatus status = AudioOutputUnitStart(_audioUnit);
+            _playing = (status == noErr);
+            if (!_playing) {
+                NSError *rawError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+                [DLGPlayerUtils createError:error
+                                 withDomain:DLGPlayerErrorDomainAudioManager
+                                    andCode:DLGPlayerErrorCodeCannotStartAudioUnit
+                                 andMessage:[DLGPlayerUtils localizedString:@"DLG_PLAYER_STRINGS_CANNOT_START_AUDIO_UNIT"]
+                                andRawError:rawError];
+            }
+        } @catch (NSException *exception) {
+            if (DLGPlayerUtils.debugEnabled) {
+                NSLog(@"[Audio] Unknown Error = %@", exception);
+            }
+            return NO;
         }
     }
     return _playing;
